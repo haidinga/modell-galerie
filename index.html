@@ -1,0 +1,1252 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2c2620">
+<title>Modell-Galerie · Bergliacht</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Galerie">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+/* ==========================================================
+   Tokens (aus dem Bergliacht-Webshop übernommen)
+========================================================== */
+
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-Regular.woff") format("woff"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-Medium.woff") format("woff"); font-weight: 500 600; font-display: swap; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-Bold.woff") format("woff"); font-weight: 700; font-display: swap; }
+
+:root {
+    --color-primary: #6A4B3B;
+    --color-primary-light: #856555;
+    --color-primary-dark: #563B2F;
+    --color-accent: #5C7257;
+    --color-background: #F5F1EA;
+    --color-surface: #E8E1D7;
+    --color-surface-secondary: #EEE8DF;
+    --color-surface-tertiary: #DDD5CA;
+    --color-text-primary: #3B342D;
+    --color-text-secondary: #6E655C;
+    --color-text-muted: #8A8076;
+    --color-text-inverse: #F5F1EA;
+    --color-border: #C9BFB2;
+    --color-border-strong: #AFA397;
+    --color-warning: #C39232;
+    --color-danger: #B64D4D;
+    --color-info: #50739A;
+
+    --radius-xs: .25rem; --radius-sm: .5rem; --radius-md: .75rem; --radius-lg: 1rem; --radius-xl: 1.5rem; --radius-full: 9999px;
+
+    --shadow-xs: 0 1px 2px rgba(59, 52, 45, .04);
+    --shadow-sm: 0 2px 6px rgba(59, 52, 45, .06);
+    --shadow-md: 0 8px 20px rgba(59, 52, 45, .08);
+    --shadow-lg: 0 16px 40px rgba(59, 52, 45, .10);
+    --shadow-xl: 0 24px 60px rgba(59, 52, 45, .14);
+
+    --space-1: .25rem; --space-2: .5rem; --space-3: .75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+    --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem; --space-20: 5rem; --space-24: 6rem;
+
+    --transition-fast: .15s ease; --transition-base: .25s ease; --transition-slow: .4s ease;
+
+    --font-family-base: "Satoshi", system-ui, sans-serif;
+    --font-size-xs: .75rem; --font-size-sm: .875rem; --font-size-base: 1rem; --font-size-md: 1.125rem;
+    --font-size-lg: 1.25rem; --font-size-xl: 1.5rem; --font-size-2xl: 2rem; --font-size-3xl: 2.5rem; --font-size-4xl: 3rem; --font-size-5xl: 4rem;
+
+    --container: 1280px;
+
+    /* Saisonfarben für die kleinen Punkte */
+    --s-winter: #7F96AE;
+    --s-fruehling: #8FAF7E;
+    --s-sommer: #D3A84A;
+    --s-herbst: #B9714A;
+}
+
+/* ==========================================================
+   Base
+========================================================== */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; }
+body {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--color-text-primary);
+    background: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; }
+a { color: inherit; }
+svg.icon { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+::selection { background: var(--color-primary); color: var(--color-text-inverse); }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-xs); }
+
+.container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 var(--space-8); }
+.label { font-size: var(--font-size-xs); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+[hidden] { display: none !important; }
+
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    height: 2.75rem; padding: 0 var(--space-5);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm); font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
+    white-space: nowrap; text-decoration: none;
+    transition: background var(--transition-base), transform var(--transition-fast), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+.btn:active { transform: translateY(1px); }
+.btn--dark { background: var(--color-primary); color: var(--color-text-inverse); }
+.btn--dark:hover { background: var(--color-primary-dark); box-shadow: var(--shadow-md); }
+.btn--light { background: var(--color-background); color: var(--color-text-primary); }
+.btn--light:hover { background: #fff; box-shadow: var(--shadow-md); }
+.btn[disabled] { opacity: .7; cursor: progress; }
+.btn svg { width: 1.1rem; height: 1.1rem; }
+.icon-btn {
+    display: inline-grid; place-items: center;
+    width: 2.5rem; height: 2.5rem; border-radius: var(--radius-full);
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+/* ==========================================================
+   Header
+========================================================== */
+
+.hero {
+    position: relative;
+    color: var(--color-text-inverse);
+    background:
+        linear-gradient(90deg, rgba(28, 23, 19, .72) 0%, rgba(28, 23, 19, .42) 50%, rgba(28, 23, 19, .15) 85%),
+        linear-gradient(0deg, rgba(28, 23, 19, .35), rgba(0, 0, 0, 0) 55%),
+        url("assets/images/hero-mobil.jpg") center 40% / cover no-repeat,
+        #2c2620;
+    padding-bottom: calc(var(--space-16) + 2rem);
+    padding-top: env(safe-area-inset-top);
+}
+.hero__bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 5.5rem; }
+.hero__domain { font-size: var(--font-size-sm); opacity: .85; display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.sync { display: inline-flex; align-items: center; gap: var(--space-2); cursor: default; }
+.sync__dot { width: .5rem; height: .5rem; border-radius: 50%; background: #9fb894; box-shadow: 0 0 0 3px rgba(159, 184, 148, .25); transition: background var(--transition-base), box-shadow var(--transition-base); flex: none; }
+.sync.is-saving .sync__dot { background: #e2c27a; box-shadow: 0 0 0 3px rgba(226, 194, 122, .25); animation: blink 1s ease-in-out infinite; }
+.sync.is-offline .sync__dot { background: #b9aea2; box-shadow: 0 0 0 3px rgba(185, 174, 162, .25); }
+.sync.is-error .sync__dot { background: #e09a9a; box-shadow: 0 0 0 3px rgba(224, 154, 154, .3); }
+.sync.is-offline, .sync.is-error { cursor: pointer; }
+.logo { width: 3rem; height: 3rem; background: var(--color-text-inverse); -webkit-mask: url("assets/images/logo.svg") center / contain no-repeat; mask: url("assets/images/logo.svg") center / contain no-repeat; }
+.hero__actions { justify-self: end; display: flex; align-items: center; gap: var(--space-3); }
+.hero__actions .icon-btn:hover { background: rgba(245, 241, 234, .14); }
+
+/* Admin kann zur Kundenansicht wechseln */
+.seg { display: inline-flex; padding: 3px; border-radius: var(--radius-full); background: rgba(245, 241, 234, .14); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.seg button { height: 2rem; padding: 0 var(--space-4); border-radius: var(--radius-full); font-size: var(--font-size-sm); color: rgba(245, 241, 234, .8); transition: background var(--transition-fast), color var(--transition-fast); }
+.seg button.is-active { background: var(--color-text-inverse); color: var(--color-text-primary); }
+
+.hero__content { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; padding-top: var(--space-8); }
+.hero__label { opacity: .9; margin-bottom: var(--space-4); }
+.hero__title { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 400; line-height: 1.02; letter-spacing: -.035em; }
+.hero__stats { display: flex; flex-wrap: wrap; gap: var(--space-10); }
+.stat__value { font-size: var(--font-size-2xl); line-height: 1; letter-spacing: -.02em; white-space: nowrap; }
+.stat__label { margin-top: var(--space-2); opacity: .75; }
+
+/* ==========================================================
+   Filter
+========================================================== */
+
+.panel {
+    position: relative; z-index: 5;
+    margin-top: calc(-1 * var(--space-16));
+    padding: var(--space-6);
+    background: var(--color-background);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+}
+.frow { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: center; gap: var(--space-4); }
+.frow + .frow { margin-top: var(--space-3); }
+.frow > .label { color: var(--color-text-muted); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    height: 2.125rem; padding: 0 var(--space-4);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    font-size: var(--font-size-sm); color: var(--color-text-secondary);
+    white-space: nowrap;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+.chip:hover { border-color: var(--color-border-strong); color: var(--color-text-primary); }
+.chip.is-active { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-text-inverse); }
+.chip small { font-size: var(--font-size-xs); opacity: .6; }
+.chip i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--c); }
+
+.frow--admin { padding-top: var(--space-3); margin-top: var(--space-4) !important; border-top: 1px dashed rgba(59, 52, 45, .18); }
+.admin-tag { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-primary) !important; }
+.admin-tag svg { width: .9rem; height: .9rem; }
+
+.panel__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid rgba(59, 52, 45, .1); flex-wrap: wrap; }
+.panel__right { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+.count { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.count strong { color: var(--color-text-primary); font-weight: 500; }
+.sort { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.sort select {
+    height: 2.25rem; padding: 0 2rem 0 var(--space-3);
+    border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+    background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E655C' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E") right .5rem center / 1rem no-repeat;
+    appearance: none; -webkit-appearance: none; color: var(--color-text-primary); cursor: pointer;
+}
+.reset { font-size: var(--font-size-sm); color: var(--color-text-secondary); text-decoration: underline; text-underline-offset: 3px; }
+.reset:hover { color: var(--color-text-primary); }
+
+/* ==========================================================
+   Galerie
+========================================================== */
+
+.main { padding: var(--space-12) 0 var(--space-16); }
+.group + .group { margin-top: var(--space-12); }
+.group__head { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-5); }
+.group__title { font-size: var(--font-size-xl); font-weight: 400; letter-spacing: -.02em; }
+.group__count { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--space-6); }
+
+.card {
+    position: relative;
+    display: flex; flex-direction: column;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-secondary);
+    overflow: hidden;
+    text-align: left;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    animation: rise .45s cubic-bezier(.2, .9, .25, 1) backwards;
+}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.card__open { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.card__img { position: relative; aspect-ratio: 1; background: var(--color-surface); overflow: hidden; }
+.card__img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: transform var(--transition-slow), opacity var(--transition-base); }
+.card__img img.is-loaded { opacity: 1; }
+.card:hover .card__img img { transform: scale(1.04); }
+.badges { position: absolute; left: var(--space-3); top: var(--space-3); display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    height: 1.5rem; padding: 0 .55rem;
+    border-radius: var(--radius-full);
+    font-size: .6875rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+    background: rgba(245, 241, 234, .92); color: var(--color-text-primary);
+    box-shadow: var(--shadow-sm);
+}
+.badge--ams { background: var(--color-primary); color: var(--color-text-inverse); }
+.badge svg { width: .85rem; height: .85rem; }
+.card__mw {
+    position: absolute; right: var(--space-3); top: var(--space-3); z-index: 2;
+    width: 2.25rem; height: 2.25rem; display: grid; place-items: center;
+    border-radius: 50%; background: rgba(245, 241, 234, .92); box-shadow: var(--shadow-sm);
+    color: var(--color-text-primary); transition: background var(--transition-fast);
+}
+.card__mw:hover { background: #fff; }
+.card__mw svg { width: 1.05rem; height: 1.05rem; }
+
+.card__body { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-5) var(--space-5); flex: 1; }
+.tags { display: flex; flex-wrap: wrap; gap: .35rem var(--space-3); font-size: var(--font-size-xs); color: var(--color-text-muted); letter-spacing: .02em; }
+.tags span { display: inline-flex; align-items: center; gap: .35rem; }
+.tags i { width: .45rem; height: .45rem; border-radius: 50%; background: var(--c); }
+.card__name { font-size: var(--font-size-md); font-weight: 500; line-height: 1.3; letter-spacing: -.01em; }
+.dims { display: inline-flex; align-items: flex-start; gap: .4rem; font-size: var(--font-size-xs); line-height: 1.55; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.dims svg { width: .9rem; height: .9rem; margin-top: .1rem; color: var(--color-text-muted); }
+.dims__line { display: block; }
+.dims__val { white-space: nowrap; }
+.dims--missing { color: #9a7428; }
+.dims--missing svg { color: inherit; }
+.card__foot { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-3); margin-top: auto; padding-top: var(--space-2); }
+.price { display: flex; flex-direction: column; }
+.price small { font-size: var(--font-size-xs); color: var(--color-text-muted); letter-spacing: .1em; text-transform: uppercase; }
+.price strong { font-size: var(--font-size-xl); font-weight: 400; letter-spacing: -.02em; line-height: 1.1; }
+.meta { font-size: var(--font-size-xs); color: var(--color-text-secondary); text-align: right; line-height: 1.5; font-variant-numeric: tabular-nums; }
+
+/* Multiplikator direkt auf der Karte (Admin) */
+.mult { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; margin-top: var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface); }
+.mult button { height: 1.875rem; border-radius: calc(var(--radius-sm) - 2px); font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-secondary); transition: background var(--transition-fast), color var(--transition-fast); }
+.mult button:hover { color: var(--color-text-primary); }
+.mult button.is-active { background: var(--color-background); color: var(--color-text-primary); box-shadow: var(--shadow-sm); }
+
+.empty, .loading { padding: var(--space-16) 0; text-align: center; color: var(--color-text-muted); }
+.loading { font-size: var(--font-size-sm); }
+.loading::before { content: ""; display: block; width: 1.5rem; height: 1.5rem; margin: 0 auto var(--space-4); border-radius: 50%; border: 2px solid var(--color-border); border-top-color: var(--color-primary); animation: spin .8s linear infinite; }
+
+/* ==========================================================
+   Detail
+========================================================== */
+
+.modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: var(--space-6); }
+.modal__backdrop { position: absolute; inset: 0; background: rgba(28, 23, 19, .55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: fade .2s ease; }
+.sheet {
+    position: relative; width: min(56rem, 100%); max-height: calc(100vh - 3rem); overflow: auto;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    border-radius: var(--radius-xl); background: var(--color-background); box-shadow: var(--shadow-xl);
+    animation: pop .3s cubic-bezier(.2, .9, .25, 1.05);
+}
+.sheet__img { background: var(--color-surface); }
+.sheet__img img { width: 100%; height: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.sheet__body { padding: var(--space-8); display: flex; flex-direction: column; gap: var(--space-4); }
+.sheet__close { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 3; background: rgba(245, 241, 234, .9); color: var(--color-text-secondary); }
+.sheet__close:hover { background: #fff; color: var(--color-text-primary); }
+.sheet__cat { color: var(--color-text-muted); }
+.sheet__name { font-size: var(--font-size-2xl); font-weight: 400; letter-spacing: -.025em; line-height: 1.1; }
+.sheet__price { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); background: #2c2620; color: var(--color-text-inverse); }
+.sheet__price strong { font-size: var(--font-size-3xl); font-weight: 400; letter-spacing: -.03em; line-height: 1; }
+.sheet__price span { font-size: var(--font-size-sm); opacity: .7; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.fact { padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--color-surface-secondary); }
+.fact small { display: block; font-size: var(--font-size-xs); color: var(--color-text-muted); letter-spacing: .1em; text-transform: uppercase; }
+.fact b { font-weight: 500; }
+.calc { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.8; font-variant-numeric: tabular-nums; }
+.calc div { display: flex; justify-content: space-between; gap: var(--space-4); }
+.calc div:last-child { border-top: 1px solid rgba(59, 52, 45, .12); margin-top: var(--space-1); padding-top: var(--space-1); color: var(--color-text-primary); font-weight: 500; }
+.sheet .mult { margin-top: 0; }
+.sheet .mult button { height: 2.25rem; }
+.sheet__credit { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.sheet__admin { display: flex; flex-direction: column; gap: var(--space-4); padding-top: var(--space-4); border-top: 1px dashed rgba(59, 52, 45, .18); }
+.sub { color: var(--color-text-secondary); display: block; margin-bottom: var(--space-2); }
+
+.toast {
+    position: fixed; z-index: 50; left: 50%; bottom: max(var(--space-8), env(safe-area-inset-bottom));
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-full);
+    background: var(--color-text-primary); color: var(--color-text-inverse);
+    box-shadow: var(--shadow-xl); font-size: var(--font-size-sm);
+    translate: -50% 150%; opacity: 0;
+    transition: translate .35s cubic-bezier(.2, .9, .25, 1.1), opacity var(--transition-base);
+    max-width: calc(100% - 2rem);
+}
+.toast.is-visible { translate: -50% 0; opacity: 1; }
+
+.footer { border-top: 1px solid var(--color-border); padding: var(--space-8) 0; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.footer__inner { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+.footer button { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.footer button:hover { color: var(--color-text-primary); }
+
+/* ==========================================================
+   Anmeldung
+========================================================== */
+
+body.is-locked { overflow: hidden; }
+.lock {
+    position: fixed; inset: 0; z-index: 60;
+    display: grid; place-items: center;
+    padding: calc(var(--space-6) + env(safe-area-inset-top)) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom));
+    color: var(--color-text-inverse);
+    background:
+        radial-gradient(ellipse 38rem 30rem at 50% 45%, rgba(28, 23, 19, .55), rgba(28, 23, 19, 0) 70%),
+        linear-gradient(0deg, rgba(28, 23, 19, .6), rgba(28, 23, 19, .3) 60%, rgba(28, 23, 19, .5)),
+        url("assets/images/hero-mobil.jpg") center 40% / cover no-repeat,
+        #2c2620;
+    transition: opacity var(--transition-slow), visibility var(--transition-slow);
+}
+.lock.is-leaving { opacity: 0; visibility: hidden; }
+.lock__inner { width: 100%; max-width: 26rem; text-align: center; transition: opacity var(--transition-base); }
+.lock .logo { width: 4.5rem; height: 4.5rem; margin: 0 auto var(--space-8); }
+.lock__label { opacity: .85; margin-bottom: var(--space-4); }
+.lock__title { font-size: clamp(2.5rem, 7vw, var(--font-size-5xl)); font-weight: 400; line-height: 1.05; letter-spacing: -.035em; margin-bottom: var(--space-4); }
+.lock__text { opacity: .85; margin-bottom: var(--space-10); }
+.lock__form { display: flex; flex-direction: column; gap: var(--space-3); }
+.lock__field { position: relative; }
+.lock__field svg { position: absolute; left: var(--space-4); top: 50%; translate: 0 -50%; opacity: .7; }
+.lock__input {
+    width: 100%; height: 3.25rem;
+    padding: 0 var(--space-4) 0 3rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(245, 241, 234, .35);
+    background: rgba(245, 241, 234, .12);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    color: var(--color-text-inverse);
+    transition: border-color var(--transition-base), background var(--transition-base);
+}
+.lock__input::placeholder { color: rgba(245, 241, 234, .65); }
+.lock__input:focus { outline: none; border-color: rgba(245, 241, 234, .8); background: rgba(245, 241, 234, .18); }
+.lock .btn--light { height: 3.25rem; }
+.lock__hint { margin-top: var(--space-6); font-size: var(--font-size-xs); opacity: .6; }
+.lock.is-checking .lock__inner { opacity: 0; }
+.lock__form.is-error { animation: shake .4s ease; }
+.lock__form.is-error .lock__input { border-color: #e09a9a; }
+.lock__remember {
+    display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-size: var(--font-size-sm); opacity: .85; cursor: pointer; user-select: none;
+}
+.lock__remember input {
+    appearance: none; -webkit-appearance: none;
+    width: 1.1rem; height: 1.1rem; margin: 0;
+    border-radius: var(--radius-xs);
+    border: 1px solid rgba(245, 241, 234, .55);
+    background: rgba(245, 241, 234, .1);
+    display: grid; place-items: center; cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+.lock__remember input::after {
+    content: ""; width: .3rem; height: .55rem; margin-top: -2px;
+    border: solid var(--color-text-primary); border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0); transition: transform var(--transition-fast);
+}
+.lock__remember input:checked { background: var(--color-background); border-color: var(--color-background); }
+.lock__remember input:checked::after { transform: rotate(45deg) scale(1); }
+.lock__error { min-height: 1.4em; margin-top: var(--space-4); font-size: var(--font-size-sm); color: #f0b4b4; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+@keyframes blink { 50% { opacity: .45; } }
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 760px) {
+    .sheet { grid-template-columns: minmax(0, 1fr); }
+    .sheet__img img { aspect-ratio: 4 / 3; }
+}
+@media (max-width: 640px) {
+    .container { padding: 0 var(--space-4); }
+    .hero { padding-bottom: calc(var(--space-12) + 1.5rem); }
+    .hero__bar { height: 4.5rem; grid-template-columns: 1fr auto 1fr; gap: var(--space-3); }
+    .hero__domain .sync__text { display: none; }
+    .logo { width: 2.5rem; height: 2.5rem; justify-self: center; }
+    .hero__actions { gap: var(--space-1); }
+    .seg button { padding: 0 var(--space-3); }
+    .hero__content { padding-top: var(--space-4); gap: var(--space-6); }
+    .hero__stats { gap: var(--space-6); width: 100%; }
+    .stat__value { font-size: var(--font-size-xl); }
+    .panel { margin-top: calc(-1 * var(--space-10)); padding: var(--space-4); border-radius: var(--radius-lg); }
+    .frow { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+    .frow + .frow { margin-top: var(--space-4); }
+    .chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--space-4)); padding: 0 var(--space-4) 2px; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .main { padding-top: var(--space-8); }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+    .card__body { padding: var(--space-3) var(--space-3) var(--space-4); }
+    .card__name { font-size: var(--font-size-sm); }
+    .card__foot { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+    .meta { text-align: left; }
+    .price strong { font-size: var(--font-size-lg); }
+    .tags { font-size: .6875rem; }
+    .badges { left: var(--space-2); top: var(--space-2); }
+    .card__mw { right: var(--space-2); top: var(--space-2); width: 2rem; height: 2rem; }
+    .modal { place-items: end center; padding: 0; }
+    .sheet { max-height: 92vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding-bottom: env(safe-area-inset-bottom); }
+    .sheet__body { padding: var(--space-6) var(--space-5); }
+    .sheet__name { font-size: var(--font-size-xl); }
+    .toast { bottom: max(var(--space-5), env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body class="is-locked">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M17 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h4"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2 2M10 9l2 2M13 6l2 2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2"/><circle cx="16" cy="9" r="3.2"/><circle cx="12" cy="15.5" r="3.2"/></symbol>
+</svg>
+
+<section class="lock is-checking" id="lock" aria-label="Anmeldung">
+    <div class="lock__inner">
+        <div class="logo" aria-label="Bergliacht"></div>
+        <p class="label lock__label">Modell-Galerie</p>
+        <h1 class="lock__title">Deko aus dem Drucker.</h1>
+        <p class="lock__text">Die Galerie ist geschützt.<br>Gib dein Passwort ein, um fortzufahren.</p>
+        <form class="lock__form" id="lockForm" autocomplete="off">
+            <div class="lock__field">
+                <svg class="icon"><use href="#i-lock"/></svg>
+                <input class="lock__input" id="lockInput" type="password" placeholder="Passwort" aria-label="Passwort" autocomplete="current-password">
+            </div>
+            <button class="btn btn--light" id="lockButton" type="submit">Entsperren</button>
+            <label class="lock__remember"><input type="checkbox" id="lockRemember" checked> Auf diesem Gerät angemeldet bleiben</label>
+        </form>
+        <p class="lock__error" id="lockError" role="alert"></p>
+        <p class="lock__hint" id="lockHint" hidden>Lokale Vorschau ohne Zugang: „admin“ öffnet den Admin-Bereich, jedes andere Passwort das Schaufenster. Gespeichert wird nur in diesem Browser.</p>
+    </div>
+</section>
+
+<header class="hero">
+    <div class="container hero__bar">
+        <div class="hero__domain">
+            <span class="sync" id="sync" role="status"><span class="sync__dot"></span><span class="sync__text" id="syncText">galerie.bergliacht.at</span></span>
+        </div>
+        <a href="./" class="logo" aria-label="Modell-Galerie, Startseite"></a>
+        <div class="hero__actions">
+            <div class="seg" role="group" aria-label="Ansicht" id="seg" hidden>
+                <button type="button" data-view="admin" class="is-active">Admin</button>
+                <button type="button" data-view="kunde">Kunde</button>
+            </div>
+            <button class="icon-btn" id="logoutBtn" aria-label="Abmelden" title="Abmelden"><svg class="icon"><use href="#i-lock"/></svg></button>
+        </div>
+    </div>
+    <div class="container hero__content">
+        <div>
+            <p class="label hero__label" id="heroLabel">Modell-Galerie</p>
+            <h1 class="hero__title">Deko aus dem<br>Drucker.</h1>
+        </div>
+        <div class="hero__stats" id="stats"></div>
+    </div>
+</header>
+
+<div class="container">
+    <section class="panel" aria-label="Filter">
+        <div class="frow"><span class="label">Kategorie</span><div class="chips" id="fKat"></div></div>
+        <div class="frow"><span class="label">Saison</span><div class="chips" id="fSaison"></div></div>
+        <div class="frow"><span class="label">Anlass</span><div class="chips" id="fAnlass"></div></div>
+        <div class="frow frow--admin" data-admin><span class="label admin-tag"><svg class="icon"><use href="#i-lock"/></svg>Druck</span><div class="chips" id="fDruck"></div></div>
+        <div class="panel__foot">
+            <span class="count" id="count"></span>
+            <div class="panel__right">
+                <button type="button" class="reset" id="resetFilter" hidden>Filter zurücksetzen</button>
+                <label class="sort">Sortieren
+                    <select id="sort"></select>
+                </label>
+            </div>
+        </div>
+    </section>
+</div>
+
+<main class="main">
+    <div class="container" id="gallery"></div>
+</main>
+
+<footer class="footer">
+    <div class="container footer__inner">
+        <span>Bergliacht · Modell-Galerie</span>
+        <span><span id="footNote"></span> · <button type="button" id="logoutLink">Abmelden</button></span>
+    </div>
+</footer>
+
+<div class="modal" id="modal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ==========================================================
+   Feste Listen
+========================================================== */
+
+const KATEGORIEN = ['Figuren', 'Vasen & Töpfe', 'Lampen & Lichter', 'Schilder & Schriftzüge', 'Hänger & Ornamente', 'Aufsteller'];
+const SAISONEN = [
+    { id: 'Winter', c: 'var(--s-winter)' },
+    { id: 'Frühling', c: 'var(--s-fruehling)' },
+    { id: 'Sommer', c: 'var(--s-sommer)' },
+    { id: 'Herbst', c: 'var(--s-herbst)' },
+];
+const ANLAESSE = ['Weihnachten', 'Neujahr', 'Valentinstag', 'Ostern', 'Geburtstag', 'Namenstag', 'Jahrestag'];
+
+const SPEICHER = 'bergliacht-galerie';                 // Zwischenspeicher im Browser (schneller Start, offline)
+const KEY_STORE = 'bergliacht-galerie-schluessel';    // gemerkter Schlüssel bei „angemeldet bleiben“
+const BILD_CACHE = 'bergliacht-galerie-bilder';
+const DAY = 864e5;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ==========================================================
+   Zustand
+
+   Es gibt zwei Rollen:
+   kunde   sieht nur schaufenster.json (Name, Bild, Maße, Preis) aus dem Repo modell-galerie-schaufenster
+   admin   arbeitet mit galerie.json aus dem Repo modell-galerie-daten (Links, Druckzeit, Gramm, AMS,
+           Multiplikator) und schreibt daraus schaufenster.json für die Kunden
+========================================================== */
+
+let rolle = null;          // 'kunde' | 'admin'
+let ansicht = 'admin';     // Admin kann sich die Kundenansicht ansehen
+let remote = null;         // entschlüsselter Zugang; null = lokale Vorschau
+let galerie = null;        // nur Admin
+let schaufenster = null;   // { modelle: [...] }
+let sha = { galerie: null, schaufenster: null };
+let dirty = false, changes = 0, started = false;
+const filter = { kat: null, saison: null, anlass: null, druck: null, sort: 'kategorie' };
+
+const isAdmin = () => rolle === 'admin' && ansicht === 'admin';
+
+/* ==========================================================
+   Preis (Formel aus dem Filament-Rechner, dann auf 50 Cent aufrunden)
+========================================================== */
+
+// Auf die nächsten 50 Cent aufrunden: 3,20 € → 3,50 €, 2,70 € → 3,00 €
+function roundUpToHalfEuro(value) {
+    const totalCents = Math.round(value * 100);
+    return Math.ceil(totalCents / 50) * 50 / 100;
+}
+const grundpreis = m => m.gramm * galerie.preise.gramm + m.stunden * galerie.preise.stunde;
+const preisVon = m => Math.max(.5, roundUpToHalfEuro(grundpreis(m) * m.faktor));
+
+const euro = v => v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+function dauer(h) {
+    const min = Math.round(h * 60);
+    const hh = Math.floor(min / 60), mm = min % 60;
+    return hh ? (mm ? `${hh} h ${mm} min` : `${hh} h`) : `${mm} min`;
+}
+const mwLink = m => `https://makerworld.com/de/models/${m.id}-${m.slug}`;
+const saisonFarbe = s => (SAISONEN.find(x => x.id === s) || {}).c;
+
+// Was Kunden sehen dürfen, mehr steht nicht in schaufenster.json
+function schaufensterAus(g, bildShas) {
+    return {
+        version: 1,
+        modelle: g.modelle.map(m => ({
+            id: m.id, name: m.name, kat: m.kat, saison: m.saison, anlass: m.anlass,
+            masse: m.masse, preis: preisVon(m), bild: (bildShas && bildShas[m.id]) || '',
+        })),
+    };
+}
+
+/* Die Liste, die gerade gezeigt wird: Admin bekommt alle Felder plus Preis */
+function modelle() {
+    if (rolle === 'admin') {
+        if (ansicht === 'admin') return galerie.modelle.map(m => ({ ...m, preis: preisVon(m) }));
+        return schaufensterAus(galerie, bildShas).modelle;
+    }
+    return schaufenster ? schaufenster.modelle : [];
+}
+
+/* ==========================================================
+   Zwischenspeicher im Browser
+========================================================== */
+
+function schreibeCache() {
+    try { localStorage.setItem(SPEICHER, JSON.stringify({ rolle, galerie, schaufenster, sha, dirty, bildShas })); } catch (e) {}
+}
+function leseCache() {
+    try {
+        const c = JSON.parse(localStorage.getItem(SPEICHER));
+        if (!c || c.rolle !== rolle) return false;
+        if (rolle === 'admin' && c.galerie) { galerie = normiere(c.galerie); sha = c.sha || sha; dirty = !!c.dirty; bildShas = c.bildShas || {}; return true; }
+        if (rolle === 'kunde' && c.schaufenster) { schaufenster = c.schaufenster; sha = c.sha || sha; return true; }
+    } catch (e) {}
+    return false;
+}
+function normiere(g) {
+    return {
+        version: 1,
+        preise: { stunde: .2, gramm: .02, ...(g.preise || {}) },
+        modelle: Array.isArray(g.modelle) ? g.modelle : [],
+        geloescht: g.geloescht || {},
+    };
+}
+
+/* ==========================================================
+   GitHub (Contents API)
+========================================================== */
+
+const b64encode = (s) => {
+    const b = new TextEncoder().encode(s); let out = '';
+    for (let i = 0; i < b.length; i += 0x8000) out += String.fromCharCode(...b.subarray(i, i + 0x8000));
+    return btoa(out);
+};
+const b64decode = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), (c) => c.charCodeAt(0)));
+
+async function gh(repo, pfad, { method = 'GET', body, raw = false } = {}) {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${pfad}`, {
+        method, cache: 'no-store',
+        headers: {
+            Authorization: `Bearer ${remote.token}`,
+            Accept: raw ? 'application/vnd.github.raw' : 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+            ...(body ? { 'Content-Type': 'application/json' } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+    });
+    if (res.status === 404 && method === 'GET') return null;
+    if (!res.ok) { const err = new Error('GitHub ' + res.status); err.status = res.status; throw err; }
+    return raw ? res.blob() : res.json();
+}
+async function holeJson(repo, pfad) {
+    const res = await gh(repo, pfad);
+    if (!res) return { daten: null, sha: null };
+    return { daten: JSON.parse(b64decode(res.content) || '{}'), sha: res.sha };
+}
+
+/* ---------- Bilder: liegen im Schaufenster-Repo unter bilder/<id>.jpg ---------- */
+
+let bildShas = {};                  // id -> sha der Bilddatei (Admin liest sie aus dem Ordner)
+const bildUrls = new Map();         // id -> { sh, url }
+async function bildUrl(m) {
+    if (!remote) return `vorschau/bilder/${m.id}.jpg`;
+    const sh = m.bild || bildShas[m.id] || '';
+    // Schon geladen? Nur bei einem neuen Bild (anderer sha) neu holen
+    const da = bildUrls.get(m.id);
+    if (da && (da.sh === sh || !sh || !da.sh)) return da.url;
+    const cacheKey = `https://galerie.bergliacht.at/_bild/${m.id}?${sh}`;
+    let blob = null, cache = null;
+    try { cache = await caches.open(BILD_CACHE); const hit = await cache.match(cacheKey); if (hit) blob = await hit.blob(); } catch (e) {}
+    if (!blob) {
+        blob = await gh(remote.schaufenster, `bilder/${m.id}.jpg`, { raw: true });
+        if (!blob) return '';
+        try { if (cache && sh) await cache.put(cacheKey, new Response(blob, { headers: { 'Content-Type': 'image/jpeg' } })); } catch (e) {}
+    }
+    const url = URL.createObjectURL(blob);
+    bildUrls.set(m.id, { sh, url });
+    return url;
+}
+function ladeBilder(root = document) {
+    root.querySelectorAll('img[data-bild]').forEach(img => {
+        const m = modelle().find(x => x.id === img.dataset.bild);
+        if (!m) return;
+        bildUrl(m).then(url => {
+            if (!url) return;
+            img.onload = () => img.classList.add('is-loaded');
+            img.src = url;
+        }).catch(() => {});
+    });
+}
+
+/* ==========================================================
+   Status oben links
+========================================================== */
+
+function setStatus(art, text) {
+    const el = $('sync');
+    el.className = 'sync' + (art ? ' is-' + art : '');
+    el.title = text;
+    $('syncText').textContent = text;
+    clearTimeout(setStatus.t);
+}
+function zeigeGespeichert() {
+    setStatus('', 'Gespeichert');
+    setStatus.t = setTimeout(() => setStatus('', 'galerie.bergliacht.at'), 2600);
+}
+
+/* ==========================================================
+   Speichern und Abgleich
+========================================================== */
+
+// Jede Änderung landet sofort im Browser und kurz danach auf GitHub
+function speichern() {
+    dirty = true; changes++; schreibeCache();
+    if (!remote) return;
+    setStatus('saving', 'Speichert …');
+    clearTimeout(speichern.t);
+    speichern.t = setTimeout(sync, 800);
+}
+
+// Zwei Stände zusammenführen: pro Modell gewinnt die jüngere Fassung, Entferntes bleibt entfernt
+function merge(a, b) {
+    const geloescht = { ...a.geloescht };
+    for (const [id, t] of Object.entries(b.geloescht)) geloescht[id] = Math.max(geloescht[id] || 0, t);
+    const grenze = Date.now() - 90 * DAY;
+    for (const id of Object.keys(geloescht)) if (geloescht[id] < grenze) delete geloescht[id];
+    const neu = new Map();
+    for (const m of [...a.modelle, ...b.modelle]) { const o = neu.get(m.id); if (!o || (m.updated || 0) > (o.updated || 0)) neu.set(m.id, m); }
+    return {
+        version: 1,
+        preise: b.preise || a.preise,
+        modelle: [...neu.values()].filter(m => !(geloescht[m.id] >= (m.updated || 0))),
+        geloescht,
+    };
+}
+
+async function syncAdmin() {
+    if (!dirty) {
+        const r = await holeJson(remote.daten, 'galerie.json');
+        if (!r.daten) throw Object.assign(new Error('galerie.json fehlt'), { status: 404 });
+        if (r.sha !== sha.galerie) { sha.galerie = r.sha; galerie = normiere(r.daten); neuZeichnen(); }
+    } else {
+        let ok = false;
+        for (let versuch = 0; versuch < 4 && !ok; versuch++) {
+            const anfang = changes;
+            const content = b64encode(JSON.stringify(galerie, null, 2));
+            try {
+                const res = await gh(remote.daten, 'galerie.json', { method: 'PUT', body: { message: 'Galerie aktualisiert', content, ...(sha.galerie ? { sha: sha.galerie } : {}) } });
+                sha.galerie = res.content.sha;
+                dirty = changes !== anfang;
+                ok = true;
+            } catch (err) {
+                // Ein anderes Gerät war schneller: dessen Stand holen, zusammenführen, nochmal
+                if (err.status !== 409 && err.status !== 422) throw err;
+                const r = await holeJson(remote.daten, 'galerie.json');
+                sha.galerie = r.sha;
+                if (r.daten) { galerie = merge(galerie, normiere(r.daten)); neuZeichnen(); }
+            }
+        }
+        if (!ok) throw new Error('Zu viele gleichzeitige Änderungen');
+    }
+    schreibeCache();
+    return aktualisiereSchaufenster();
+}
+
+// schaufenster.json passend zu galerie.json halten (auch nach neuen Modellen von außen)
+let schaufensterText = null;
+async function aktualisiereSchaufenster() {
+    const liste = await gh(remote.schaufenster, 'bilder');
+    bildShas = {};
+    (liste || []).forEach(f => { const m = f.name.match(/^(.+)\.jpg$/); if (m) bildShas[m[1]] = f.sha; });
+    const text = JSON.stringify(schaufensterAus(galerie, bildShas), null, 2);
+    if (text === schaufensterText) return false;
+    for (let versuch = 0; versuch < 3; versuch++) {
+        const r = await holeJson(remote.schaufenster, 'schaufenster.json');
+        sha.schaufenster = r.sha;
+        if (r.daten && JSON.stringify(r.daten, null, 2) === text) { schaufensterText = text; return false; }
+        try {
+            const res = await gh(remote.schaufenster, 'schaufenster.json', { method: 'PUT', body: { message: 'Schaufenster aktualisiert', content: b64encode(text), ...(sha.schaufenster ? { sha: sha.schaufenster } : {}) } });
+            sha.schaufenster = res.content.sha;
+            schaufensterText = text;
+            return true;
+        } catch (err) {
+            if (err.status !== 409 && err.status !== 422) throw err;
+        }
+    }
+    throw new Error('Schaufenster nicht gespeichert');
+}
+
+async function syncKunde() {
+    const r = await holeJson(remote.schaufenster, 'schaufenster.json');
+    if (!r.daten) { schaufenster = { modelle: [] }; sha.schaufenster = null; neuZeichnen(); return false; }
+    if (r.sha !== sha.schaufenster) { sha.schaufenster = r.sha; schaufenster = r.daten; schreibeCache(); neuZeichnen(); }
+    return false;
+}
+
+let busy = false, again = false;
+async function sync() {
+    if (!remote) return;
+    if (busy) { again = true; return; }
+    busy = true;
+    clearTimeout(speichern.t);
+    try {
+        let hochgeladen = false;
+        do {
+            again = false;
+            hochgeladen = (await (rolle === 'admin' ? syncAdmin() : syncKunde())) || hochgeladen;
+        } while (again || (rolle === 'admin' && dirty));
+        if (hochgeladen || $('syncText').textContent === 'Speichert …') zeigeGespeichert();
+        else if (/Offline|Nicht|Zugang/.test($('syncText').textContent)) setStatus('', 'galerie.bergliacht.at');
+    } catch (err) {
+        if (err.status === 401 || err.status === 403 || err.status === 404) {
+            const bekannt = $('syncText').textContent === 'Zugang ungültig';
+            setStatus('error', 'Zugang ungültig');
+            if (!bekannt) toast('GitHub lehnt den Zugang ab. Token prüfen (siehe README).');
+        } else if (err instanceof TypeError) {
+            setStatus('offline', dirty ? 'Offline · wird nachgeholt' : 'Offline');
+        } else {
+            setStatus('error', 'Nicht gespeichert · antippen');
+        }
+    } finally {
+        busy = false;
+        if (again) sync();
+    }
+}
+
+/* ==========================================================
+   Anzeige
+========================================================== */
+
+const DRUCK = [
+    { id: 'ams', name: 'Mit AMS', test: m => m.ams },
+    { id: 'ohne', name: 'Ohne AMS', test: m => !m.ams },
+    { id: 'ein', name: 'Ein Druck', test: m => m.platten === 1 },
+    { id: 'mehr', name: 'Mehrere Platten', test: m => m.platten > 1 },
+];
+const SORTS = [
+    { id: 'kategorie', name: 'Nach Kategorie' },
+    { id: 'preis-auf', name: 'Preis aufsteigend' },
+    { id: 'preis-ab', name: 'Preis absteigend' },
+    { id: 'name', name: 'Name A–Z' },
+    { id: 'zeit', name: 'Druckzeit', admin: true },
+];
+
+function gefiltert(ohne) {
+    return modelle().filter(m =>
+        (ohne === 'kat' || !filter.kat || m.kat === filter.kat) &&
+        (ohne === 'saison' || !filter.saison || m.saison.includes(filter.saison)) &&
+        (ohne === 'anlass' || !filter.anlass || m.anlass.includes(filter.anlass)) &&
+        (ohne === 'druck' || !isAdmin() || !filter.druck || DRUCK.find(d => d.id === filter.druck).test(m)));
+}
+
+function chip(name, aktiv, anzahl, extra = '') {
+    return `<button type="button" class="chip${aktiv ? ' is-active' : ''}" data-v="${esc(name)}">${extra}${esc(name)}${anzahl != null ? ` <small>${anzahl}</small>` : ''}</button>`;
+}
+
+function renderFilter() {
+    const alle = (key, list, test, extra) => {
+        const basis = gefiltert(key);
+        return chip('Alle', !filter[key], null) + list.map(v => {
+            const id = v.id || v;
+            const n = basis.filter(m => test(m, id)).length;
+            if (!n && filter[key] !== id) return '';
+            return chip(id, filter[key] === id, n, extra ? extra(v) : '');
+        }).join('');
+    };
+    $('fKat').innerHTML = alle('kat', KATEGORIEN, (m, v) => m.kat === v);
+    $('fSaison').innerHTML = alle('saison', SAISONEN, (m, v) => m.saison.includes(v), v => `<i style="--c:${v.c}"></i>`);
+    $('fAnlass').innerHTML = alle('anlass', ANLAESSE, (m, v) => m.anlass.includes(v));
+    $('fDruck').innerHTML = isAdmin() ? chip('Alle', !filter.druck, null) + DRUCK.map(d => {
+        const n = gefiltert('druck').filter(d.test).length;
+        return `<button type="button" class="chip${filter.druck === d.id ? ' is-active' : ''}" data-v="${d.id}">${d.name} <small>${n}</small></button>`;
+    }).join('') : '';
+
+    if (!isAdmin() && SORTS.find(s => s.id === filter.sort).admin) filter.sort = 'kategorie';
+    $('sort').innerHTML = SORTS.filter(s => !s.admin || isAdmin()).map(s => `<option value="${s.id}"${s.id === filter.sort ? ' selected' : ''}>${s.name}</option>`).join('');
+    $('resetFilter').hidden = !(filter.kat || filter.saison || filter.anlass || (isAdmin() && filter.druck));
+    document.querySelectorAll('[data-admin]').forEach(el => el.hidden = !isAdmin());
+}
+
+// Kunden sehen fehlende Maße nicht, im Admin-Bereich fällt die Lücke auf
+function masseHtml(m) {
+    if (m.masse && m.masse.length) return `<p class="dims" title="Breite × Tiefe × Höhe"><svg class="icon"><use href="#i-ruler"/></svg><span>${m.masse.map(zeile => {
+        // „Kirche: 104 × 54 × 122 mm“ – die Zahlen sollen nie mitten im Maß umbrechen
+        const [name, wert] = zeile.includes(': ') ? zeile.split(': ') : [null, zeile];
+        return `<span class="dims__line">${name ? esc(name) + ': ' : ''}<span class="dims__val">${esc(wert)}</span></span>`;
+    }).join('')}</span></p>`;
+    return isAdmin() ? `<p class="dims dims--missing"><svg class="icon"><use href="#i-ruler"/></svg>Maße fehlen</p>` : '';
+}
+function multHtml(m) {
+    return `<div class="mult" role="radiogroup" aria-label="Multiplikator">${[1, 2, 3].map(x =>
+        `<button type="button" role="radio" aria-checked="${x === m.faktor}" class="${x === m.faktor ? 'is-active' : ''}" data-mult="${esc(m.id)}" data-f="${x}">×${x}</button>`).join('')}</div>`;
+}
+
+function karte(m, i) {
+    const tags = [
+        ...m.saison.map(s => `<span><i style="--c:${saisonFarbe(s)}"></i>${esc(s)}</span>`),
+        ...m.anlass.map(a => `<span>${esc(a)}</span>`),
+    ].join('');
+    const badges = isAdmin() ? [
+        m.ams ? `<span class="badge badge--ams"><svg class="icon"><use href="#i-drop"/></svg>AMS</span>` : '',
+        m.platten > 1 ? `<span class="badge"><svg class="icon"><use href="#i-layers"/></svg>${m.platten} Platten</span>` : '',
+    ].join('') : '';
+    return `
+    <article class="card" style="animation-delay:${Math.min(i, 12) * 35}ms">
+        <button type="button" class="card__open" data-open="${esc(m.id)}" aria-label="${esc(m.name)} ansehen"></button>
+        <div class="card__img">
+            <img data-bild="${esc(m.id)}" alt="" loading="lazy">
+            ${badges ? `<div class="badges">${badges}</div>` : ''}
+            ${isAdmin() ? `<a class="card__mw" href="${mwLink(m)}" target="_blank" rel="noopener" title="Auf MakerWorld öffnen" aria-label="Auf MakerWorld öffnen"><svg class="icon"><use href="#i-ext"/></svg></a>` : ''}
+        </div>
+        <div class="card__body">
+            ${tags ? `<div class="tags">${tags}</div>` : ''}
+            <h3 class="card__name">${esc(m.name)}</h3>
+            ${masseHtml(m)}
+            <div class="card__foot">
+                <div class="price"><small>Preisvorschlag</small><strong>${euro(m.preis)}</strong></div>
+                ${isAdmin() ? `<div class="meta">${dauer(m.stunden)}<br>${m.gramm} g</div>` : ''}
+            </div>
+            ${isAdmin() ? multHtml(m) : ''}
+        </div>
+    </article>`;
+}
+
+function renderGalerie() {
+    const liste = gefiltert();
+    const byName = (a, b) => a.name.localeCompare(b.name, 'de');
+    liste.sort({
+        'preis-auf': (a, b) => a.preis - b.preis || byName(a, b),
+        'preis-ab': (a, b) => b.preis - a.preis || byName(a, b),
+        'name': byName,
+        'zeit': (a, b) => a.stunden - b.stunden,
+        'kategorie': byName,
+    }[filter.sort]);
+
+    const gesamt = modelle().length;
+    $('count').innerHTML = `<strong>${liste.length}</strong> von ${gesamt} Modellen`;
+    if (!gesamt) {
+        $('gallery').innerHTML = `<div class="empty">${rolle === 'kunde' && remote ? 'Das Schaufenster wird gerade eingerichtet. Schau bald wieder vorbei.' : 'Noch keine Modelle.'}</div>`;
+        return;
+    }
+    if (!liste.length) {
+        $('gallery').innerHTML = `<div class="empty">Keine Modelle in dieser Auswahl.</div>`;
+        return;
+    }
+    let i = 0;
+    if (filter.sort === 'kategorie') {
+        const kats = [...KATEGORIEN, ...new Set(liste.map(m => m.kat).filter(k => !KATEGORIEN.includes(k)))];
+        $('gallery').innerHTML = kats.map(k => {
+            const teil = liste.filter(m => m.kat === k);
+            if (!teil.length) return '';
+            return `<section class="group"><div class="group__head"><h2 class="group__title">${esc(k)}</h2><span class="group__count">${teil.length}</span></div>
+                <div class="grid">${teil.map(m => karte(m, i++)).join('')}</div></section>`;
+        }).join('');
+    } else {
+        $('gallery').innerHTML = `<div class="grid">${liste.map(m => karte(m, i++)).join('')}</div>`;
+    }
+    ladeBilder($('gallery'));
+}
+
+function renderStats() {
+    const liste = modelle();
+    const preise = liste.map(m => m.preis);
+    const stats = isAdmin()
+        ? [[liste.length, 'Modelle'], [liste.filter(m => m.ams).length, 'Mit AMS'], [Math.round(liste.reduce((a, m) => a + m.stunden, 0)) + ' h', 'Druckzeit gesamt']]
+        : [[liste.length, 'Modelle'], [new Set(liste.map(m => m.kat)).size, 'Kategorien'], [preise.length ? 'ab ' + euro(Math.min(...preise)) : '–', 'Preis']];
+    $('stats').innerHTML = stats.map(([v, l]) => `<div><div class="stat__value">${v}</div><div class="label stat__label">${l}</div></div>`).join('');
+    $('heroLabel').textContent = isAdmin() ? 'Modell-Galerie · Admin' : 'Modell-Galerie';
+    $('footNote').textContent = !remote ? 'Lokale Vorschau, gespeichert nur in diesem Browser'
+        : isAdmin() ? 'Daten von MakerWorld (Standardprofil)' : 'Preise sind Vorschläge';
+}
+
+function render() {
+    $('seg').hidden = rolle !== 'admin';
+    document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('is-active', b.dataset.view === ansicht));
+    renderStats();
+    renderFilter();
+    renderGalerie();
+}
+// Neuer Stand von GitHub: neu zeichnen, außer der Nutzer schaut gerade ein Modell an
+function neuZeichnen() {
+    if (!started) return;
+    if ($('modal').hidden) render();
+    else { renderStats(); renderFilter(); renderGalerie(); if (offen) rechnung(); }
+}
+
+/* ==========================================================
+   Detail
+========================================================== */
+
+let offen = null;   // id des offenen Modells
+function oeffnen(id) {
+    const m = modelle().find(x => x.id === id);
+    if (!m) return;
+    offen = id;
+    const tags = [...m.saison, ...m.anlass].join(' · ');
+    $('sheet').innerHTML = `
+        <button type="button" class="icon-btn sheet__close" data-close aria-label="Schließen"><svg class="icon"><use href="#i-x"/></svg></button>
+        <div class="sheet__img"><img data-bild="${esc(m.id)}" alt=""></div>
+        <div class="sheet__body">
+            <div>
+                <p class="label sheet__cat">${esc(m.kat)}</p>
+                <h2 class="sheet__name">${esc(m.name)}</h2>
+                ${tags ? `<p class="tags" style="margin-top:var(--space-2)">${esc(tags)}</p>` : ''}
+                ${(m.masse && m.masse.length) || isAdmin() ? `<div style="margin-top:var(--space-3)">${masseHtml(m)}</div>` : ''}
+            </div>
+            <div class="sheet__price"><strong id="sheetPrice">${euro(m.preis)}</strong><span>Preisvorschlag</span></div>
+            ${isAdmin() ? `
+            <div class="sheet__admin">
+                <div class="facts">
+                    <div class="fact"><small>Druckzeit</small><b>${dauer(m.stunden)}</b></div>
+                    <div class="fact"><small>Filament</small><b>${m.gramm} g</b></div>
+                    <div class="fact"><small>Platten</small><b>${m.platten === 1 ? 'Ein Druck' : m.platten + ' Platten'}</b></div>
+                    <div class="fact"><small>AMS</small><b>${m.ams ? 'Ja, ' + m.farben + ' Farben' : (m.farben > 1 ? 'Nein, ' + m.farben + ' Farben getrennt' : 'Nein')}</b></div>
+                </div>
+                <div>
+                    <span class="label sub">Multiplikator</span>
+                    <div id="sheetMult">${multHtml(m)}</div>
+                </div>
+                <div class="calc" id="sheetCalc"></div>
+                <a class="btn btn--dark" href="${mwLink(m)}" target="_blank" rel="noopener"><svg class="icon"><use href="#i-ext"/></svg>Auf MakerWorld öffnen</a>
+                <p class="sheet__credit">Modell von ${esc(m.autor)} auf MakerWorld</p>
+            </div>` : ''}
+        </div>`;
+    if (isAdmin()) rechnung();
+    ladeBilder($('sheet'));
+    $('modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+}
+function rechnung() {
+    if (!isAdmin() || !$('sheetCalc')) return;
+    const m = galerie.modelle.find(x => x.id === offen);
+    if (!m) return;
+    const g = grundpreis(m), p = galerie.preise;
+    $('sheetCalc').innerHTML = `
+        <div><span>Material: ${m.gramm} g × ${euro(p.gramm)}</span><span>${euro(m.gramm * p.gramm)}</span></div>
+        <div><span>Druck: ${m.stunden.toLocaleString('de-DE')} h × ${euro(p.stunde)}</span><span>${euro(m.stunden * p.stunde)}</span></div>
+        <div><span>× ${m.faktor}</span><span>${euro(g * m.faktor)}</span></div>
+        <div><span>Auf 50 Cent aufgerundet</span><span>${euro(preisVon(m))}</span></div>`;
+    $('sheetPrice').textContent = euro(preisVon(m));
+    $('sheetMult').innerHTML = multHtml(m);
+}
+function schliessen() {
+    $('modal').hidden = true;
+    document.body.style.overflow = '';
+    offen = null;
+}
+
+let toastTimer;
+function toast(text) {
+    $('toast').textContent = text;
+    $('toast').classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $('toast').classList.remove('is-visible'), 2600);
+}
+
+/* ==========================================================
+   Ereignisse
+========================================================== */
+
+$('seg').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || b.dataset.view === ansicht) return;
+    ansicht = b.dataset.view;
+    render();
+});
+
+[['fKat', 'kat'], ['fSaison', 'saison'], ['fAnlass', 'anlass'], ['fDruck', 'druck']].forEach(([el, key]) => {
+    $(el).addEventListener('click', e => {
+        const b = e.target.closest('.chip');
+        if (!b) return;
+        filter[key] = b.dataset.v === 'Alle' || filter[key] === b.dataset.v ? null : b.dataset.v;
+        renderFilter();
+        renderGalerie();
+    });
+});
+$('resetFilter').addEventListener('click', () => {
+    filter.kat = filter.saison = filter.anlass = filter.druck = null;
+    renderFilter();
+    renderGalerie();
+});
+$('sort').addEventListener('change', e => { filter.sort = e.target.value; renderGalerie(); });
+
+document.addEventListener('click', e => {
+    const mult = e.target.closest('[data-mult]');
+    if (mult && rolle === 'admin') {
+        const m = galerie.modelle.find(x => x.id === mult.dataset.mult);
+        const f = +mult.dataset.f;
+        if (!m || m.faktor === f) return;
+        m.faktor = f;
+        m.updated = Date.now();
+        speichern();
+        renderStats();
+        renderGalerie();
+        if (offen === m.id) rechnung();
+        toast(`${m.name}: ×${f} → ${euro(preisVon(m))}`);
+        return;
+    }
+    const open = e.target.closest('[data-open]');
+    if (open) return oeffnen(open.dataset.open);
+    if (e.target.closest('[data-close]')) schliessen();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal').hidden) schliessen(); });
+$('sync').addEventListener('click', () => { if (started) sync(); });
+
+// Neuesten Stand holen: beim Zurückkehren und jede Minute
+document.addEventListener('visibilitychange', () => { if (!document.hidden && started) sync(); });
+window.addEventListener('online', () => { if (started) sync(); });
+setInterval(() => { if (started && !document.hidden) sync(); }, 60000);
+
+/* ==========================================================
+   Anmeldung: PBKDF2-SHA256 -> AES-256-CBC + HMAC-SHA256
+   zugang.json enthält zwei Einträge, „kunde“ und „admin“, jeder mit eigenem Passwort
+   verschlüsselt (erzeugt von werkzeuge/einrichten.ps1). Fehlt die Datei, läuft die lokale Vorschau.
+========================================================== */
+
+let zugang = null;
+const fromB64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+const toB64 = (a) => btoa(String.fromCharCode(...a));
+
+async function deriveKey(password, eintrag) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: fromB64(eintrag.salt), iterations: eintrag.iter }, base, 512);
+    return new Uint8Array(bits);
+}
+async function decrypt(keyBytes, eintrag) {
+    const encKey = await crypto.subtle.importKey('raw', keyBytes.slice(0, 32), 'AES-CBC', false, ['decrypt']);
+    const macKey = await crypto.subtle.importKey('raw', keyBytes.slice(32), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
+    const iv = fromB64(eintrag.iv), data = fromB64(eintrag.data);
+    const signed = new Uint8Array(iv.length + data.length);
+    signed.set(iv); signed.set(data, iv.length);
+    if (!await crypto.subtle.verify('HMAC', macKey, fromB64(eintrag.mac), signed)) throw new Error('Falsches Passwort');
+    const plain = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, encKey, data);
+    return JSON.parse(new TextDecoder().decode(plain));
+}
+function rememberKey(r, keyBytes) {
+    try { localStorage.setItem(KEY_STORE, JSON.stringify({ rolle: r, salt: zugang[r].salt, key: toB64(keyBytes) })); } catch (e) {}
+}
+function forgetKey() {
+    try { localStorage.removeItem(KEY_STORE); } catch (e) {}
+}
+function storedKey() {
+    try {
+        const s = JSON.parse(localStorage.getItem(KEY_STORE));
+        return s && zugang[s.rolle] && s.salt === zugang[s.rolle].salt ? { rolle: s.rolle, key: fromB64(s.key) } : null;
+    } catch (e) { return null; }
+}
+
+async function start(r, access) {
+    rolle = r;
+    remote = access;
+    ansicht = 'admin';
+    const cached = leseCache();
+    if (!remote) {
+        // Lokale Vorschau: Startdaten aus vorschau/galerie.json, Änderungen nur im Browser
+        if (!cached || !galerie) {
+            const g = normiere(await (await fetch('vorschau/galerie.json', { cache: 'no-store' })).json());
+            galerie = g;
+        }
+        if (rolle === 'kunde') schaufenster = schaufensterAus(galerie, {});
+    }
+    started = true;
+    $('lock').classList.add('is-leaving');
+    document.body.classList.remove('is-locked');
+    if (remote && !cached) {
+        $('seg').hidden = rolle !== 'admin';
+        $('gallery').innerHTML = `<div class="loading">Galerie wird geladen …</div>`;
+        $('count').textContent = '';
+    } else render();
+    if (!remote) return;
+    await sync();
+    if (!cached) render();
+}
+
+const lockForm = $('lockForm'), lockInput = $('lockInput'), lockButton = $('lockButton'), lockError = $('lockError');
+function fail(message) {
+    lockError.textContent = message;
+    lockForm.classList.remove('is-error'); void lockForm.offsetWidth; lockForm.classList.add('is-error');
+    lockInput.select();
+}
+lockForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!lockInput.value) return fail('');
+    lockButton.disabled = true;
+    lockButton.textContent = 'Wird entsperrt …';
+    lockError.textContent = '';
+    try {
+        if (!zugang) return start(lockInput.value === 'admin' ? 'admin' : 'kunde', null);
+        // Das Passwort passt entweder zum Kunden- oder zum Admin-Zugang
+        for (const r of ['kunde', 'admin']) {
+            if (!zugang[r]) continue;
+            const key = await deriveKey(lockInput.value, zugang[r]);
+            let access = null;
+            try { access = await decrypt(key, zugang[r]); } catch (err) { continue; }
+            if ($('lockRemember').checked) rememberKey(r, key); else forgetKey();
+            lockInput.value = '';
+            return start(r, access);
+        }
+        fail('Das Passwort stimmt nicht.');
+    } catch (err) {
+        fail('Das Passwort stimmt nicht.');
+    } finally {
+        lockButton.disabled = false;
+        lockButton.textContent = 'Entsperren';
+    }
+});
+
+async function logout() {
+    if (dirty && remote && !confirm('Noch nicht alles ist auf GitHub gespeichert. Trotzdem abmelden?')) return;
+    forgetKey();
+    try { localStorage.removeItem(SPEICHER); } catch (e) {}
+    try { await caches.delete(BILD_CACHE); } catch (e) {}
+    location.href = location.pathname;
+}
+$('logoutBtn').addEventListener('click', logout);
+$('logoutLink').addEventListener('click', logout);
+
+// Beim Laden: gemerkten Schlüssel ausprobieren, sonst Passwort abfragen
+(async () => {
+    try { const r = await fetch('zugang.json', { cache: 'no-store' }); if (r.ok) zugang = await r.json(); } catch (e) {}
+    $('lockHint').hidden = !!zugang;
+    const s = zugang && storedKey();
+    if (s) {
+        try { return start(s.rolle, await decrypt(s.key, zugang[s.rolle])); } catch (e) { forgetKey(); }
+    }
+    $('lock').classList.remove('is-checking');
+    lockInput.focus();
+})();
+</script>
+</body>
+</html>
