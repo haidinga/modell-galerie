@@ -320,7 +320,7 @@ svg.icon { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: curr
     box-shadow: var(--shadow-xl); font-size: var(--font-size-sm);
     translate: -50% 150%; opacity: 0;
     transition: translate .35s cubic-bezier(.2, .9, .25, 1.1), opacity var(--transition-base);
-    max-width: calc(100% - 2rem);
+    width: max-content; max-width: calc(100% - 2rem);
 }
 .toast.is-visible { translate: -50% 0; opacity: 1; }
 
@@ -395,6 +395,183 @@ body.is-locked { overflow: hidden; }
 .lock__remember input:checked::after { transform: rotate(45deg) scale(1); }
 .lock__error { min-height: 1.4em; margin-top: var(--space-4); font-size: var(--font-size-sm); color: #f0b4b4; }
 
+/* ==========================================================
+   Reiter, Merkliste und Warenkorb im Header
+========================================================== */
+
+.tabs { display: flex; gap: var(--space-6); padding-top: var(--space-2); }
+.tabs a { position: relative; padding: var(--space-1) 0; font-size: var(--font-size-sm); letter-spacing: .04em; text-decoration: none; color: rgba(245, 241, 234, .72); white-space: nowrap; transition: color var(--transition-fast); }
+.tabs a:hover { color: var(--color-text-inverse); }
+.tabs a.is-active { color: var(--color-text-inverse); }
+.tabs a.is-active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: currentColor; }
+
+.hdr-btn { position: relative; color: var(--color-text-inverse); }
+.hdr-btn svg.icon { width: 1.35rem; height: 1.35rem; }
+.hdr-btn.is-full svg.icon { fill: currentColor; }
+.hdr-btn.is-beating svg { animation: beat .6s ease-in-out; }
+.hdr-btn__count {
+    position: absolute; top: .1rem; right: 0;
+    min-width: 1.1rem; height: 1.1rem; padding: 0 .25rem;
+    border-radius: var(--radius-full); background: var(--color-text-inverse); color: var(--color-text-primary);
+    font-size: .65rem; font-weight: 700; line-height: 1.1rem; text-align: center;
+}
+
+/* Herz auf der Karte und im Modellfenster (wie im Bergliacht-Shop) */
+.fav {
+    display: grid; place-items: center; flex: none;
+    width: 2.25rem; height: 2.25rem; border-radius: 50%;
+    background: rgba(245, 241, 234, .94); color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.fav:hover { transform: scale(1.06); box-shadow: var(--shadow-md); }
+.fav svg.icon { width: 1.1rem; height: 1.1rem; }
+.fav.is-fav svg.icon { fill: currentColor; }
+.fav.is-beating svg { animation: beat .6s ease-in-out; }
+.card__fav { position: absolute; right: var(--space-3); top: var(--space-3); z-index: 2; }
+.card__mw { right: calc(var(--space-3) + 2.75rem); }
+@keyframes beat { 25% { transform: scale(1.32); } 45% { transform: scale(.92); } 70% { transform: scale(1.18); } }
+
+/* ==========================================================
+   Seiten: Farben, Pflege & Infos, Warenkorb
+========================================================== */
+
+.page { margin-bottom: var(--space-16); padding: var(--space-8); }
+.page__intro { max-width: 40rem; color: var(--color-text-secondary); margin-bottom: var(--space-8); }
+.page__head { font-size: var(--font-size-xl); font-weight: 400; letter-spacing: -.02em; margin-bottom: var(--space-5); }
+.page__head small { margin-left: var(--space-2); font-size: var(--font-size-sm); color: var(--color-text-muted); }
+.page__part + .page__part { margin-top: var(--space-10); }
+
+.dot { display: inline-block; flex: none; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(59, 52, 45, .18); }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: var(--space-4); }
+.swatch { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-3); border-radius: var(--radius-lg); background: var(--color-surface-secondary); text-align: center; animation: rise .45s cubic-bezier(.2, .9, .25, 1) backwards; }
+.swatch .dot { width: 4.5rem; height: 4.5rem; margin-bottom: var(--space-2); box-shadow: inset 0 0 0 1px rgba(59, 52, 45, .14), 0 6px 16px rgba(59, 52, 45, .14); }
+.swatch b { font-weight: 500; line-height: 1.3; }
+.swatch small { font-size: var(--font-size-xs); color: var(--color-text-muted); letter-spacing: .04em; }
+.swatch.is-empty { background: transparent; border: 1px dashed var(--color-border-strong); }
+.swatch.is-empty .dot { opacity: .35; box-shadow: inset 0 0 0 1px rgba(59, 52, 45, .14); }
+.swatch__note { margin-top: var(--space-1); font-size: var(--font-size-xs); line-height: 1.45; color: var(--color-primary); }
+
+.infos { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--space-4); }
+.info { display: flex; gap: var(--space-4); padding: var(--space-5); border-radius: var(--radius-lg); background: var(--color-surface-secondary); }
+.info__icon { display: grid; place-items: center; flex: none; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--color-background); color: var(--color-primary); }
+.info__icon svg { width: 1.35rem; height: 1.35rem; }
+.info h3 { font-size: var(--font-size-md); font-weight: 500; line-height: 1.3; margin-bottom: var(--space-1); }
+.info p { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.info p + p { margin-top: var(--space-2); }
+.info--main { grid-column: 1 / -1; background: #2c2620; color: var(--color-text-inverse); }
+.info--main p { color: rgba(245, 241, 234, .8); }
+.info--main .info__icon { background: rgba(245, 241, 234, .12); color: #b9cfa8; }
+
+/* Warenkorb */
+.korb { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem); gap: var(--space-10); align-items: start; }
+.zeile { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto; gap: var(--space-4); align-items: center; padding: var(--space-4) 0; border-bottom: 1px solid var(--color-border); }
+.zeile:first-child { padding-top: 0; }
+.zeile__img { width: 5.5rem; aspect-ratio: 1; border-radius: var(--radius-md); background: var(--color-surface); overflow: hidden; }
+.zeile__img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity var(--transition-base); }
+.zeile__img img.is-loaded { opacity: 1; }
+.zeile__name { font-weight: 500; line-height: 1.3; text-align: left; }
+.zeile__name:hover { text-decoration: underline; text-underline-offset: 3px; }
+.zeile__farbe { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-1); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.zeile__farbe .dot { width: .85rem; height: .85rem; }
+.zeile__farbe + .zeile__farbe { margin-top: 0; }
+.zeile__teil { color: var(--color-text-muted); }
+.zeile__warn { margin-top: var(--space-1); font-size: var(--font-size-xs); color: #9a7428; }
+.zeile__ctrl { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-3); }
+.zeile__weg { font-size: var(--font-size-xs); color: var(--color-text-muted); text-decoration: underline; text-underline-offset: 3px; }
+.zeile__weg:hover { color: var(--color-text-primary); }
+.zeile__preis { font-weight: 500; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.zeile__preis small { display: block; font-size: var(--font-size-xs); font-weight: 400; color: var(--color-text-muted); }
+
+.qty { display: inline-flex; align-items: center; height: 2.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden; }
+.qty button { width: 2.25rem; height: 100%; font-size: 1.05rem; transition: background var(--transition-fast); }
+.qty button:hover { background: var(--color-surface-secondary); }
+.qty span { min-width: 2.25rem; height: 100%; display: grid; place-items: center; border-inline: 1px solid var(--color-border); font-size: var(--font-size-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.summe { position: sticky; top: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface-secondary); }
+.summe__row { display: flex; justify-content: space-between; gap: var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.summe__total { display: flex; justify-content: space-between; align-items: baseline; padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+.summe__total strong { font-size: var(--font-size-2xl); font-weight: 400; letter-spacing: -.02em; }
+.summe__note { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.feld { display: flex; flex-direction: column; gap: var(--space-1); }
+.feld span { font-size: var(--font-size-xs); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-secondary); }
+.feld span em { font-style: normal; letter-spacing: 0; text-transform: none; color: var(--color-text-muted); font-weight: 400; }
+.feld input, .feld textarea { width: 100%; padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-background); resize: vertical; transition: border-color var(--transition-fast); }
+.feld input:focus, .feld textarea:focus { outline: none; border-color: var(--color-primary); }
+.feld .is-error { border-color: var(--color-danger); }
+.summe .btn { height: 3rem; }
+.summe__status { min-height: 1.2em; font-size: var(--font-size-sm); color: var(--color-danger); }
+.korb-leer, .korb-ok { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); padding: var(--space-10) 0; text-align: center; }
+.korb-leer p, .korb-ok p { max-width: 26rem; color: var(--color-text-secondary); }
+.korb-leer .btn, .korb-ok .btn { margin-top: var(--space-3); }
+.korb-ok__icon { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 50%; background: var(--color-accent); color: var(--color-text-inverse); }
+.korb-ok__icon svg { width: 1.6rem; height: 1.6rem; stroke-width: 2; }
+.korb-ok h2, .korb-leer h2 { font-size: var(--font-size-xl); font-weight: 400; }
+
+/* ==========================================================
+   Farbwahl und Hinweise im Modellfenster
+========================================================== */
+
+.sheet__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); padding-right: 2.5rem; }
+.buy { display: flex; flex-direction: column; gap: var(--space-3); }
+.pick { display: flex; flex-direction: column; gap: var(--space-3); }
+.pick__teil { display: flex; flex-direction: column; gap: var(--space-1); }
+.pick__name { font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-primary); }
+.pick__box { position: relative; }
+.pick__head { position: sticky; top: calc(-1 * var(--space-1)); z-index: 1; margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) 0; background: var(--color-background); border-bottom: 1px solid var(--color-surface); padding: var(--space-2) var(--space-4); font-size: var(--font-size-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-muted); }
+.pick__head b { font-weight: 600; color: var(--color-text-primary); letter-spacing: 0; text-transform: none; font-size: var(--font-size-sm); }
+.pick__btn, .pick__opt { display: flex; align-items: center; gap: var(--space-3); width: 100%; text-align: left; }
+.pick__btn { height: 3rem; padding: 0 var(--space-4); border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-background); transition: border-color var(--transition-fast); }
+.pick__btn:hover, .pick__btn[aria-expanded="true"] { border-color: var(--color-border-strong); }
+.pick__btn > span, .pick__opt > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick small { font-size: var(--font-size-xs); color: var(--color-text-muted); white-space: nowrap; }
+.pick__btn svg { width: 1rem; height: 1rem; color: var(--color-text-muted); transition: rotate var(--transition-fast); }
+.pick__btn[aria-expanded="true"] svg { rotate: 180deg; }
+.pick__list { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + .35rem); max-height: 16rem; overflow: auto; padding: var(--space-1); border-radius: var(--radius-md); background: var(--color-background); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg); list-style: none; animation: pop .18s ease; }
+.pick__opt { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); }
+.pick__opt:hover, .pick__opt:focus-visible { background: var(--color-surface-secondary); outline: none; }
+.pick__opt[aria-selected="true"] { background: var(--color-surface); }
+.pick__opt[disabled] { cursor: not-allowed; color: var(--color-text-muted); background: none; }
+.pick__opt[disabled] .dot { opacity: .35; }
+.pick__none { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.buy__row { display: flex; gap: var(--space-3); }
+.buy__row .qty { height: 3rem; }
+.buy__row .btn { flex: 1; height: 3rem; }
+.hints { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--color-surface-secondary); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.hints p { display: flex; gap: var(--space-2); align-items: flex-start; }
+.hints svg { width: 1rem; height: 1rem; margin-top: .2rem; color: var(--color-primary); }
+.hints a { color: var(--color-primary); font-weight: 500; text-underline-offset: 3px; }
+
+/* ==========================================================
+   Seitenleiste Merkliste (wie im Bergliacht-Shop)
+========================================================== */
+
+.drawer { position: fixed; inset: 0; z-index: 45; visibility: hidden; pointer-events: none; transition: visibility .35s; }
+.drawer.is-open { visibility: visible; pointer-events: auto; }
+.drawer__backdrop { position: absolute; inset: 0; background: rgba(59, 52, 45, 0); transition: background .35s ease, backdrop-filter .35s ease; }
+.drawer.is-open .drawer__backdrop { background: rgba(59, 52, 45, .18); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.drawer__panel { position: absolute; top: 0; right: 0; display: flex; flex-direction: column; width: min(92vw, 26rem); height: 100%; height: 100dvh; background: var(--color-background); border-left: 1px solid var(--color-border); box-shadow: -1rem 0 2.5rem rgba(59, 52, 45, .12); transform: translateX(100%); transition: transform .4s cubic-bezier(.22, 1, .36, 1); }
+.drawer.is-open .drawer__panel { transform: none; }
+.drawer__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); min-height: 4.5rem; padding: var(--space-3) var(--space-5); padding-top: max(var(--space-3), env(safe-area-inset-top)); border-bottom: 1px solid var(--color-border); }
+.drawer__head p { font-size: .65rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-muted); }
+.drawer__head h2 { font-size: var(--font-size-xl); font-weight: 500; line-height: 1.2; }
+.drawer__close { background: var(--color-surface-tertiary); }
+.drawer__body { flex: 1; overflow-y: auto; padding: var(--space-5); }
+.merk { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: var(--space-4); padding-bottom: var(--space-5); margin-bottom: var(--space-5); border-bottom: 1px solid var(--color-border); }
+.merk__img { width: 5rem; aspect-ratio: 1; border-radius: var(--radius-md); background: var(--color-surface); overflow: hidden; }
+.merk__img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity var(--transition-base); }
+.merk__img img.is-loaded { opacity: 1; }
+.merk__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
+.merk__top h3 { font-size: var(--font-size-base); font-weight: 500; line-height: 1.3; }
+.merk__top p { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.merk .fav { width: 2rem; height: 2rem; background: transparent; box-shadow: none; }
+.merk .btn { height: 2.25rem; margin-top: var(--space-3); padding: 0 var(--space-4); font-size: var(--font-size-xs); }
+.drawer__empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-3); min-height: 50vh; text-align: center; }
+.drawer__empty svg.icon { width: 2rem; height: 2rem; color: var(--color-text-muted); }
+.drawer__empty h3 { font-size: var(--font-size-lg); font-weight: 500; }
+.drawer__empty p { max-width: 16rem; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
 @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
 @keyframes fade { from { opacity: 0; } }
 @keyframes pop { from { opacity: 0; transform: translateY(16px) scale(.98); } }
@@ -441,6 +618,22 @@ body.is-locked { overflow: hidden; }
     .sheet__body { padding: var(--space-6) var(--space-5); }
     .sheet__name { font-size: var(--font-size-xl); }
     .toast { bottom: max(var(--space-5), env(safe-area-inset-bottom)); }
+    .tabs { gap: var(--space-5); }
+    .card__fav { right: var(--space-2); top: var(--space-2); width: 2rem; height: 2rem; }
+    .card__mw { right: calc(var(--space-2) + 2.4rem); }
+    .page { padding: var(--space-5) var(--space-4); }
+    .page__intro { margin-bottom: var(--space-6); font-size: var(--font-size-sm); }
+    .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+    .swatch .dot { width: 3.5rem; height: 3.5rem; }
+    .info { padding: var(--space-4); }
+    .zeile { grid-template-columns: 4.5rem minmax(0, 1fr); }
+    .zeile__img { width: 4.5rem; }
+    .zeile__preis { grid-column: 2; text-align: left; }
+    .zeile__preis small { display: inline; margin-left: var(--space-2); }
+}
+@media (max-width: 860px) {
+    .korb { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
+    .summe { position: static; }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -456,6 +649,20 @@ body.is-locked { overflow: hidden; }
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
     <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/></symbol>
     <symbol id="i-drop" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2"/><circle cx="16" cy="9" r="3.2"/><circle cx="12" cy="15.5" r="3.2"/></symbol>
+    <!-- Herz und Einkaufswagen aus dem Bergliacht-Shop (Lucide) -->
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
+    <symbol id="i-cart-full" viewBox="0 0 24 24"><path d="M5.12 7.05h16.97l-1.65 7.43a2 2 0 0 1-1.95 1.57H8.71a2 2 0 0 1-2-1.58L5.12 7.05Z" fill="currentColor"/><path d="M2.05 2.05h2l1.07 5"/><circle cx="8" cy="21" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="21" r="1.5" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+    <symbol id="i-vase" viewBox="0 0 24 24"><path d="M9 3h6M10 3v3.5c0 1-3.5 2.5-3.5 7 0 3.5 2 6.5 5.5 6.5s5.5-3 5.5-6.5c0-4.5-3.5-6-3.5-7V3"/><path d="M8 14c2.5 1 5.5 1 8 0"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+    <symbol id="i-wash" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M8 6.5h.01M11 6.5h5"/><path d="M5 5l14 14" /></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></symbol>
 </svg>
 
 <section class="lock is-checking" id="lock" aria-label="Anmeldung">
@@ -488,20 +695,30 @@ body.is-locked { overflow: hidden; }
                 <button type="button" data-view="admin" class="is-active">Admin</button>
                 <button type="button" data-view="kunde">Kunde</button>
             </div>
+            <button class="icon-btn hdr-btn" id="merkBtn" aria-label="Merkliste" title="Merkliste"><svg class="icon"><use href="#i-heart"/></svg></button>
+            <a class="icon-btn hdr-btn" id="korbBtn" href="#warenkorb" aria-label="Warenkorb" title="Warenkorb"><svg class="icon"><use href="#i-cart"/></svg><span class="hdr-btn__count" id="korbCount" hidden></span></a>
             <button class="icon-btn" id="logoutBtn" aria-label="Abmelden" title="Abmelden"><svg class="icon"><use href="#i-lock"/></svg></button>
         </div>
     </div>
+    <nav class="container tabs" aria-label="Seiten">
+        <a href="#" data-tab="modelle">Modelle</a>
+        <a href="#farben" data-tab="farben">Farben</a>
+        <a href="#pflege" data-tab="pflege">Pflege &amp; Infos</a>
+    </nav>
     <div class="container hero__content">
         <div>
             <p class="label hero__label" id="heroLabel">Modell-Galerie</p>
-            <h1 class="hero__title">Deko aus dem<br>Drucker.</h1>
+            <h1 class="hero__title" id="heroTitle">Deko aus dem<br>Drucker.</h1>
         </div>
         <div class="hero__stats" id="stats"></div>
     </div>
 </header>
 
 <div class="container">
-    <section class="panel" aria-label="Filter">
+    <section class="panel page" data-page="farben" id="pageFarben" aria-label="Farben" hidden></section>
+    <section class="panel page" data-page="pflege" id="pagePflege" aria-label="Pflege und Infos" hidden></section>
+    <section class="panel page" data-page="warenkorb" id="pageKorb" aria-label="Warenkorb" hidden></section>
+    <section class="panel" data-page="modelle" aria-label="Filter">
         <div class="frow"><span class="label">Kategorie</span><div class="chips" id="fKat"></div></div>
         <div class="frow"><span class="label">Saison</span><div class="chips" id="fSaison"></div></div>
         <div class="frow"><span class="label">Anlass</span><div class="chips" id="fAnlass"></div></div>
@@ -518,7 +735,7 @@ body.is-locked { overflow: hidden; }
     </section>
 </div>
 
-<main class="main">
+<main class="main" data-page="modelle">
     <div class="container" id="gallery"></div>
 </main>
 
@@ -532,6 +749,17 @@ body.is-locked { overflow: hidden; }
 <div class="modal" id="modal" hidden>
     <div class="modal__backdrop" data-close></div>
     <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+</div>
+
+<div class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer__backdrop" data-drawer-close></div>
+    <aside class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+        <div class="drawer__head">
+            <div><p>Deine Auswahl</p><h2 id="drawerTitle">Merkliste</h2></div>
+            <button type="button" class="icon-btn drawer__close" data-drawer-close aria-label="Merkliste schließen"><svg class="icon"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="drawer__body" id="drawerBody"></div>
+    </aside>
 </div>
 
 <div class="toast" id="toast" role="status"></div>
@@ -553,6 +781,9 @@ const ANLAESSE = ['Weihnachten', 'Neujahr', 'Valentinstag', 'Ostern', 'Geburtsta
 const SPEICHER = 'bergliacht-galerie';                 // Zwischenspeicher im Browser (schneller Start, offline)
 const KEY_STORE = 'bergliacht-galerie-schluessel';    // gemerkter Schlüssel bei „angemeldet bleiben“
 const BILD_CACHE = 'bergliacht-galerie-bilder';
+const MERK_STORE = 'bergliacht-galerie-merkliste';     // ids der gemerkten Modelle, pro Gerät
+const KORB_STORE = 'bergliacht-galerie-warenkorb';     // [{ id, menge, teile: [...] }], pro Gerät
+const WEB3FORMS_KEY = 'a2dba39a-1345-4cfb-83c4-3a3daa57e8a7';   // derselbe Schlüssel wie im Bergliacht-Shop
 const DAY = 864e5;
 
 const $ = id => document.getElementById(id);
@@ -572,7 +803,8 @@ let ansicht = 'admin';     // Admin kann sich die Kundenansicht ansehen
 let remote = null;         // entschlüsselter Zugang; null = lokale Vorschau
 let galerie = null;        // nur Admin
 let schaufenster = null;   // { modelle: [...] }
-let sha = { galerie: null, schaufenster: null };
+let farben = null;         // { farben: [{ id, name, art, hex, verfuegbar }] }, schreibt das Filament-Lager
+let sha = { galerie: null, schaufenster: null, farben: null };
 let dirty = false, changes = 0, started = false;
 const filter = { kat: null, saison: null, anlass: null, druck: null, sort: 'kategorie' };
 
@@ -606,6 +838,7 @@ function schaufensterAus(g, bildShas) {
         modelle: g.modelle.map(m => ({
             id: m.id, name: m.name, kat: m.kat, saison: m.saison, anlass: m.anlass,
             masse: m.masse, preis: preisVon(m), bild: (bildShas && bildShas[m.id]) || '',
+            ...(m.teile && m.teile.length ? { teile: m.teile } : {}),   // mehrfarbig: Teile mit Farbe aus dem Profil
         })),
     };
 }
@@ -624,12 +857,13 @@ function modelle() {
 ========================================================== */
 
 function schreibeCache() {
-    try { localStorage.setItem(SPEICHER, JSON.stringify({ rolle, galerie, schaufenster, sha, dirty, bildShas })); } catch (e) {}
+    try { localStorage.setItem(SPEICHER, JSON.stringify({ rolle, galerie, schaufenster, farben, sha, dirty, bildShas })); } catch (e) {}
 }
 function leseCache() {
     try {
         const c = JSON.parse(localStorage.getItem(SPEICHER));
         if (!c || c.rolle !== rolle) return false;
+        farben = c.farben || null;
         if (rolle === 'admin' && c.galerie) { galerie = normiere(c.galerie); sha = c.sha || sha; dirty = !!c.dirty; bildShas = c.bildShas || {}; return true; }
         if (rolle === 'kunde' && c.schaufenster) { schaufenster = c.schaufenster; sha = c.sha || sha; return true; }
     } catch (e) {}
@@ -781,6 +1015,7 @@ async function syncAdmin() {
         if (!ok) throw new Error('Zu viele gleichzeitige Änderungen');
     }
     schreibeCache();
+    await holeFarben();
     return aktualisiereSchaufenster();
 }
 
@@ -808,7 +1043,18 @@ async function aktualisiereSchaufenster() {
     throw new Error('Schaufenster nicht gespeichert');
 }
 
+// farben.json schreibt das Filament-Lager ins Schaufenster-Repo, beide Rollen lesen sie nur
+async function holeFarben() {
+    const r = await holeJson(remote.schaufenster, 'farben.json');
+    if (r.sha === sha.farben && farben) return;
+    sha.farben = r.sha;
+    farben = r.daten || { farben: [] };
+    schreibeCache();
+    if (rolle === 'admin' || schaufenster) neuZeichnen();   // sonst steht gleich die Galerie samt Farben
+}
+
 async function syncKunde() {
+    await holeFarben();
     const r = await holeJson(remote.schaufenster, 'schaufenster.json');
     if (!r.daten) { schaufenster = { modelle: [] }; sha.schaufenster = null; neuZeichnen(); return false; }
     if (r.sha !== sha.schaufenster) { sha.schaufenster = r.sha; schaufenster = r.daten; schreibeCache(); neuZeichnen(); }
@@ -928,6 +1174,7 @@ function karte(m, i) {
         <div class="card__img">
             <img data-bild="${esc(m.id)}" alt="" loading="lazy">
             ${badges ? `<div class="badges">${badges}</div>` : ''}
+            ${favHtml(m, 'card__fav')}
             ${isAdmin() ? `<a class="card__mw" href="${mwLink(m)}" target="_blank" rel="noopener" title="Auf MakerWorld öffnen" aria-label="Auf MakerWorld öffnen"><svg class="icon"><use href="#i-ext"/></svg></a>` : ''}
         </div>
         <div class="card__body">
@@ -982,27 +1229,338 @@ function renderGalerie() {
 function renderStats() {
     const liste = modelle();
     const preise = liste.map(m => m.preis);
-    const stats = isAdmin()
+    const s = seite();
+    const stats = s === 'farben' ? (farbListe().length ? [[farbListe().filter(f => f.verfuegbar).length, 'Verfügbar'], [farbListe().filter(f => !f.verfuegbar).length, 'Bald wieder da']] : [])
+        : s === 'pflege' ? [['PLA', 'Aus Maisstärke']]
+        : s === 'warenkorb' ? (gesendet || !korb().length ? [] : [[korb().reduce((a, z) => a + z.menge, 0), 'Stück'], [euro(korb().reduce((a, z) => a + liste.find(m => m.id === z.id).preis * z.menge, 0)), 'Summe']])
+        : isAdmin()
         ? [[liste.length, 'Modelle'], [liste.filter(m => m.ams).length, 'Mit AMS'], [Math.round(liste.reduce((a, m) => a + m.stunden, 0)) + ' h', 'Druckzeit gesamt']]
         : [[liste.length, 'Modelle'], [new Set(liste.map(m => m.kat)).size, 'Kategorien'], [preise.length ? 'ab ' + euro(Math.min(...preise)) : '–', 'Preis']];
     $('stats').innerHTML = stats.map(([v, l]) => `<div><div class="stat__value">${v}</div><div class="label stat__label">${l}</div></div>`).join('');
-    $('heroLabel').textContent = isAdmin() ? 'Modell-Galerie · Admin' : 'Modell-Galerie';
+    $('heroLabel').textContent = SEITEN[s].label + (isAdmin() ? ' · Admin' : '');
     $('footNote').textContent = !remote ? 'Lokale Vorschau, gespeichert nur in diesem Browser'
         : isAdmin() ? 'Daten von MakerWorld (Standardprofil)' : 'Preise sind Vorschläge';
+}
+
+/* ==========================================================
+   Seiten: Modelle (#), Farben (#farben), Pflege & Infos (#pflege), Warenkorb (#warenkorb)
+========================================================== */
+
+const SEITEN = {
+    modelle: { titel: 'Deko aus dem<br>Drucker.', label: 'Modell-Galerie' },
+    farben: { titel: 'Unsere<br>Farben.', label: 'Farbauswahl' },
+    pflege: { titel: 'Pflege &amp;<br>Infos.', label: 'Gut zu wissen' },
+    warenkorb: { titel: 'Dein<br>Warenkorb.', label: 'Bestellanfrage' },
+};
+const seite = () => { const s = location.hash.slice(1); return SEITEN[s] ? s : 'modelle'; };
+
+const farbListe = () => (farben && farben.farben) || [];
+// Mehrfarbige Rollen haben mehrere Hex-Codes („#a,#b“), wie im Filament-Lager
+function farbHintergrund(hex) {
+    const teile = String(hex).split(',');
+    if (teile.length === 1) return hex;
+    return `conic-gradient(from 20deg, ${teile.map((c, i) => `${c} ${i / teile.length * 360}deg`).join(',')}, ${teile[0]} 360deg)`;
+}
+// Material (z. B. „PLA+ 2.0“) sieht nur der Admin, Kunden nur Farbkreis und Name
+const material = f => isAdmin() ? (f.art || '') : '';
+const dotHtml = hex => `<i class="dot" style="--c:${esc(farbHintergrund(hex))}"></i>`;
+
+function renderFarben() {
+    const liste = farbListe();
+    const da = liste.filter(f => f.verfuegbar), leer = liste.filter(f => !f.verfuegbar);
+    const swatch = (f, i) => `<div class="swatch${f.verfuegbar ? '' : ' is-empty'}" style="animation-delay:${Math.min(i, 16) * 25}ms">
+        ${dotHtml(f.hex)}<b>${esc(f.name)}</b>${material(f) ? `<small>${esc(material(f))}</small>` : ''}
+        ${f.verfuegbar ? '' : '<p class="swatch__note">Momentan leer – für Nachschub ist gesorgt</p>'}</div>`;
+    $('pageFarben').innerHTML = `
+        <p class="page__intro">In diesen Farben drucke ich deine Modelle. Die Liste kommt direkt aus meinem Filament-Regal und ist immer aktuell. Beim Modell suchst du dir die Farbe einfach aus.</p>
+        ${!farben ? '<div class="loading">Farben werden geladen …</div>' : !liste.length ? '<div class="empty">Die Farbliste wird gerade eingerichtet. Schau bald wieder vorbei.</div>' : `
+        <div class="page__part"><h2 class="page__head">Verfügbar<small>${da.length}</small></h2><div class="swatches">${da.map(swatch).join('')}</div></div>
+        ${leer.length ? `<div class="page__part"><h2 class="page__head">Bald wieder da<small>${leer.length}</small></h2><div class="swatches">${leer.map((f, i) => swatch(f, i + da.length)).join('')}</div></div>` : ''}`}`;
+}
+
+const INFOS = [
+    { icon: 'leaf', main: true, titel: 'PLA – gedruckt aus Maisstärke', text: [
+        'Alle Modelle werden aus PLA gedruckt. PLA wird aus Maisstärke gewonnen und nicht aus Erdöl – es ist also kein herkömmliches Plastik, sondern ein Bio-Material.',
+        'PLA ist biobasiert und biologisch abbaubar (in industriellen Kompostieranlagen). Kleine Schichtlinien gehören zum 3D-Druck dazu und machen jedes Stück zum Unikat.'] },
+    { icon: 'vase', titel: 'Vasen sind nicht wasserdicht', text: [
+        'Gedruckte Vasen bestehen aus feinen Schichten, durch die Wasser sickern kann. Ideal sind Trockenblumen, Gräser oder Kunstblumen.',
+        'Für frische Blumen einfach ein Glas oder eine kleine Flasche hineinstellen.'] },
+    { icon: 'bulb', titel: 'Lampen brauchen eine E27-Glühbirne', text: [
+        'Die Lampen haben eine E27-Fassung, das ist das normale große Gewinde. Bitte nur LED-Glühbirnen verwenden, sie bleiben kühl. Warmweiß (etwa 2700 K) passt am schönsten zur Deko.',
+        'In Teelichthalter und Windlichter gehören nur LED-Teelichter.'] },
+    { icon: 'flame', titel: 'Hitze verformt PLA', text: [
+        'PLA wird schon ab etwa 55 °C weich. Echte Kerzen, pralle Sonne am Fensterbrett, die Heizung oder ein heißes Auto im Sommer können Behälter schmelzen oder verformen.'] },
+    { icon: 'wash', titel: 'Nicht für die Spülmaschine', text: [
+        'Die Hitze in der Spülmaschine verformt PLA. Behälter, Schalen und Vasen deshalb bitte nur mit der Hand reinigen.'] },
+    { icon: 'sparkle', titel: 'So bleibt alles schön', text: [
+        'Mit einem weichen, leicht feuchten Tuch abwischen und trocknen lassen. Keine scharfen Reiniger oder Scheuermittel. Staub geht am besten mit einem weichen Pinsel aus Rillen.'] },
+];
+function renderPflege() {
+    $('pagePflege').innerHTML = `
+        <p class="page__intro">Damit du lange Freude an deinen Stücken hast: hier alles Wichtige zu Material, Pflege und Gebrauch.</p>
+        <div class="infos">${INFOS.map(x => `
+            <article class="info${x.main ? ' info--main' : ''}">
+                <span class="info__icon"><svg class="icon"><use href="#i-${x.icon}"/></svg></span>
+                <div><h3>${x.titel}</h3>${x.text.map(t => `<p>${t}</p>`).join('')}</div>
+            </article>`).join('')}</div>`;
+}
+
+// Kurze Hinweise im Modellfenster, passend zur Kategorie
+function hinweise(m) {
+    const h = [];
+    if (/teelicht|kerze|windlicht/i.test(m.name)) h.push(['flame', 'Nur LED-Teelichter verwenden, echte Flammen lassen PLA schmelzen.']);
+    else if (m.kat === 'Lampen & Lichter') h.push(['bulb', 'Benötigt eine E27-Glühbirne, bitte LED.']);
+    if (m.kat === 'Vasen & Töpfe') h.push(['vase', 'Nicht wasserdicht, ideal für Trockenblumen.']);
+    if (m.kat === 'Vasen & Töpfe' || m.kat === 'Aufbewahrung') h.push(['wash', 'Nicht spülmaschinenfest, vor Hitze und praller Sonne schützen.']);
+    return `<div class="hints">${h.map(([i, t]) => `<p><svg class="icon"><use href="#i-${i}"/></svg>${t}</p>`).join('')}
+        <p><svg class="icon"><use href="#i-info"/></svg><a href="#pflege">Alle Pflegehinweise und Infos zu PLA</a></p></div>`;
+}
+
+function renderSeite() {
+    const s = seite();
+    document.querySelectorAll('[data-page]').forEach(el => el.hidden = el.dataset.page !== s);
+    document.querySelectorAll('[data-tab]').forEach(a => a.classList.toggle('is-active', a.dataset.tab === s));
+    $('heroTitle').innerHTML = SEITEN[s].titel;
+    if (s === 'farben') renderFarben();
+    if (s === 'pflege') renderPflege();
+    if (s === 'warenkorb') renderKorb();
 }
 
 function render() {
     $('seg').hidden = rolle !== 'admin';
     document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('is-active', b.dataset.view === ansicht));
+    renderSeite();
     renderStats();
     renderFilter();
     renderGalerie();
+    renderKopf();
 }
 // Neuer Stand von GitHub: neu zeichnen, außer der Nutzer schaut gerade ein Modell an
 function neuZeichnen() {
     if (!started) return;
     if ($('modal').hidden) render();
-    else { renderStats(); renderFilter(); renderGalerie(); if (offen) rechnung(); }
+    else {
+        renderStats(); renderFilter(); renderGalerie(); renderKopf();
+        if (offen) rechnung();
+        // Farben kamen erst jetzt an: Auswahl im offenen Modell nachziehen
+        if (offen && $('pick') && !document.querySelector('.pick__btn')) startWahl(modelle().find(x => x.id === offen));
+    }
+}
+
+/* ==========================================================
+   Merkliste (Herz) – wie im Bergliacht-Shop, pro Gerät im Browser
+========================================================== */
+
+function liesListe(key) {
+    try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+}
+function schreibListe(key, v) {
+    try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {}
+}
+// Nur Modelle, die es noch gibt
+const merkliste = () => { const da = new Set(modelle().map(m => m.id)); return liesListe(MERK_STORE).filter(id => da.has(id)); };
+
+function favHtml(m, extra = '') {
+    const an = liesListe(MERK_STORE).includes(m.id);
+    return `<button type="button" class="fav ${extra}${an ? ' is-fav' : ''}" data-fav="${esc(m.id)}" aria-pressed="${an}" aria-label="${esc(m.name)} ${an ? 'von der Merkliste nehmen' : 'merken'}"><svg class="icon"><use href="#i-heart"/></svg></button>`;
+}
+
+function toggleMerk(id, btn) {
+    const liste = liesListe(MERK_STORE);
+    const an = !liste.includes(id);
+    schreibListe(MERK_STORE, an ? [...liste, id] : liste.filter(x => x !== id));
+    document.querySelectorAll(`[data-fav="${CSS.escape(id)}"]`).forEach(b => {
+        b.classList.toggle('is-fav', an);
+        b.setAttribute('aria-pressed', an);
+    });
+    if (an && btn) { btn.classList.remove('is-beating'); void btn.offsetWidth; btn.classList.add('is-beating'); }
+    if (an) { $('merkBtn').classList.remove('is-beating'); void $('merkBtn').offsetWidth; $('merkBtn').classList.add('is-beating'); }
+    renderKopf();
+    if ($('drawer').classList.contains('is-open')) renderMerk();
+}
+
+function renderMerk() {
+    const liste = merkliste().map(id => modelle().find(m => m.id === id));
+    $('drawerBody').innerHTML = liste.length ? liste.map(m => `
+        <article class="merk">
+            <div class="merk__img"><img data-bild="${esc(m.id)}" alt=""></div>
+            <div>
+                <div class="merk__top">
+                    <div><h3>${esc(m.name)}</h3><p>${esc(m.kat)} · ${euro(m.preis)}</p></div>
+                    ${favHtml(m)}
+                </div>
+                <button type="button" class="btn btn--dark" data-open="${esc(m.id)}">Ansehen</button>
+            </div>
+        </article>`).join('')
+        : `<div class="drawer__empty"><svg class="icon"><use href="#i-heart"/></svg><h3>Noch nichts gemerkt</h3><p>Tippe bei einem Modell auf das Herz, um es hier zu speichern.</p></div>`;
+    ladeBilder($('drawerBody'));
+}
+function oeffneMerk() {
+    renderMerk();
+    $('drawer').classList.add('is-open');
+    $('drawer').setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => $('drawer').querySelector('.drawer__close').focus(), 250);
+}
+function schliesseMerk() {
+    $('drawer').classList.remove('is-open');
+    $('drawer').setAttribute('aria-hidden', 'true');
+    if ($('modal').hidden) document.body.style.overflow = '';
+}
+
+/* ==========================================================
+   Warenkorb – wie im Bergliacht-Shop, Anfrage per Web3Forms an Patrick
+========================================================== */
+
+// Eine Zeile: { id, menge, teile: [{ teil, farbe, name, hex }] } – teil ist leer bei einfarbigen Modellen.
+// Name und Hex der Farbe werden mitgemerkt, falls die Farbe später aus dem Lager verschwindet.
+const alsZeile = z => z.teile ? z : { id: z.id, menge: z.menge, teile: [{ teil: '', farbe: z.farbe, name: z.name, hex: z.hex }] };
+const korb = () => { const da = new Set(modelle().map(m => m.id)); return liesListe(KORB_STORE).map(alsZeile).filter(z => da.has(z.id)); };
+const gleicheZeile = (a, b) => a.id === b.id && a.teile.map(t => t.farbe).join() === b.teile.map(t => t.farbe).join();
+
+function inKorb(m, farbIds, menge) {
+    const liste = liesListe(KORB_STORE).map(alsZeile);
+    const neu = { id: m.id, menge, teile: teileVon(m).map((t, i) => {
+        const f = farbListe().find(x => x.id === farbIds[i]);
+        return { teil: t.name, farbe: farbIds[i] || '', name: f ? f.name : '', hex: f ? f.hex : '' };
+    }) };
+    const z = liste.find(x => gleicheZeile(x, neu));
+    if (z) z.menge += menge;
+    else liste.push(neu);
+    schreibListe(KORB_STORE, liste);
+    renderKopf();
+}
+function aendereKorb(index, fn) {
+    const liste = korb();
+    fn(liste, liste[index]);
+    schreibListe(KORB_STORE, liste.filter(z => z.menge > 0));
+    renderKopf();
+    renderKorb();
+    renderStats();
+}
+
+function renderKopf() {
+    const n = merkliste().length;
+    $('merkBtn').classList.toggle('is-full', n > 0);
+    $('merkBtn').setAttribute('aria-label', n ? `Merkliste (${n})` : 'Merkliste');
+    const stueck = korb().reduce((s, z) => s + z.menge, 0);
+    $('korbBtn').querySelector('use').setAttribute('href', stueck ? '#i-cart-full' : '#i-cart');
+    $('korbCount').hidden = !stueck;
+    $('korbCount').textContent = stueck;
+    $('korbBtn').setAttribute('aria-label', stueck ? `Warenkorb (${stueck})` : 'Warenkorb');
+}
+
+let gesendet = null;   // Erfolgsmeldung nach dem Abschicken
+function renderKorb() {
+    if (seite() !== 'warenkorb') return;
+    if (gesendet) {
+        $('pageKorb').innerHTML = `<div class="korb-ok">
+            <span class="korb-ok__icon"><svg class="icon"><use href="#i-check"/></svg></span>
+            <h2>Anfrage gesendet</h2>
+            <p>Danke, ${esc(gesendet.name)}! Deine Anfrage <b>${esc(gesendet.nummer)}</b> ist bei Patrick angekommen. Er meldet sich bald telefonisch bei dir.</p>
+            ${gesendet.vorschau ? '<p><small>Lokale Vorschau: Es wurde nichts verschickt.</small></p>' : ''}
+            <a class="btn btn--dark" href="#">Weiter stöbern</a></div>`;
+        return;
+    }
+    const liste = korb();
+    if (!liste.length) {
+        $('pageKorb').innerHTML = `<div class="korb-leer"><h2>Dein Warenkorb ist momentan leer.</h2>
+            <p>Such dir ein Modell aus, wähle eine Farbe und leg es in den Warenkorb.</p>
+            <a class="btn btn--dark" href="#">Modelle ansehen</a></div>`;
+        return;
+    }
+    const alle = modelle();
+    const summe = liste.reduce((s, z) => s + alle.find(m => m.id === z.id).preis * z.menge, 0);
+    const alt = { name: $('kName')?.value || '', tel: $('kTel')?.value || '', notiz: $('kNotiz')?.value || '' };
+    $('pageKorb').innerHTML = `<div class="korb">
+        <div>${liste.map((z, i) => {
+            const m = alle.find(x => x.id === z.id);
+            let leer = false;
+            const farbZeilen = z.teile.map(t => {
+                const f = farbListe().find(x => x.id === t.farbe);
+                if (t.farbe && f && !f.verfuegbar) leer = true;
+                return `<p class="zeile__farbe">${t.teil ? `<span class="zeile__teil">${esc(t.teil)}:</span>` : ''}${t.farbe ? `${dotHtml(f ? f.hex : t.hex)}${esc(f ? f.name : t.name)}` : 'Farbe nach Absprache'}</p>`;
+            }).join('');
+            return `<article class="zeile">
+                <div class="zeile__img"><img data-bild="${esc(m.id)}" alt=""></div>
+                <div>
+                    <button type="button" class="zeile__name" data-open="${esc(m.id)}">${esc(m.name)}</button>
+                    ${farbZeilen}
+                    ${leer ? `<p class="zeile__warn">${z.teile.length > 1 ? 'Eine dieser Farben' : 'Diese Farbe'} ist momentan leer – für Nachschub ist gesorgt.</p>` : ''}
+                    <div class="zeile__ctrl">
+                        <div class="qty"><button type="button" data-menge="${i}" data-d="-1" aria-label="Weniger">−</button><span>${z.menge}</span><button type="button" data-menge="${i}" data-d="1" aria-label="Mehr">+</button></div>
+                        <button type="button" class="zeile__weg" data-weg="${i}">Entfernen</button>
+                    </div>
+                </div>
+                <div class="zeile__preis">${euro(m.preis * z.menge)}${z.menge > 1 ? `<small>je ${euro(m.preis)}</small>` : ''}</div>
+            </article>`;
+        }).join('')}</div>
+        <aside class="summe">
+            <div class="summe__row"><span>${liste.reduce((s, z) => s + z.menge, 0)} Stück</span><span>${euro(summe)}</span></div>
+            <div class="summe__total"><span>Gesamt</span><strong>${euro(summe)}</strong></div>
+            <p class="summe__note">Die Preise sind Vorschläge. Patrick meldet sich bei dir, um alles Weitere zu besprechen.</p>
+            <label class="feld"><span>Name</span><input id="kName" autocomplete="name" value="${esc(alt.name)}"></label>
+            <label class="feld"><span>Telefon</span><input id="kTel" type="tel" autocomplete="tel" value="${esc(alt.tel)}"></label>
+            <label class="feld"><span>Notiz <em>optional</em></span><textarea id="kNotiz" rows="3" placeholder="z. B. Wunschtermin, Sonderwünsche …">${esc(alt.notiz)}</textarea></label>
+            <button type="button" class="btn btn--dark" id="kSenden">Anfrage an Patrick senden</button>
+            <p class="summe__status" id="kStatus" aria-live="polite"></p>
+        </aside>
+    </div>`;
+    ladeBilder($('pageKorb'));
+}
+
+function bestellText(name, tel, notiz, nummer, liste) {
+    const alle = modelle();
+    const strich = '────────────────────────';
+    let summe = 0;
+    const zeilen = liste.map(z => {
+        const m = alle.find(x => x.id === z.id);
+        summe += m.preis * z.menge;
+        const farbe = t => {
+            const f = farbListe().find(x => x.id === t.farbe);
+            return t.farbe ? (f ? f.name + (f.art ? ` (${f.art})` : '') : t.name) + (f && !f.verfuegbar ? ' – momentan leer' : '') : 'nach Absprache';
+        };
+        const farbText = z.teile.length > 1 ? ['Farben:', ...z.teile.map(t => `  ${t.teil}: ${farbe(t)}`)].join('\n') : `Farbe: ${farbe(z.teile[0])}`;
+        return [m.name, `Modell-Nr.: ${m.id} (${m.kat})`, farbText,
+            `Menge: ${z.menge}`, `Einzelpreis: ${euro(m.preis)}`, `Gesamt: ${euro(m.preis * z.menge)}`].join('\n');
+    }).join('\n\n');
+    return ['BESTELLANFRAGE · MODELL-GALERIE', strich, '',
+        `Nummer: ${nummer}`, `Datum: ${new Date().toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' })}`, '',
+        `Name: ${name}`, `Telefon: ${tel}`, '', strich, 'MODELLE', strich, '', zeilen, '', strich,
+        `Gesamt (Preisvorschlag): ${euro(summe)}`, strich, '', 'NOTIZ', '', notiz || 'Keine Notiz angegeben.'].join('\n');
+}
+
+async function sendeAnfrage() {
+    const name = $('kName').value.trim(), tel = $('kTel').value.trim(), notiz = $('kNotiz').value.trim();
+    const status = $('kStatus');
+    const telOk = tel.replace(/\D/g, '').length >= 4;
+    $('kName').classList.toggle('is-error', !name);
+    $('kTel').classList.toggle('is-error', !telOk);
+    if (!name) { status.textContent = 'Bitte gib deinen Namen ein.'; return $('kName').focus(); }
+    if (!telOk) { status.textContent = 'Bitte gib deine Telefonnummer ein, damit Patrick dich erreicht.'; return $('kTel').focus(); }
+    const d = new Date(), zwei = n => String(n).padStart(2, '0');
+    const nummer = `G-${d.getFullYear()}${zwei(d.getMonth() + 1)}${zwei(d.getDate())}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    const liste = korb();
+    const btn = $('kSenden');
+    btn.disabled = true; btn.textContent = 'Wird gesendet …'; status.textContent = '';
+    try {
+        if (remote) {
+            const res = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: `Galerie-Anfrage ${nummer} – ${name}`, from_name: `Modell-Galerie · ${name}`, message: bestellText(name, tel, notiz, nummer, liste) }),
+            });
+            const r = await res.json().catch(() => ({}));
+            if (!res.ok || !r.success) throw new Error(r.message || 'Web3Forms ' + res.status);
+        }
+        schreibListe(KORB_STORE, []);
+        gesendet = { name, nummer, vorschau: !remote };
+        renderKopf(); renderStats(); renderKorb();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+        btn.disabled = false; btn.textContent = 'Anfrage an Patrick senden';
+        status.textContent = err instanceof TypeError ? 'Keine Verbindung. Bitte versuch es gleich noch einmal.' : 'Die Anfrage konnte leider nicht gesendet werden. Bitte versuch es noch einmal.';
+    }
 }
 
 /* ==========================================================
@@ -1020,12 +1578,26 @@ function oeffnen(id) {
         <div class="sheet__img"><img data-bild="${esc(m.id)}" alt=""></div>
         <div class="sheet__body">
             <div>
-                <p class="label sheet__cat">${esc(m.kat)}</p>
-                <h2 class="sheet__name">${esc(m.name)}</h2>
+                <div class="sheet__head">
+                    <div>
+                        <p class="label sheet__cat">${esc(m.kat)}</p>
+                        <h2 class="sheet__name">${esc(m.name)}</h2>
+                    </div>
+                    ${favHtml(m)}
+                </div>
                 ${tags ? `<p class="tags" style="margin-top:var(--space-2)">${esc(tags)}</p>` : ''}
                 ${(m.masse && m.masse.length) || isAdmin() ? `<div style="margin-top:var(--space-3)">${masseHtml(m)}</div>` : ''}
             </div>
             <div class="sheet__price"><strong id="sheetPrice">${euro(m.preis)}</strong><span>Preisvorschlag</span></div>
+            <div class="buy">
+                <span class="label sub" style="margin:0">${teileVon(m).length > 1 ? `Farben · ${teileVon(m).length} Teile` : 'Farbe'}</span>
+                <div class="pick" id="pick"></div>
+                <div class="buy__row">
+                    <div class="qty"><button type="button" data-wahl-d="-1" aria-label="Weniger">−</button><span id="wahlMenge">1</span><button type="button" data-wahl-d="1" aria-label="Mehr">+</button></div>
+                    <button type="button" class="btn btn--dark" id="inKorb"><svg class="icon"><use href="#i-cart"/></svg>In den Warenkorb</button>
+                </div>
+            </div>
+            ${hinweise(m)}
             ${isAdmin() ? `
             <div class="sheet__admin">
                 <div class="facts">
@@ -1044,9 +1616,67 @@ function oeffnen(id) {
             </div>` : ''}
         </div>`;
     if (isAdmin()) rechnung();
+    startWahl(m);
     ladeBilder($('sheet'));
     $('modal').hidden = false;
     document.body.style.overflow = 'hidden';
+}
+
+/* Farbwahl: pro Teil ein Aufklappmenü mit Farbkreis und Name, leere Farben ausgegraut.
+   Einfarbige Modelle haben ein Teil ohne Namen. */
+let wahl = { farben: [], menge: 1 };
+const teileVon = m => (m && m.teile && m.teile.length > 1) ? m.teile : [{ name: '', hex: '' }];
+
+// Ähnlichste vorhandene Farbe zur Farbe aus dem MakerWorld-Profil, sonst die erste vorhandene
+function naechsteFarbe(hex) {
+    const da = farbListe().filter(f => f.verfuegbar);
+    if (!da.length) return '';
+    if (!hex) return da[0].id;
+    const rgb = h => { const n = parseInt(String(h).split(',')[0].replace('#', '').slice(0, 6), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+    const [r, g, b] = rgb(hex);
+    const abstand = f => { const [r2, g2, b2] = rgb(f.hex); return 2 * (r - r2) ** 2 + 4 * (g - g2) ** 2 + 3 * (b - b2) ** 2; };
+    return da.reduce((best, f) => abstand(f) < abstand(best) ? f : best).id;
+}
+function startWahl(m) {
+    wahl = { farben: teileVon(m).map(t => naechsteFarbe(t.hex)), menge: 1 };
+    renderPick();
+}
+
+function renderPick(offenBei = -1) {
+    const liste = farbListe();
+    if (!liste.length) {
+        $('pick').innerHTML = `<p class="pick__none">${farben ? 'Die Farbe besprechen wir nach deiner Anfrage.' : 'Farben werden geladen …'}</p>`;
+        return;
+    }
+    const teile = teileVon(modelle().find(x => x.id === offen));
+    $('pick').innerHTML = teile.map((t, i) => {
+        const f = liste.find(x => x.id === wahl.farben[i]);
+        return `<div class="pick__teil">
+            ${t.name ? `<span class="pick__name">${esc(t.name)}</span>` : ''}
+            <div class="pick__box">
+                <button type="button" class="pick__btn" data-pick-btn="${i}" aria-haspopup="listbox" aria-expanded="${offenBei === i}"${t.name ? ` aria-label="Farbe für ${esc(t.name)}: ${f ? esc(f.name) : 'keine'}"` : ''}>
+                    ${f ? `${dotHtml(f.hex)}<span>${esc(f.name)}</span><small>${esc(material(f))}</small>` : '<span>Farbe wählen</span>'}
+                    <svg class="icon"><use href="#i-chevron"/></svg>
+                </button>
+                <ul class="pick__list" data-pick-list="${i}" role="listbox" aria-label="Farbe${t.name ? ' für ' + esc(t.name) : ''}"${offenBei === i ? '' : ' hidden'}>
+                    ${t.name ? `<li class="pick__head">Farbe für <b>${esc(t.name)}</b></li>` : ''}
+                    ${liste.map(x => `<li><button type="button" class="pick__opt" role="option" data-teil="${i}" data-farbe="${esc(x.id)}" aria-selected="${x.id === wahl.farben[i]}"${x.verfuegbar ? '' : ' disabled'}>
+                        ${dotHtml(x.hex)}<span>${esc(x.name)}</span><small>${x.verfuegbar ? esc(material(x)) : 'momentan leer'}</small></button></li>`).join('')}
+                </ul>
+            </div>
+        </div>`;
+    }).join('');
+}
+const offeneListe = () => document.querySelector('.pick__list:not([hidden])');
+function pickAuf(i, auf) {
+    document.querySelectorAll('.pick__list').forEach(l => {
+        const an = auf && l.dataset.pickList === String(i);
+        l.hidden = !an;
+        document.querySelector(`[data-pick-btn="${l.dataset.pickList}"]`).setAttribute('aria-expanded', an);
+        if (!an) return;
+        (l.querySelector('[aria-selected="true"]:not([disabled])') || l.querySelector('.pick__opt:not([disabled])'))?.focus();
+        l.scrollIntoView({ block: 'nearest' });   // ganze Liste im Modellfenster sichtbar machen
+    });
 }
 function rechnung() {
     if (!isAdmin() || !$('sheetCalc')) return;
@@ -1117,11 +1747,78 @@ document.addEventListener('click', e => {
         toast(`${m.name}: ×${f} → ${euro(preisVon(m))}`);
         return;
     }
+    const fav = e.target.closest('[data-fav]');
+    if (fav) return toggleMerk(fav.dataset.fav, fav);
     const open = e.target.closest('[data-open]');
-    if (open) return oeffnen(open.dataset.open);
-    if (e.target.closest('[data-close]')) schliessen();
+    if (open) { schliesseMerk(); return oeffnen(open.dataset.open); }
+    if (e.target.closest('[data-close]')) return schliessen();
+    if (e.target.closest('[data-drawer-close]')) return schliesseMerk();
+
+    // Farbwahl im Modellfenster
+    const pb = e.target.closest('[data-pick-btn]');
+    if (pb) return pickAuf(+pb.dataset.pickBtn, pb.getAttribute('aria-expanded') !== 'true');
+    const opt = e.target.closest('.pick__opt');
+    if (opt) {
+        const i = +opt.dataset.teil;
+        wahl.farben[i] = opt.dataset.farbe;
+        renderPick();
+        document.querySelector(`[data-pick-btn="${i}"]`).focus();
+        return;
+    }
+    if (offeneListe() && !e.target.closest('.pick__box')) pickAuf(-1, false);
+    const wd = e.target.closest('[data-wahl-d]');
+    if (wd) { wahl.menge = Math.max(1, Math.min(99, wahl.menge + +wd.dataset.wahlD)); $('wahlMenge').textContent = wahl.menge; return; }
+    if (e.target.closest('#inKorb')) {
+        const m = modelle().find(x => x.id === offen);
+        if (!m) return;
+        inKorb(m, wahl.farben, wahl.menge);
+        const f = teileVon(m).length === 1 && farbListe().find(x => x.id === wahl.farben[0]);
+        schliessen();
+        toast(`Im Warenkorb: ${wahl.menge > 1 ? wahl.menge + ' × ' : ''}${m.name}${f ? ' in ' + f.name : ''}`);
+        $('korbBtn').classList.remove('is-beating'); void $('korbBtn').offsetWidth; $('korbBtn').classList.add('is-beating');
+        return;
+    }
+
+    // Warenkorb-Seite
+    const menge = e.target.closest('[data-menge]');
+    if (menge) return aendereKorb(+menge.dataset.menge, (l, z) => { z.menge = Math.min(99, z.menge + +menge.dataset.d); });
+    const weg = e.target.closest('[data-weg]');
+    if (weg) return aendereKorb(+weg.dataset.weg, (l, z) => { z.menge = 0; });
+    if (e.target.closest('#kSenden')) return sendeAnfrage();
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal').hidden) schliessen(); });
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const l = offeneListe();
+    if (l) { pickAuf(-1, false); document.querySelector(`[data-pick-btn="${l.dataset.pickList}"]`).focus(); return; }
+    if ($('drawer').classList.contains('is-open')) return schliesseMerk();
+    if (!$('modal').hidden) schliessen();
+});
+// Pfeiltasten im Farbmenü
+$('sheet').addEventListener('keydown', e => {
+    const l = offeneListe();
+    if (!l || !['ArrowDown', 'ArrowUp'].includes(e.key)) return;
+    e.preventDefault();
+    const opts = [...l.querySelectorAll('.pick__opt:not([disabled])')];
+    const i = opts.indexOf(document.activeElement);
+    opts[(i + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length]?.focus();
+});
+$('merkBtn').addEventListener('click', oeffneMerk);
+window.addEventListener('hashchange', () => {
+    if (!started) return;
+    if (!$('modal').hidden) schliessen();
+    schliesseMerk();
+    if (seite() !== 'warenkorb') gesendet = null;
+    renderSeite();
+    renderStats();
+    window.scrollTo(0, 0);
+});
+// Merkliste oder Warenkorb in einem anderen Tab geändert
+window.addEventListener('storage', e => {
+    if (!started || (e.key !== MERK_STORE && e.key !== KORB_STORE)) return;
+    renderKopf();
+    if (e.key === KORB_STORE) { renderKorb(); renderStats(); }
+    else { renderGalerie(); if ($('drawer').classList.contains('is-open')) renderMerk(); }
+});
 $('sync').addEventListener('click', () => { if (started) sync(); });
 
 // Neuesten Stand holen: beim Zurückkehren und jede Minute
@@ -1179,6 +1876,7 @@ async function start(r, access) {
             galerie = g;
         }
         if (rolle === 'kunde') schaufenster = schaufensterAus(galerie, {});
+        try { farben = await (await fetch('vorschau/farben.json', { cache: 'no-store' })).json(); } catch (e) { farben = { farben: [] }; }
     }
     started = true;
     $('lock').classList.add('is-leaving');
