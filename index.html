@@ -513,6 +513,16 @@ body.is-locked { overflow: hidden; }
    Farbwahl und Hinweise im Modellfenster
 ========================================================== */
 
+.opts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.opts .chip { height: 2.375rem; }
+.opts__info { display: flex; align-items: center; gap: .4rem; min-height: 1.2em; margin-top: calc(-1 * var(--space-1)); font-size: var(--font-size-xs); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.opts__info:empty { display: none; }
+.opts__info svg { width: .9rem; height: .9rem; color: var(--color-text-muted); }
+.sheet__delete { display: inline-flex; align-items: center; gap: var(--space-2); align-self: flex-start; font-size: var(--font-size-sm); color: var(--color-danger); }
+.sheet__delete svg { width: 1rem; height: 1rem; }
+.sheet__delete:hover { text-decoration: underline; text-underline-offset: 3px; }
+.toast button { margin-left: var(--space-3); font-weight: 600; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.zeile__opt { margin-top: var(--space-1); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .sheet__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); padding-right: 2.5rem; }
 .buy { display: flex; flex-direction: column; gap: var(--space-3); }
 .pick { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -654,6 +664,7 @@ body.is-locked { overflow: hidden; }
     <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
     <symbol id="i-cart-full" viewBox="0 0 24 24"><path d="M5.12 7.05h16.97l-1.65 7.43a2 2 0 0 1-1.95 1.57H8.71a2 2 0 0 1-2-1.58L5.12 7.05Z" fill="currentColor"/><path d="M2.05 2.05h2l1.07 5"/><circle cx="8" cy="21" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="21" r="1.5" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
     <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
     <symbol id="i-vase" viewBox="0 0 24 24"><path d="M9 3h6M10 3v3.5c0 1-3.5 2.5-3.5 7 0 3.5 2 6.5 5.5 6.5s5.5-3 5.5-6.5c0-4.5-3.5-6-3.5-7V3"/><path d="M8 14c2.5 1 5.5 1 8 0"/></symbol>
@@ -820,7 +831,25 @@ function roundUpToHalfEuro(value) {
     return Math.ceil(totalCents / 50) * 50 / 100;
 }
 const grundpreis = m => m.gramm * galerie.preise.gramm + m.stunden * galerie.preise.stunde;
-const preisVon = m => Math.max(.5, roundUpToHalfEuro(grundpreis(m) * m.faktor));
+// o = eine Größe/Variante mit eigenen Gramm und Stunden, sonst das Modell selbst (Standard)
+const preisVon = (m, o = m) => Math.max(.5, roundUpToHalfEuro(grundpreis(o) * m.faktor));
+
+/* Größen und Varianten: optionen = { art: 'Größe' | 'Variante', liste: [{ name, masse, gramm, stunden, teile, standard }] }
+   Kunden bekommen pro Option nur Name, Maße, Teile und den fertigen Preis. */
+const optionenVon = m => (m && m.optionen && m.optionen.liste && m.optionen.liste.length > 1) ? m.optionen.liste : null;
+const standardOption = m => { const l = optionenVon(m); return l ? Math.max(0, l.findIndex(o => o.standard)) : 0; };
+function mitOptionen(m, kunde) {
+    const l = optionenVon(m);
+    if (!l) return { preis: preisVon(m) };
+    const liste = l.map(o => kunde
+        ? { name: o.name, ...(o.masse ? { masse: o.masse } : {}), ...(o.teile ? { teile: o.teile } : {}), ...(o.standard ? { standard: true } : {}), preis: preisVon(m, o) }
+        : { ...o, preis: preisVon(m, o) });
+    const preise = liste.map(o => o.preis);
+    return { optionen: { art: m.optionen.art, liste }, preis: Math.min(...preise), ab: Math.min(...preise) !== Math.max(...preise) };
+}
+// Preis einer Option (Index) bzw. einer Warenkorb-Zeile (Optionsname)
+const optPreis = (m, i) => optionenVon(m) ? optionenVon(m)[i].preis : m.preis;
+const optIndex = (m, name) => { const l = optionenVon(m); if (!l) return 0; const i = l.findIndex(o => o.name === name); return i < 0 ? standardOption(m) : i; };
 
 const euro = v => v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
 function dauer(h) {
@@ -837,8 +866,9 @@ function schaufensterAus(g, bildShas) {
         version: 1,
         modelle: g.modelle.map(m => ({
             id: m.id, name: m.name, kat: m.kat, saison: m.saison, anlass: m.anlass,
-            masse: m.masse, preis: preisVon(m), bild: (bildShas && bildShas[m.id]) || '',
+            masse: m.masse, bild: (bildShas && bildShas[m.id]) || '',
             ...(m.teile && m.teile.length ? { teile: m.teile } : {}),   // mehrfarbig: Teile mit Farbe aus dem Profil
+            ...mitOptionen(m, true),                                      // preis, bei Größen/Varianten „ab“-Preis und Liste
         })),
     };
 }
@@ -846,7 +876,7 @@ function schaufensterAus(g, bildShas) {
 /* Die Liste, die gerade gezeigt wird: Admin bekommt alle Felder plus Preis */
 function modelle() {
     if (rolle === 'admin') {
-        if (ansicht === 'admin') return galerie.modelle.map(m => ({ ...m, preis: preisVon(m) }));
+        if (ansicht === 'admin') return galerie.modelle.map(m => ({ ...m, ...mitOptionen(m, false) }));
         return schaufensterAus(galerie, bildShas).modelle;
     }
     return schaufenster ? schaufenster.modelle : [];
@@ -1180,9 +1210,9 @@ function karte(m, i) {
         <div class="card__body">
             ${tags ? `<div class="tags">${tags}</div>` : ''}
             <h3 class="card__name">${esc(m.name)}</h3>
-            ${masseHtml(m)}
+            ${isAdmin() ? masseHtml(m) : ''}
             <div class="card__foot">
-                <div class="price"><small>Preisvorschlag</small><strong>${euro(m.preis)}</strong></div>
+                <div class="price"><small>${isAdmin() && m.optionen ? `${optionenVon(m).length} ${m.optionen.art === 'Größe' ? 'Größen' : 'Varianten'}` : 'Preis'}</small><strong>${m.ab ? 'ab ' : ''}${euro(m.preis)}</strong></div>
                 ${isAdmin() ? `<div class="meta">${dauer(m.stunden)}<br>${m.gramm} g</div>` : ''}
             </div>
             ${isAdmin() ? multHtml(m) : ''}
@@ -1232,14 +1262,14 @@ function renderStats() {
     const s = seite();
     const stats = s === 'farben' ? (farbListe().length ? [[farbListe().filter(f => f.verfuegbar).length, 'Verfügbar'], [farbListe().filter(f => !f.verfuegbar).length, 'Bald wieder da']] : [])
         : s === 'pflege' ? [['PLA', 'Aus Maisstärke']]
-        : s === 'warenkorb' ? (gesendet || !korb().length ? [] : [[korb().reduce((a, z) => a + z.menge, 0), 'Stück'], [euro(korb().reduce((a, z) => a + liste.find(m => m.id === z.id).preis * z.menge, 0)), 'Summe']])
+        : s === 'warenkorb' ? (gesendet || !korb().length ? [] : [[korb().reduce((a, z) => a + z.menge, 0), 'Stück'], [euro(korb().reduce((a, z) => a + zeilenPreis(liste.find(m => m.id === z.id), z) * z.menge, 0)), 'Summe']])
         : isAdmin()
         ? [[liste.length, 'Modelle'], [liste.filter(m => m.ams).length, 'Mit AMS'], [Math.round(liste.reduce((a, m) => a + m.stunden, 0)) + ' h', 'Druckzeit gesamt']]
         : [[liste.length, 'Modelle'], [new Set(liste.map(m => m.kat)).size, 'Kategorien'], [preise.length ? 'ab ' + euro(Math.min(...preise)) : '–', 'Preis']];
     $('stats').innerHTML = stats.map(([v, l]) => `<div><div class="stat__value">${v}</div><div class="label stat__label">${l}</div></div>`).join('');
     $('heroLabel').textContent = SEITEN[s].label + (isAdmin() ? ' · Admin' : '');
     $('footNote').textContent = !remote ? 'Lokale Vorschau, gespeichert nur in diesem Browser'
-        : isAdmin() ? 'Daten von MakerWorld (Standardprofil)' : 'Preise sind Vorschläge';
+        : isAdmin() ? 'Daten von MakerWorld (Standardprofil)' : 'Gedruckt aus PLA';
 }
 
 /* ==========================================================
@@ -1386,10 +1416,10 @@ function renderMerk() {
             <div class="merk__img"><img data-bild="${esc(m.id)}" alt=""></div>
             <div>
                 <div class="merk__top">
-                    <div><h3>${esc(m.name)}</h3><p>${esc(m.kat)} · ${euro(m.preis)}</p></div>
+                    <div><h3>${esc(m.name)}</h3><p>${esc(m.kat)} · ${m.ab ? 'ab ' : ''}${euro(m.preis)}</p></div>
                     ${favHtml(m)}
                 </div>
-                <button type="button" class="btn btn--dark" data-open="${esc(m.id)}">Ansehen</button>
+                <button type="button" class="btn btn--dark" data-open="${esc(m.id)}"><svg class="icon"><use href="#i-cart"/></svg>In den Warenkorb</button>
             </div>
         </article>`).join('')
         : `<div class="drawer__empty"><svg class="icon"><use href="#i-heart"/></svg><h3>Noch nichts gemerkt</h3><p>Tippe bei einem Modell auf das Herz, um es hier zu speichern.</p></div>`;
@@ -1412,18 +1442,23 @@ function schliesseMerk() {
    Warenkorb – wie im Bergliacht-Shop, Anfrage per Web3Forms an Patrick
 ========================================================== */
 
-// Eine Zeile: { id, menge, teile: [{ teil, farbe, name, hex }] } – teil ist leer bei einfarbigen Modellen.
+// Eine Zeile: { id, option, menge, teile: [{ teil, farbe, name, hex }] } – teil ist leer bei einfarbigen Modellen,
+// option ist der Name der Größe/Variante (leer, wenn das Modell keine hat).
 // Name und Hex der Farbe werden mitgemerkt, falls die Farbe später aus dem Lager verschwindet.
 const alsZeile = z => z.teile ? z : { id: z.id, menge: z.menge, teile: [{ teil: '', farbe: z.farbe, name: z.name, hex: z.hex }] };
 const korb = () => { const da = new Set(modelle().map(m => m.id)); return liesListe(KORB_STORE).map(alsZeile).filter(z => da.has(z.id)); };
-const gleicheZeile = (a, b) => a.id === b.id && a.teile.map(t => t.farbe).join() === b.teile.map(t => t.farbe).join();
+const gleicheZeile = (a, b) => a.id === b.id && (a.option || '') === (b.option || '') && a.teile.map(t => t.farbe).join() === b.teile.map(t => t.farbe).join();
+const zeilenPreis = (m, z) => optPreis(m, optIndex(m, z.option));
 
-function inKorb(m, farbIds, menge) {
+function inKorb(m, farbIds, menge, optI) {
     const liste = liesListe(KORB_STORE).map(alsZeile);
-    const neu = { id: m.id, menge, teile: teileVon(m).map((t, i) => {
+    const ol = optionenVon(m);
+    const zeigen = sichtbareTeile(m);
+    const neu = { id: m.id, option: ol ? ol[optI].name : '', menge, teile: teileVon(m).map((t, i) => {
+        if (!zeigen.includes(i)) return null;
         const f = farbListe().find(x => x.id === farbIds[i]);
-        return { teil: t.name, farbe: farbIds[i] || '', name: f ? f.name : '', hex: f ? f.hex : '' };
-    }) };
+        return { teil: zeigen.length > 1 ? t.name : '', farbe: farbIds[i] || '', name: f ? f.name : '', hex: f ? f.hex : '' };
+    }).filter(Boolean) };
     const z = liste.find(x => gleicheZeile(x, neu));
     if (z) z.menge += menge;
     else liste.push(neu);
@@ -1470,7 +1505,7 @@ function renderKorb() {
         return;
     }
     const alle = modelle();
-    const summe = liste.reduce((s, z) => s + alle.find(m => m.id === z.id).preis * z.menge, 0);
+    const summe = liste.reduce((s, z) => s + zeilenPreis(alle.find(m => m.id === z.id), z) * z.menge, 0);
     const alt = { name: $('kName')?.value || '', tel: $('kTel')?.value || '', notiz: $('kNotiz')?.value || '' };
     $('pageKorb').innerHTML = `<div class="korb">
         <div>${liste.map((z, i) => {
@@ -1485,6 +1520,7 @@ function renderKorb() {
                 <div class="zeile__img"><img data-bild="${esc(m.id)}" alt=""></div>
                 <div>
                     <button type="button" class="zeile__name" data-open="${esc(m.id)}">${esc(m.name)}</button>
+                    ${z.option && m.optionen ? `<p class="zeile__opt">${esc(m.optionen.art)}: ${esc(z.option)}</p>` : ''}
                     ${farbZeilen}
                     ${leer ? `<p class="zeile__warn">${z.teile.length > 1 ? 'Eine dieser Farben' : 'Diese Farbe'} ist momentan leer – für Nachschub ist gesorgt.</p>` : ''}
                     <div class="zeile__ctrl">
@@ -1492,13 +1528,13 @@ function renderKorb() {
                         <button type="button" class="zeile__weg" data-weg="${i}">Entfernen</button>
                     </div>
                 </div>
-                <div class="zeile__preis">${euro(m.preis * z.menge)}${z.menge > 1 ? `<small>je ${euro(m.preis)}</small>` : ''}</div>
+                <div class="zeile__preis">${euro(zeilenPreis(m, z) * z.menge)}${z.menge > 1 ? `<small>je ${euro(zeilenPreis(m, z))}</small>` : ''}</div>
             </article>`;
         }).join('')}</div>
         <aside class="summe">
             <div class="summe__row"><span>${liste.reduce((s, z) => s + z.menge, 0)} Stück</span><span>${euro(summe)}</span></div>
             <div class="summe__total"><span>Gesamt</span><strong>${euro(summe)}</strong></div>
-            <p class="summe__note">Die Preise sind Vorschläge. Patrick meldet sich bei dir, um alles Weitere zu besprechen.</p>
+            <p class="summe__note">Nach deiner Anfrage meldet sich Patrick bei dir, um alles Weitere zu besprechen.</p>
             <label class="feld"><span>Name</span><input id="kName" autocomplete="name" value="${esc(alt.name)}"></label>
             <label class="feld"><span>Telefon</span><input id="kTel" type="tel" autocomplete="tel" value="${esc(alt.tel)}"></label>
             <label class="feld"><span>Notiz <em>optional</em></span><textarea id="kNotiz" rows="3" placeholder="z. B. Wunschtermin, Sonderwünsche …">${esc(alt.notiz)}</textarea></label>
@@ -1515,19 +1551,20 @@ function bestellText(name, tel, notiz, nummer, liste) {
     let summe = 0;
     const zeilen = liste.map(z => {
         const m = alle.find(x => x.id === z.id);
-        summe += m.preis * z.menge;
+        const preis = zeilenPreis(m, z);
+        summe += preis * z.menge;
         const farbe = t => {
             const f = farbListe().find(x => x.id === t.farbe);
             return t.farbe ? (f ? f.name + (f.art ? ` (${f.art})` : '') : t.name) + (f && !f.verfuegbar ? ' – momentan leer' : '') : 'nach Absprache';
         };
         const farbText = z.teile.length > 1 ? ['Farben:', ...z.teile.map(t => `  ${t.teil}: ${farbe(t)}`)].join('\n') : `Farbe: ${farbe(z.teile[0])}`;
-        return [m.name, `Modell-Nr.: ${m.id} (${m.kat})`, farbText,
-            `Menge: ${z.menge}`, `Einzelpreis: ${euro(m.preis)}`, `Gesamt: ${euro(m.preis * z.menge)}`].join('\n');
+        return [m.name, `Modell-Nr.: ${m.id} (${m.kat})`, ...(z.option && m.optionen ? [`${m.optionen.art}: ${z.option}`] : []), farbText,
+            `Menge: ${z.menge}`, `Einzelpreis: ${euro(preis)}`, `Gesamt: ${euro(preis * z.menge)}`].join('\n');
     }).join('\n\n');
     return ['BESTELLANFRAGE · MODELL-GALERIE', strich, '',
         `Nummer: ${nummer}`, `Datum: ${new Date().toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' })}`, '',
         `Name: ${name}`, `Telefon: ${tel}`, '', strich, 'MODELLE', strich, '', zeilen, '', strich,
-        `Gesamt (Preisvorschlag): ${euro(summe)}`, strich, '', 'NOTIZ', '', notiz || 'Keine Notiz angegeben.'].join('\n');
+        `Gesamt: ${euro(summe)}`, strich, '', 'NOTIZ', '', notiz || 'Keine Notiz angegeben.'].join('\n');
 }
 
 async function sendeAnfrage() {
@@ -1588,9 +1625,14 @@ function oeffnen(id) {
                 ${tags ? `<p class="tags" style="margin-top:var(--space-2)">${esc(tags)}</p>` : ''}
                 ${(m.masse && m.masse.length) || isAdmin() ? `<div style="margin-top:var(--space-3)">${masseHtml(m)}</div>` : ''}
             </div>
-            <div class="sheet__price"><strong id="sheetPrice">${euro(m.preis)}</strong><span>Preisvorschlag</span></div>
+            <div class="sheet__price"><strong id="sheetPrice">${euro(m.preis)}</strong><span>Preis</span></div>
             <div class="buy">
-                <span class="label sub" style="margin:0">${teileVon(m).length > 1 ? `Farben · ${teileVon(m).length} Teile` : 'Farbe'}</span>
+                ${optionenVon(m) ? `
+                <span class="label sub" style="margin:0">${esc(m.optionen.art)}</span>
+                <div class="opts" role="radiogroup" aria-label="${esc(m.optionen.art)}">${optionenVon(m).map((o, i) =>
+                    `<button type="button" class="chip" role="radio" data-option="${i}">${esc(o.name)}</button>`).join('')}</div>
+                <p class="opts__info" id="optInfo"></p>` : ''}
+                <span class="label sub" style="margin:0" id="farbTitel"></span>
                 <div class="pick" id="pick"></div>
                 <div class="buy__row">
                     <div class="qty"><button type="button" data-wahl-d="-1" aria-label="Weniger">−</button><span id="wahlMenge">1</span><button type="button" data-wahl-d="1" aria-label="Mehr">+</button></div>
@@ -1601,8 +1643,8 @@ function oeffnen(id) {
             ${isAdmin() ? `
             <div class="sheet__admin">
                 <div class="facts">
-                    <div class="fact"><small>Druckzeit</small><b>${dauer(m.stunden)}</b></div>
-                    <div class="fact"><small>Filament</small><b>${m.gramm} g</b></div>
+                    <div class="fact"><small>Druckzeit</small><b id="factZeit">${dauer(m.stunden)}</b></div>
+                    <div class="fact"><small>Filament</small><b id="factGramm">${m.gramm} g</b></div>
                     <div class="fact"><small>Platten</small><b>${m.platten === 1 ? 'Ein Druck' : m.platten + ' Platten'}</b></div>
                     <div class="fact"><small>AMS</small><b>${m.ams ? 'Ja, ' + m.farben + ' Farben' : (m.farben > 1 ? 'Nein, ' + m.farben + ' Farben getrennt' : 'Nein')}</b></div>
                 </div>
@@ -1613,9 +1655,9 @@ function oeffnen(id) {
                 <div class="calc" id="sheetCalc"></div>
                 <a class="btn btn--dark" href="${mwLink(m)}" target="_blank" rel="noopener"><svg class="icon"><use href="#i-ext"/></svg>Auf MakerWorld öffnen</a>
                 <p class="sheet__credit">Modell von ${esc(m.autor)} auf MakerWorld</p>
+                <button type="button" class="sheet__delete" data-loeschen="${esc(m.id)}"><svg class="icon"><use href="#i-trash"/></svg>Modell löschen</button>
             </div>` : ''}
         </div>`;
-    if (isAdmin()) rechnung();
     startWahl(m);
     ladeBilder($('sheet'));
     $('modal').hidden = false;
@@ -1638,8 +1680,33 @@ function naechsteFarbe(hex) {
     return da.reduce((best, f) => abstand(f) < abstand(best) ? f : best).id;
 }
 function startWahl(m) {
-    wahl = { farben: teileVon(m).map(t => naechsteFarbe(t.hex)), menge: 1 };
+    wahl = { option: standardOption(m), farben: teileVon(m).map(t => naechsteFarbe(t.hex)), menge: 1 };
+    zeigeOption();
+}
+
+// Teile, die bei der gewählten Größe/Variante dabei sind (Index in teileVon)
+function sichtbareTeile(m) {
+    const alle = teileVon(m).map((t, i) => i);
+    const o = optionenVon(m) && optionenVon(m)[wahl.option];
+    return o && o.teile ? alle.filter(i => o.teile.includes(i)) : alle;
+}
+
+// Gewählte Größe/Variante anzeigen: Knopf, Maße, Preis, Farbmenüs, beim Admin die Rechnung
+function zeigeOption() {
+    const m = modelle().find(x => x.id === offen);
+    if (!m) return;
+    document.querySelectorAll('[data-option]').forEach(b => {
+        const an = +b.dataset.option === wahl.option;
+        b.classList.toggle('is-active', an);
+        b.setAttribute('aria-checked', an);
+    });
+    const o = optionenVon(m) && optionenVon(m)[wahl.option];
+    if ($('optInfo')) $('optInfo').innerHTML = o && o.masse ? `<svg class="icon"><use href="#i-ruler"/></svg>${esc(o.masse)}` : '';
+    $('sheetPrice').textContent = euro(optPreis(m, wahl.option));
+    const n = sichtbareTeile(m).length;
+    $('farbTitel').textContent = n > 1 ? `Farben · ${n} Teile` : 'Farbe';
     renderPick();
+    if (isAdmin()) rechnung();
 }
 
 function renderPick(offenBei = -1) {
@@ -1648,8 +1715,11 @@ function renderPick(offenBei = -1) {
         $('pick').innerHTML = `<p class="pick__none">${farben ? 'Die Farbe besprechen wir nach deiner Anfrage.' : 'Farben werden geladen …'}</p>`;
         return;
     }
-    const teile = teileVon(modelle().find(x => x.id === offen));
+    const m = modelle().find(x => x.id === offen);
+    const teile = teileVon(m), zeigen = sichtbareTeile(m);
     $('pick').innerHTML = teile.map((t, i) => {
+        if (!zeigen.includes(i)) return '';
+        if (zeigen.length === 1) t = { ...t, name: '' };   // nur ein Teil übrig: wie einfarbig
         const f = liste.find(x => x.id === wahl.farben[i]);
         return `<div class="pick__teil">
             ${t.name ? `<span class="pick__name">${esc(t.name)}</span>` : ''}
@@ -1682,13 +1752,17 @@ function rechnung() {
     if (!isAdmin() || !$('sheetCalc')) return;
     const m = galerie.modelle.find(x => x.id === offen);
     if (!m) return;
-    const g = grundpreis(m), p = galerie.preise;
+    const o = (optionenVon(m) && optionenVon(m)[wahl.option]) || m;   // gewählte Größe/Variante
+    const g = grundpreis(o), p = galerie.preise;
     $('sheetCalc').innerHTML = `
-        <div><span>Material: ${m.gramm} g × ${euro(p.gramm)}</span><span>${euro(m.gramm * p.gramm)}</span></div>
-        <div><span>Druck: ${m.stunden.toLocaleString('de-DE')} h × ${euro(p.stunde)}</span><span>${euro(m.stunden * p.stunde)}</span></div>
+        ${o !== m ? `<div><span>${esc(m.optionen.art)}: ${esc(o.name)}${o.geschaetzt ? ' (geschätzt)' : ''}</span><span></span></div>` : ''}
+        <div><span>Material: ${o.gramm} g × ${euro(p.gramm)}</span><span>${euro(o.gramm * p.gramm)}</span></div>
+        <div><span>Druck: ${o.stunden.toLocaleString('de-DE')} h × ${euro(p.stunde)}</span><span>${euro(o.stunden * p.stunde)}</span></div>
         <div><span>× ${m.faktor}</span><span>${euro(g * m.faktor)}</span></div>
-        <div><span>Auf 50 Cent aufgerundet</span><span>${euro(preisVon(m))}</span></div>`;
-    $('sheetPrice').textContent = euro(preisVon(m));
+        <div><span>Auf 50 Cent aufgerundet</span><span>${euro(preisVon(m, o))}</span></div>`;
+    $('sheetPrice').textContent = euro(preisVon(m, o));
+    $('factZeit').textContent = dauer(o.stunden);
+    $('factGramm').textContent = o.gramm + ' g';
     $('sheetMult').innerHTML = multHtml(m);
 }
 function schliessen() {
@@ -1698,11 +1772,39 @@ function schliessen() {
 }
 
 let toastTimer;
-function toast(text) {
+// aktion = { text, fn }: Knopf in der Meldung, z. B. „Rückgängig“ (bleibt dann länger stehen)
+function toast(text, aktion) {
     $('toast').textContent = text;
+    if (aktion) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = aktion.text;
+        b.onclick = () => { $('toast').classList.remove('is-visible'); aktion.fn(); };
+        $('toast').append(b);
+    }
     $('toast').classList.add('is-visible');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => $('toast').classList.remove('is-visible'), 2600);
+    toastTimer = setTimeout(() => $('toast').classList.remove('is-visible'), aktion ? 7000 : 2600);
+}
+
+// Admin: Modell löschen. Bleibt 90 Tage in geloescht vermerkt, damit es auf allen Geräten verschwindet.
+function loeschen(id) {
+    const i = galerie.modelle.findIndex(x => x.id === id);
+    if (i < 0) return;
+    const m = galerie.modelle[i];
+    if (!confirm(`„${m.name}“ wirklich löschen?\nDas Modell verschwindet auch bei den Kunden.`)) return;
+    galerie.modelle.splice(i, 1);
+    galerie.geloescht[id] = Date.now();
+    speichern();
+    schliessen();
+    render();
+    toast(`„${m.name}“ gelöscht`, { text: 'Rückgängig', fn: () => {
+        delete galerie.geloescht[id];
+        galerie.modelle.splice(Math.min(i, galerie.modelle.length), 0, { ...m, updated: Date.now() });
+        speichern();
+        render();
+        toast(`„${m.name}“ ist wieder da`);
+    } });
 }
 
 /* ==========================================================
@@ -1755,6 +1857,10 @@ document.addEventListener('click', e => {
     if (e.target.closest('[data-drawer-close]')) return schliesseMerk();
 
     // Farbwahl im Modellfenster
+    const del = e.target.closest('[data-loeschen]');
+    if (del && rolle === 'admin') return loeschen(del.dataset.loeschen);
+    const ob = e.target.closest('[data-option]');
+    if (ob) { wahl.option = +ob.dataset.option; return zeigeOption(); }
     const pb = e.target.closest('[data-pick-btn]');
     if (pb) return pickAuf(+pb.dataset.pickBtn, pb.getAttribute('aria-expanded') !== 'true');
     const opt = e.target.closest('.pick__opt');
@@ -1771,10 +1877,11 @@ document.addEventListener('click', e => {
     if (e.target.closest('#inKorb')) {
         const m = modelle().find(x => x.id === offen);
         if (!m) return;
-        inKorb(m, wahl.farben, wahl.menge);
+        inKorb(m, wahl.farben, wahl.menge, wahl.option);
         const f = teileVon(m).length === 1 && farbListe().find(x => x.id === wahl.farben[0]);
         schliessen();
-        toast(`Im Warenkorb: ${wahl.menge > 1 ? wahl.menge + ' × ' : ''}${m.name}${f ? ' in ' + f.name : ''}`);
+        const o = optionenVon(m) && optionenVon(m)[wahl.option];
+        toast(`Im Warenkorb: ${wahl.menge > 1 ? wahl.menge + ' × ' : ''}${m.name}${o ? ` (${o.name})` : ''}${f ? ' in ' + f.name : ''}`);
         $('korbBtn').classList.remove('is-beating'); void $('korbBtn').offsetWidth; $('korbBtn').classList.add('is-beating');
         return;
     }
