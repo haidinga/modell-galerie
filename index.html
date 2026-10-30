@@ -184,6 +184,21 @@ svg.icon { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: curr
 .chip small { font-size: var(--font-size-xs); opacity: .6; }
 .chip i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--c); }
 
+/* Admin: Kategorien in der Filterleiste pflegen */
+.chip--werkzeug { width: 2.125rem; padding: 0; justify-content: center; border-style: dashed; color: var(--color-text-muted); }
+.chip--werkzeug .icon { width: 1rem; height: 1rem; }
+.chip--ohne { border-style: dashed; }
+.chip--feld { gap: var(--space-1); padding: 0 var(--space-1) 0 var(--space-3); background: var(--color-surface-secondary); cursor: text; }
+.chip--feld:focus-within { border-color: var(--color-primary); background: var(--color-background); }
+.chip--feld input { border: 0; padding: 0; background: none; font: inherit; color: var(--color-text-primary); outline: none; min-width: 5ch; field-sizing: content; }
+.chip--feld input::placeholder { color: var(--color-text-muted); }
+.chip--feld small { margin-right: var(--space-1); }
+.chip__weg { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; color: var(--color-text-muted); cursor: pointer; }
+.chip__weg:hover { background: rgba(182, 77, 77, .12); color: var(--color-danger); }
+.chip__weg .icon { width: .85rem; height: .85rem; }
+.chip--fertig, .chip--fertig:hover { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-text-inverse); }
+.chip--fertig .icon { width: 1rem; height: 1rem; }
+
 .frow--admin { padding-top: var(--space-3); margin-top: var(--space-4) !important; border-top: 1px dashed rgba(59, 52, 45, .18); }
 .admin-tag { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-primary) !important; }
 .admin-tag svg { width: .9rem; height: .9rem; }
@@ -961,6 +976,7 @@ body.is-locked { overflow: hidden; }
    Feste Listen
 ========================================================== */
 
+// Startliste; danach pflegt der Admin die Kategorien selbst (galerie.json → kategorien)
 const KATEGORIEN = ['Figuren', 'Vasen & Töpfe', 'Lampen & Lichter', 'Schilder & Schriftzüge', 'Hänger & Ornamente', 'Aufsteller', 'Aufbewahrung'];
 const SAISONEN = [
     { id: 'Winter', c: 'var(--s-winter)' },
@@ -1042,10 +1058,18 @@ function dauer(h) {
 const mwLink = m => `https://makerworld.com/de/models/${m.id}-${m.slug}`;
 const saisonFarbe = s => (SAISONEN.find(x => x.id === s) || {}).c;
 
+// Kategorien: der Admin pflegt sie in galerie.json, Kunden bekommen die Liste über schaufenster.json
+const kategorien = () => (rolle === 'admin' ? galerie && galerie.kategorien.liste : schaufenster && schaufenster.kategorien) || KATEGORIEN;
+const OHNE = '_ohne';   // Filterwert für Modelle, deren Kategorie entfernt wurde
+const katName = k => k || (isAdmin() ? 'Ohne Kategorie' : 'Weitere Modelle');
+const katOptionen = aktiv => (kategorien().includes(aktiv) ? '' : `<option value="${esc(aktiv)}" selected>${esc(katName(aktiv))}</option>`)
+    + kategorien().map(k => `<option value="${esc(k)}"${k === aktiv ? ' selected' : ''}>${esc(k)}</option>`).join('');
+
 // Was Kunden sehen dürfen, mehr steht nicht in schaufenster.json
 function schaufensterAus(g, bildShas) {
     return {
         version: 1,
+        kategorien: g.kategorien.liste,
         modelle: g.modelle.map(m => ({
             id: m.id, name: m.name, kat: m.kat, saison: m.saison, anlass: m.anlass,
             masse: m.masse, bild: (bildShas && bildShas[m.id]) || '', bildK: (bildShasK && bildShasK[m.id]) || '',
@@ -1087,6 +1111,9 @@ function normiere(g) {
         version: 1,
         preise: { stunde: .2, gramm: .02, ...(g.preise || {}) },
         modelle: Array.isArray(g.modelle) ? g.modelle : [],
+        // { liste, updated }; fehlt sie noch: Startliste plus alles, was in den Modellen steht
+        kategorien: g.kategorien && Array.isArray(g.kategorien.liste) ? g.kategorien
+            : { liste: [...new Set([...KATEGORIEN, ...(g.modelle || []).map(m => m.kat).filter(Boolean)])], updated: 0 },
         geloescht: g.geloescht || {},
         bestellstatus: g.bestellstatus || {},   // Nummer -> { status, notiz, updated }
         manuell: g.manuell || {},               // von Hand erfasste Bestellungen: Nummer -> Bestellung mit updated
@@ -1207,6 +1234,7 @@ function merge(a, b) {
         version: 1,
         preise: b.preise || a.preise,
         modelle: [...neu.values()].filter(m => !(geloescht[m.id] >= (m.updated || 0))),
+        kategorien: (b.kategorien.updated || 0) > (a.kategorien.updated || 0) ? b.kategorien : a.kategorien,
         geloescht,
         bestellstatus: mischeStatus(a.bestellstatus, b.bestellstatus),
         manuell: mischeStatus(a.manuell, b.manuell),
@@ -1349,7 +1377,7 @@ const SORTS = [
 
 function gefiltert(ohne) {
     return modelle().filter(m =>
-        (ohne === 'kat' || !filter.kat || m.kat === filter.kat) &&
+        (ohne === 'kat' || !filter.kat || (filter.kat === OHNE ? !kategorien().includes(m.kat) : m.kat === filter.kat)) &&
         (ohne === 'saison' || !filter.saison || m.saison.includes(filter.saison)) &&
         (ohne === 'anlass' || !filter.anlass || m.anlass.includes(filter.anlass)) &&
         (ohne === 'druck' || !isAdmin() || !filter.druck || DRUCK.find(d => d.id === filter.druck).test(m)));
@@ -1369,7 +1397,8 @@ function renderFilter() {
             return chip(id, filter[key] === id, n, extra ? extra(v) : '');
         }).join('');
     };
-    $('fKat').innerHTML = alle('kat', KATEGORIEN, (m, v) => m.kat === v);
+    if (!isAdmin()) katNeu = katBearbeiten = false;
+    if (isAdmin()) katZeichnen(); else $('fKat').innerHTML = alle('kat', kategorien(), (m, v) => m.kat === v);
     $('fSaison').innerHTML = alle('saison', SAISONEN, (m, v) => m.saison.includes(v), v => `<i style="--c:${v.c}"></i>`);
     $('fAnlass').innerHTML = alle('anlass', ANLAESSE, (m, v) => m.anlass.includes(v));
     $('fDruck').innerHTML = isAdmin() ? chip('Alle', !filter.druck, null) + DRUCK.map(d => {
@@ -1385,6 +1414,102 @@ function renderFilter() {
     $('filterAnzahl').textContent = aktiv;
     document.querySelectorAll('[data-admin]').forEach(el => el.hidden = !isAdmin());
     document.querySelectorAll('[data-darstellung]').forEach(b => b.classList.toggle('is-active', b.dataset.darstellung === darstellung));
+}
+
+/* ---------- Admin: Kategorien direkt in der Filterleiste pflegen ----------
+   „+“ legt eine neue an, der Stift schaltet Umbenennen und Entfernen frei.
+   Entfernte Kategorien: ihre Modelle stehen danach unter „Ohne Kategorie“ (5 Sekunden „Rückgängig“). */
+
+let katNeu = false, katBearbeiten = false, katZeichnet = false;
+function katZeichnen() {
+    const basis = gefiltert('kat'), liste = kategorien();
+    const anzahl = k => basis.filter(m => m.kat === k).length;
+    const ohne = basis.filter(m => !liste.includes(m.kat)).length;
+    const altesFeld = $('fKat').querySelector('[data-kat-neu]');
+    const entwurf = altesFeld ? altesFeld.value : '', fokus = katNeu && (!altesFeld || document.activeElement === altesFeld);
+    const feldNeu = `<label class="chip chip--feld"><input type="text" data-kat-neu maxlength="40" placeholder="Neue Kategorie" aria-label="Neue Kategorie" enterkeyhint="done"></label>`;
+    const plus = `<button type="button" class="chip chip--werkzeug" data-kat-plus aria-label="Kategorie hinzufügen" title="Kategorie hinzufügen"><svg class="icon"><use href="#i-plus"/></svg></button>`;
+    const html = katBearbeiten
+        ? liste.map(k => `<label class="chip chip--feld"><input type="text" value="${esc(k)}" data-kat-alt="${esc(k)}" maxlength="40" size="${Math.max(5, k.length)}" aria-label="${esc(k)} umbenennen" enterkeyhint="done"><small>${anzahl(k)}</small><span class="chip__weg" role="button" tabindex="0" data-kat-weg="${esc(k)}" aria-label="${esc(k)} entfernen" title="Entfernen"><svg class="icon"><use href="#i-x"/></svg></span></label>`).join('')
+            + (katNeu ? feldNeu : plus)
+            + `<button type="button" class="chip chip--fertig" data-kat-fertig><svg class="icon"><use href="#i-check"/></svg>Fertig</button>`
+        : chip('Alle', !filter.kat, null)
+            + liste.map(k => chip(k, filter.kat === k, anzahl(k))).join('')
+            + (ohne || filter.kat === OHNE ? `<button type="button" class="chip chip--ohne${filter.kat === OHNE ? ' is-active' : ''}" data-v="${OHNE}">Ohne Kategorie <small>${ohne}</small></button>` : '')
+            + (katNeu ? feldNeu : plus)
+            + `<button type="button" class="chip chip--werkzeug" data-kat-bearbeiten aria-label="Kategorien umbenennen oder entfernen" title="Kategorien umbenennen oder entfernen"><svg class="icon"><use href="#i-edit"/></svg></button>`;
+    katZeichnet = true;
+    $('fKat').innerHTML = html;
+    katZeichnet = false;
+    const feld = $('fKat').querySelector('[data-kat-neu]');
+    if (feld) { feld.value = entwurf; if (fokus) feld.focus(); }
+}
+const katText = s => s.trim().replace(/\s+/g, ' ');
+const katGibtEs = (name, ausser) => kategorien().some(k => k !== ausser && k.toLowerCase() === name.toLowerCase());
+
+function katHinzufuegen(roh) {
+    const name = katText(roh);
+    if (!name) return false;
+    if (katGibtEs(name)) { toast(`„${name}“ gibt es schon`); return false; }
+    galerie.kategorien = { liste: [...galerie.kategorien.liste, name], updated: Date.now() };
+    speichern();
+    toast(`„${name}“ hinzugefügt`);
+    return true;
+}
+// Umbenennen nimmt alle Modelle der Kategorie mit
+function katUmbenennen(feld) {
+    const alt = feld.dataset.katAlt, neu = katText(feld.value);
+    if (!neu || neu === alt) { feld.value = alt; return; }
+    if (katGibtEs(neu, alt)) { toast(`„${neu}“ gibt es schon`); feld.value = alt; return; }
+    const t = Date.now();
+    galerie.kategorien = { liste: galerie.kategorien.liste.map(k => k === alt ? neu : k), updated: t };
+    galerie.modelle.forEach(m => { if (m.kat === alt) { m.kat = neu; m.updated = t; } });
+    if (filter.kat === alt) filter.kat = neu;
+    feld.value = feld.dataset.katAlt = neu;
+    feld.closest('label').querySelector('[data-kat-weg]').dataset.katWeg = neu;
+    speichern();
+    renderStats();
+    renderGalerie();
+}
+function katEntfernen(k) {
+    const i = galerie.kategorien.liste.indexOf(k);
+    if (i < 0) return;
+    const t = Date.now();
+    const betroffen = galerie.modelle.filter(m => m.kat === k).map(m => m.id);
+    galerie.kategorien = { liste: galerie.kategorien.liste.filter(x => x !== k), updated: t };
+    betroffen.forEach(id => { const m = roh(id); m.kat = ''; m.updated = t; });
+    if (filter.kat === k) filter.kat = null;
+    speichern();
+    render();
+    const n = betroffen.length;
+    toast(`„${k}“ entfernt${n ? ` · ${n} ${n === 1 ? 'Modell' : 'Modelle'} ohne Kategorie` : ''}`, { text: 'Rückgängig', fn: () => {
+        const t2 = Date.now(), liste = galerie.kategorien.liste.filter(x => x !== k);
+        liste.splice(Math.min(i, liste.length), 0, k);
+        galerie.kategorien = { liste, updated: t2 };
+        betroffen.forEach(id => { const m = roh(id); if (m && !m.kat) { m.kat = k; m.updated = t2; } });
+        speichern();
+        render();
+        toast(`„${k}“ ist wieder da`);
+    } });
+}
+// Offene Eingaben übernehmen, bevor ein Knopf der Leiste etwas tut
+function katUebernehmen() {
+    $('fKat').querySelectorAll('[data-kat-alt]').forEach(f => { if (f.value !== f.dataset.katAlt) katUmbenennen(f); });
+    const f = $('fKat').querySelector('[data-kat-neu]');
+    if (f && f.value.trim()) { katHinzufuegen(f.value); f.value = ''; }
+}
+function katKlick(e) {
+    const t = e.target.closest('[data-kat-plus], [data-kat-bearbeiten], [data-kat-fertig], [data-kat-weg], .chip--feld');
+    if (!t) return false;
+    if (t.classList.contains('chip--feld')) return true;   // Klick ins Eingabefeld
+    katUebernehmen();
+    if ('katPlus' in t.dataset) katNeu = true;
+    else if ('katBearbeiten' in t.dataset) katBearbeiten = true;
+    else if ('katFertig' in t.dataset) katBearbeiten = katNeu = false;
+    else if (t.dataset.katWeg) return katEntfernen(t.dataset.katWeg), true;
+    if ('katPlus' in t.dataset) { katZeichnen(); $('fKat').querySelector('[data-kat-neu]').focus(); }
+    else render();
+    return true;
 }
 
 // Filter klappbar; ob offen, merkt sich der Browser
@@ -1410,7 +1535,7 @@ function reihe(m) {
     return `<div class="reihe">
         <button type="button" class="reihe__bild bildrahmen" data-open="${esc(m.id)}" aria-label="${esc(m.name)} bearbeiten"><img data-bild="${esc(m.id)}" alt="" loading="lazy"></button>
         <input type="text" class="reihe__name" value="${esc(m.name)}" data-feld="name" data-id="${esc(m.id)}" aria-label="Name">
-        <select class="reihe__kat" data-feld="kat" data-id="${esc(m.id)}" aria-label="Kategorie">${KATEGORIEN.map(k => `<option${k === m.kat ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select>
+        <select class="reihe__kat" data-feld="kat" data-id="${esc(m.id)}" aria-label="Kategorie">${katOptionen(m.kat)}</select>
         <span class="reihe__preis">${m.ab ? 'ab ' : ''}${euro(m.preis)}</span>
         ${multHtml(m)}
         <span class="reihe__set"><input type="checkbox" class="schalter" data-feld="set" data-id="${esc(m.id)}"${m.set ? ' checked' : ''} aria-label="Set"></span>
@@ -1490,11 +1615,12 @@ function renderGalerie() {
         ? `<div class="liste">${listenKopf}${teil.map(reihe).join('')}</div>`
         : `<div class="grid">${teil.map(m => karte(m, i++)).join('')}</div>`;
     if (filter.sort === 'kategorie') {
-        const kats = [...KATEGORIEN, ...new Set(liste.map(m => m.kat).filter(k => !KATEGORIEN.includes(k)))];
+        const bekannt = kategorien();
+        const kats = [...bekannt, ...new Set(liste.map(m => m.kat).filter(k => !bekannt.includes(k)).sort((a, b) => !a - !b))];   // „Ohne Kategorie“ zuletzt
         $('gallery').innerHTML = kats.map(k => {
             const teil = liste.filter(m => m.kat === k);
             if (!teil.length) return '';
-            return `<section class="group"><div class="group__head"><h2 class="group__title">${esc(k)}</h2><span class="group__count">${teil.length}</span></div>
+            return `<section class="group"><div class="group__head"><h2 class="group__title">${esc(katName(k))}</h2><span class="group__count">${teil.length}</span></div>
                 ${block(teil)}</section>`;
         }).join('');
     } else {
@@ -1513,7 +1639,7 @@ function renderStats() {
         : s === 'warenkorb' ? (gesendet || !korb().length ? [] : [[korb().reduce((a, z) => a + z.menge, 0), 'Stück'], [euro(korb().reduce((a, z) => a + zeilenPreis(liste.find(m => m.id === z.id), z) * z.menge, 0)), 'Summe']])
         : isAdmin()
         ? [[liste.length, 'Modelle'], [liste.filter(m => m.ams).length, 'Mit AMS'], [Math.round(liste.reduce((a, m) => a + m.stunden, 0)) + ' h', 'Druckzeit gesamt']]
-        : [[liste.length, 'Modelle'], [new Set(liste.map(m => m.kat)).size, 'Kategorien'], [preise.length ? 'ab ' + euro(Math.min(...preise)) : '–', 'Preis']];
+        : [[liste.length, 'Modelle'], [new Set(liste.map(m => m.kat).filter(Boolean)).size, 'Kategorien'], [preise.length ? 'ab ' + euro(Math.min(...preise)) : '–', 'Preis']];
     $('stats').innerHTML = stats.map(([v, l]) => `<div><div class="stat__value">${v}</div><div class="label stat__label">${l}</div></div>`).join('');
     $('heroLabel').textContent = SEITEN[s].label + (isAdmin() ? ' · Admin' : '');
     $('footNote').textContent = !remote ? 'Lokale Vorschau, gespeichert nur in diesem Browser'
@@ -1587,10 +1713,12 @@ function renderPflege() {
 // Kurze Hinweise im Modellfenster, passend zur Kategorie
 function hinweise(m) {
     const h = [];
+    // nach Wörtern im Kategorienamen, damit Umbenennen („Vasen“ statt „Vasen & Töpfe“) die Hinweise nicht verliert
+    const kat = m.kat || '';
     if (/teelicht|kerze|windlicht/i.test(m.name)) h.push(['flame', 'Nur LED-Teelichter verwenden, echte Flammen lassen PLA schmelzen.']);
-    else if (m.kat === 'Lampen & Lichter') h.push(['bulb', 'Benötigt eine E27-Glühbirne, bitte LED.']);
-    if (m.kat === 'Vasen & Töpfe') h.push(['vase', 'Nicht wasserdicht, ideal für Trockenblumen.']);
-    if (m.kat === 'Vasen & Töpfe' || m.kat === 'Aufbewahrung') h.push(['wash', 'Nicht spülmaschinenfest, vor Hitze und praller Sonne schützen.']);
+    else if (/lampe|licht|leuchte/i.test(kat)) h.push(['bulb', 'Benötigt eine E27-Glühbirne, bitte LED.']);
+    if (/vase|topf|töpfe/i.test(kat)) h.push(['vase', 'Nicht wasserdicht, ideal für Trockenblumen.']);
+    if (/vase|topf|töpfe|aufbewahrung/i.test(kat)) h.push(['wash', 'Nicht spülmaschinenfest, vor Hitze und praller Sonne schützen.']);
     return `<div class="hints">${h.map(([i, t]) => `<p><svg class="icon"><use href="#i-${i}"/></svg>${t}</p>`).join('')}
         <p><svg class="icon"><use href="#i-info"/></svg><a href="#pflege">Alle Pflegehinweise und Infos zu PLA</a></p></div>`;
 }
@@ -1669,7 +1797,7 @@ function renderMerk() {
             <div class="merk__img"><img data-bild="${esc(m.id)}" alt=""></div>
             <div>
                 <div class="merk__top">
-                    <div><h3>${esc(m.name)}</h3><p>${esc(m.kat)} · ${m.ab ? 'ab ' : ''}${euro(m.preis)}</p></div>
+                    <div><h3>${esc(m.name)}</h3><p>${m.kat ? esc(m.kat) + ' · ' : ''}${m.ab ? 'ab ' : ''}${euro(m.preis)}</p></div>
                     ${favHtml(m)}
                 </div>
                 <button type="button" class="btn btn--dark" data-open="${esc(m.id)}"><svg class="icon"><use href="#i-cart"/></svg>In den Warenkorb</button>
@@ -2100,7 +2228,7 @@ function erfassenHtml() {
             const sichtbar = m ? (() => { const o = ol && ol[p.option]; const idx = teileVon(m).map((t, k) => k); return o && o.teile ? idx.filter(k => o.teile.includes(k)) : idx; })() : [];
             return `<div class="erfassen__pos">
                 <div class="erfassen__zeile">
-                    <label class="feldx erfassen__modell"><span>Modell ${erfassen.positionen.length > 1 ? i + 1 : ''}</span><select data-e-pos="${i}" data-e-feld="id"><option value="">Modell wählen …</option><option value="${EIGEN}"${p.id === EIGEN ? ' selected' : ''}>Eigenes Modell (Druckzeit und Material selbst angeben)</option>${kats.map(k => `<optgroup label="${esc(k)}">${alle.filter(x => x.kat === k).sort((a, b) => a.name.localeCompare(b.name, 'de')).map(x => `<option value="${esc(x.id)}"${x.id === p.id ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+                    <label class="feldx erfassen__modell"><span>Modell ${erfassen.positionen.length > 1 ? i + 1 : ''}</span><select data-e-pos="${i}" data-e-feld="id"><option value="">Modell wählen …</option><option value="${EIGEN}"${p.id === EIGEN ? ' selected' : ''}>Eigenes Modell (Druckzeit und Material selbst angeben)</option>${kats.map(k => `<optgroup label="${esc(katName(k))}">${alle.filter(x => x.kat === k).sort((a, b) => a.name.localeCompare(b.name, 'de')).map(x => `<option value="${esc(x.id)}"${x.id === p.id ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
                     ${erfassen.positionen.length > 1 ? `<button type="button" class="mini-btn mini-btn--weg" data-e-weg="${i}" aria-label="Position entfernen"><svg class="icon"><use href="#i-x"/></svg></button>` : ''}
                 </div>
                 ${p.id === EIGEN ? `
@@ -2206,7 +2334,7 @@ function oeffnen(id) {
                 ${badges ? `<div class="sheet__badges">${badges}</div>` : ''}
                 <div class="sheet__head">
                     <div>
-                        <p class="label sheet__cat" id="sheetKat">${esc(m.kat)}</p>
+                        <p class="label sheet__cat" id="sheetKat">${esc(isAdmin() ? katName(m.kat) : m.kat)}</p>
                         <h2 class="sheet__name" id="sheetName">${esc(m.name)}</h2>
                     </div>
                     ${isAdmin() ? '' : favHtml(m)}
@@ -2368,7 +2496,7 @@ function renderEdit() {
             <span class="label sub" style="margin:0">Allgemein</span>
             ${feld('Name', eingabe('name', m.name))}
             <div class="edit__raster">
-                ${feld('Kategorie', `<select data-feld="kat" data-id="${esc(m.id)}">${KATEGORIEN.map(k => `<option${k === m.kat ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select>`)}
+                ${feld('Kategorie', `<select data-feld="kat" data-id="${esc(m.id)}">${katOptionen(m.kat)}</select>`)}
                 ${feld('Ersteller', eingabe('autor', m.autor))}
             </div>
             <label class="feldx feldx--zeile"><span>Set (Banner „Set“ für Kunden)</span><input type="checkbox" class="schalter" data-feld="set" data-id="${esc(m.id)}"${m.set ? ' checked' : ''}></label>
@@ -2440,7 +2568,7 @@ function geaendert(m, editNeu, ausListe) {
     speichern();
     if (offen === m.id && $('sheetName')) {
         $('sheetName').textContent = m.name;
-        $('sheetKat').textContent = m.kat;
+        $('sheetKat').textContent = katName(m.kat);
         const b = $('sheet').querySelector('.sheet__badges');
         if (b) b.innerHTML = badgesHtml(m); else if (m.set) $('sheetKat').closest('.sheet__head').insertAdjacentHTML('beforebegin', `<div class="sheet__badges">${badgesHtml(m)}</div>`);
         rechnung();
@@ -2645,12 +2773,38 @@ $('seg').addEventListener('click', e => {
 
 [['fKat', 'kat'], ['fSaison', 'saison'], ['fAnlass', 'anlass'], ['fDruck', 'druck']].forEach(([el, key]) => {
     $(el).addEventListener('click', e => {
+        if (key === 'kat' && katKlick(e)) return;
         const b = e.target.closest('.chip');
         if (!b) return;
         filter[key] = b.dataset.v === 'Alle' || filter[key] === b.dataset.v ? null : b.dataset.v;
         renderFilter();
         renderGalerie();
     });
+});
+// Kategorien pflegen: Knöpfe nehmen dem Eingabefeld nicht den Fokus (sonst zeichnet „blur“ die Leiste neu, bevor der Klick ankommt)
+$('fKat').addEventListener('mousedown', e => { if (e.target.closest('[data-kat-plus], [data-kat-bearbeiten], [data-kat-fertig], [data-kat-weg]')) e.preventDefault(); });
+$('fKat').addEventListener('keydown', e => {
+    const f = e.target;
+    if (f.dataset.katWeg !== undefined && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); katEntfernen(f.dataset.katWeg); return; }
+    if (f.tagName !== 'INPUT') return;
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        if ('katNeu' in f.dataset) { if (katHinzufuegen(f.value)) { f.value = ''; render(); } }   // Feld bleibt offen für die nächste
+        else f.blur();
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        if ('katNeu' in f.dataset) { f.value = ''; katNeu = false; katZeichnen(); }
+        else { f.value = f.dataset.katAlt; f.blur(); }
+    }
+});
+$('fKat').addEventListener('input', e => { if (e.target.dataset.katAlt !== undefined) e.target.size = Math.max(5, e.target.value.length); });
+$('fKat').addEventListener('change', e => { if (e.target.dataset.katAlt !== undefined) katUmbenennen(e.target); });
+$('fKat').addEventListener('focusout', e => {
+    if (katZeichnet || !('katNeu' in e.target.dataset)) return;
+    const wert = e.target.value;
+    katNeu = false;
+    if (katHinzufuegen(wert)) render();
+    else setTimeout(() => { if (isAdmin()) katZeichnen(); }, 250);   // leer: erst nach einem Klick auf einen anderen Chip neu zeichnen, damit der Klick nicht verloren geht
 });
 $('resetFilter').addEventListener('click', () => {
     filter.kat = filter.saison = filter.anlass = filter.druck = null;
