@@ -483,11 +483,26 @@ body.is-locked { overflow: hidden; }
 .zeilen { display: flex; flex-direction: column; gap: var(--space-2); }
 .zeilen__zeile { display: grid; gap: var(--space-2); align-items: center; }
 .zeilen__zeile--teil { grid-template-columns: minmax(0, 1fr) 2.5rem 2rem; }
-.zeilen__zeile--opt { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2rem 2rem; grid-template-areas: "name name std weg" "masse masse masse masse" "g h . ."; padding-bottom: var(--space-3); border-bottom: 1px solid rgba(59, 52, 45, .08); }
+.zeilen__zeile--opt { grid-template-columns: 1.25rem minmax(0, 1fr) minmax(0, 1fr) 2rem 2rem; grid-template-areas: "griff name name std weg" ". masse masse masse masse" ". g h . ."; padding-bottom: var(--space-3); border-bottom: 1px solid rgba(59, 52, 45, .08); }
 .zeilen__zeile--opt .o-name { grid-area: name; } .zeilen__zeile--opt .o-masse { grid-area: masse; }
 .zeilen__zeile--opt .o-g { grid-area: g; } .zeilen__zeile--opt .o-h { grid-area: h; }
 .zeilen__zeile--opt .o-std { grid-area: std; justify-self: center; } .zeilen__zeile--opt .o-weg { grid-area: weg; }
 .zeilen__kopf.zeilen__zeile--opt { display: none; }
+.o-griff { grid-area: griff; display: grid; place-items: center; height: 2.25rem; color: var(--color-text-muted); cursor: grab; touch-action: none; }
+.o-griff:hover { color: var(--color-text-primary); }
+.o-griff .icon { width: 1rem; height: 1rem; }
+
+/* Ziehen zum Verschieben (Ovale, Modelle, Größen/Varianten) */
+.zieh-geist { position: fixed; z-index: 1000; margin: 0 !important; pointer-events: none; opacity: .92; box-shadow: var(--shadow-xl); rotate: 1.5deg; animation: none !important; }
+.zieh-geist { background: var(--color-background); border-radius: var(--radius-md); }
+.zieh-geist.chip { border-radius: var(--radius-full); }
+.zieh-platz { opacity: .3; outline: 2px dashed var(--color-border-strong); outline-offset: 2px; }
+body.zieht, body.zieht * { cursor: grabbing !important; user-select: none !important; -webkit-user-select: none !important; }
+body.ist-admin [data-sort] { -webkit-touch-callout: none; }
+.chip--feld .chip__farbe { width: 1rem; min-width: 0; height: 1rem; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; flex: none; field-sizing: fixed; overflow: hidden; }
+.chip__farbe::-webkit-color-swatch-wrapper { padding: 0; }
+.chip__farbe::-webkit-color-swatch { border: 0; border-radius: 50%; }
+.chip__farbe::-moz-color-swatch { border: 0; border-radius: 50%; }
 .einheit { position: relative; display: block; }
 .feldx > .einheit { font-size: var(--font-size-base); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--color-text-primary); }
 .einheit input { padding-right: 2rem !important; }
@@ -848,6 +863,7 @@ body.is-locked { overflow: hidden; }
     <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-griff" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
@@ -979,12 +995,19 @@ body.is-locked { overflow: hidden; }
 // Startliste; danach pflegt der Admin die Kategorien selbst (galerie.json → kategorien)
 const KATEGORIEN = ['Figuren', 'Vasen & Töpfe', 'Lampen & Lichter', 'Schilder & Schriftzüge', 'Hänger & Ornamente', 'Aufsteller', 'Aufbewahrung'];
 const SAISONEN = [
-    { id: 'Winter', c: 'var(--s-winter)' },
-    { id: 'Frühling', c: 'var(--s-fruehling)' },
-    { id: 'Sommer', c: 'var(--s-sommer)' },
-    { id: 'Herbst', c: 'var(--s-herbst)' },
+    { id: 'Winter', c: '#7F96AE' },
+    { id: 'Frühling', c: '#8FAF7E' },
+    { id: 'Sommer', c: '#D3A84A' },
+    { id: 'Herbst', c: '#B9714A' },
 ];
+const SAISON_FARBEN = ['#7F96AE', '#8FAF7E', '#D3A84A', '#B9714A', '#9C7FA8', '#6E9C9A', '#C27C8E', '#8A8076'];   // für neue Saisonen
 const ANLAESSE = ['Weihnachten', 'Neujahr', 'Valentinstag', 'Ostern', 'Geburtstag', 'Namenstag', 'Jahrestag'];
+// Die drei Listen, die der Admin in der Filterleiste pflegt (Startwerte oben, danach galerie.json)
+const GRUPPEN = {
+    kat:    { el: 'fKat',    feld: 'kategorien', wort: 'Kategorie', mehrzahl: 'Kategorien', neu: 'Neue Kategorie', start: KATEGORIEN },
+    saison: { el: 'fSaison', feld: 'saisonen',   wort: 'Saison',    mehrzahl: 'Saisonen',   neu: 'Neue Saison',    start: SAISONEN.map(s => s.id) },
+    anlass: { el: 'fAnlass', feld: 'anlaesse',   wort: 'Anlass',    mehrzahl: 'Anlässe',    neu: 'Neuer Anlass',   start: ANLAESSE },
+};
 
 const SPEICHER = 'bergliacht-galerie';                 // Zwischenspeicher im Browser (schneller Start, offline)
 const KEY_STORE = 'bergliacht-galerie-schluessel';    // gemerkter Schlüssel bei „angemeldet bleiben“
@@ -1056,10 +1079,15 @@ function dauer(h) {
     return hh ? (mm ? `${hh} h ${mm} min` : `${hh} h`) : `${mm} min`;
 }
 const mwLink = m => `https://makerworld.com/de/models/${m.id}-${m.slug}`;
-const saisonFarbe = s => (SAISONEN.find(x => x.id === s) || {}).c;
-
-// Kategorien: der Admin pflegt sie in galerie.json, Kunden bekommen die Liste über schaufenster.json
-const kategorien = () => (rolle === 'admin' ? galerie && galerie.kategorien.liste : schaufenster && schaufenster.kategorien) || KATEGORIEN;
+// Kategorien, Saisonen, Anlässe: der Admin pflegt sie in galerie.json, Kunden bekommen die Listen über schaufenster.json
+const listeVon = key => { const g = GRUPPEN[key]; return (rolle === 'admin' ? galerie && galerie[g.feld].liste : schaufenster && schaufenster[g.feld]) || g.start; };
+const hat = (m, key, v) => key === 'kat' ? m.kat === v : (m[key] || []).includes(v);
+const kategorien = () => listeVon('kat');
+const nachListe = (key, werte) => { const l = listeVon(key); return [...werte].sort((a, b) => (l.indexOf(a) + 1 || 1e9) - (l.indexOf(b) + 1 || 1e9)); };
+function saisonFarbe(s) {
+    const f = rolle === 'admin' ? galerie && galerie.saisonen.farben : schaufenster && schaufenster.saisonFarben;
+    return (f && f[s]) || (SAISONEN.find(x => x.id === s) || {}).c || '#8A8076';
+}
 const OHNE = '_ohne';   // Filterwert für Modelle, deren Kategorie entfernt wurde
 const katName = k => k || (isAdmin() ? 'Ohne Kategorie' : 'Weitere Modelle');
 const katOptionen = aktiv => (kategorien().includes(aktiv) ? '' : `<option value="${esc(aktiv)}" selected>${esc(katName(aktiv))}</option>`)
@@ -1070,8 +1098,12 @@ function schaufensterAus(g, bildShas) {
     return {
         version: 1,
         kategorien: g.kategorien.liste,
+        saisonen: g.saisonen.liste,
+        saisonFarben: g.saisonen.farben,
+        anlaesse: g.anlaesse.liste,
         modelle: g.modelle.map(m => ({
             id: m.id, name: m.name, kat: m.kat, saison: m.saison, anlass: m.anlass,
+            ...(m.pos != null ? { pos: m.pos } : {}),                   // Reihenfolge innerhalb der Kategorie, legt der Admin per Ziehen fest
             masse: m.masse, bild: (bildShas && bildShas[m.id]) || '', bildK: (bildShasK && bildShasK[m.id]) || '',
             ...(m.set ? { set: true } : {}),                            // Banner „Set“, vergibt der Admin
             ...(m.teile && m.teile.length ? { teile: m.teile } : {}),   // mehrfarbig: Teile mit Farbe aus dem Profil
@@ -1107,13 +1139,16 @@ function leseCache() {
     return false;
 }
 function normiere(g) {
+    const ms = Array.isArray(g.modelle) ? g.modelle : [];
+    // { liste, updated }; fehlt sie noch: Startliste plus alles, was in den Modellen steht
+    const liste = (feld, start, werte) => g[feld] && Array.isArray(g[feld].liste) ? g[feld] : { liste: [...new Set([...start, ...werte.filter(Boolean)])], updated: 0 };
     return {
         version: 1,
         preise: { stunde: .2, gramm: .02, ...(g.preise || {}) },
-        modelle: Array.isArray(g.modelle) ? g.modelle : [],
-        // { liste, updated }; fehlt sie noch: Startliste plus alles, was in den Modellen steht
-        kategorien: g.kategorien && Array.isArray(g.kategorien.liste) ? g.kategorien
-            : { liste: [...new Set([...KATEGORIEN, ...(g.modelle || []).map(m => m.kat).filter(Boolean)])], updated: 0 },
+        modelle: ms,
+        kategorien: liste('kategorien', KATEGORIEN, ms.map(m => m.kat)),
+        saisonen: { farben: {}, ...liste('saisonen', SAISONEN.map(s => s.id), ms.flatMap(m => m.saison || [])) },   // farben: Saison -> Hex
+        anlaesse: liste('anlaesse', ANLAESSE, ms.flatMap(m => m.anlass || [])),
         geloescht: g.geloescht || {},
         bestellstatus: g.bestellstatus || {},   // Nummer -> { status, notiz, updated }
         manuell: g.manuell || {},               // von Hand erfasste Bestellungen: Nummer -> Bestellung mit updated
@@ -1234,7 +1269,7 @@ function merge(a, b) {
         version: 1,
         preise: b.preise || a.preise,
         modelle: [...neu.values()].filter(m => !(geloescht[m.id] >= (m.updated || 0))),
-        kategorien: (b.kategorien.updated || 0) > (a.kategorien.updated || 0) ? b.kategorien : a.kategorien,
+        ...Object.fromEntries(['kategorien', 'saisonen', 'anlaesse'].map(f => [f, (b[f].updated || 0) > (a[f].updated || 0) ? b[f] : a[f]])),
         geloescht,
         bestellstatus: mischeStatus(a.bestellstatus, b.bestellstatus),
         manuell: mischeStatus(a.manuell, b.manuell),
@@ -1383,8 +1418,8 @@ function gefiltert(ohne) {
         (ohne === 'druck' || !isAdmin() || !filter.druck || DRUCK.find(d => d.id === filter.druck).test(m)));
 }
 
-function chip(name, aktiv, anzahl, extra = '') {
-    return `<button type="button" class="chip${aktiv ? ' is-active' : ''}" data-v="${esc(name)}">${extra}${esc(name)}${anzahl != null ? ` <small>${anzahl}</small>` : ''}</button>`;
+function chip(name, aktiv, anzahl, extra = '', attr = '') {
+    return `<button type="button" class="chip${aktiv ? ' is-active' : ''}" data-v="${esc(name)}" ${attr}>${extra}${esc(name)}${anzahl != null ? ` <small>${anzahl}</small>` : ''}</button>`;
 }
 
 function renderFilter() {
@@ -1397,10 +1432,11 @@ function renderFilter() {
             return chip(id, filter[key] === id, n, extra ? extra(v) : '');
         }).join('');
     };
-    if (!isAdmin()) katNeu = katBearbeiten = false;
-    if (isAdmin()) katZeichnen(); else $('fKat').innerHTML = alle('kat', kategorien(), (m, v) => m.kat === v);
-    $('fSaison').innerHTML = alle('saison', SAISONEN, (m, v) => m.saison.includes(v), v => `<i style="--c:${v.c}"></i>`);
-    $('fAnlass').innerHTML = alle('anlass', ANLAESSE, (m, v) => m.anlass.includes(v));
+    Object.entries(GRUPPEN).forEach(([key, g]) => {
+        if (isAdmin()) return listeZeichnen(key);
+        neuOffen[key] = bearbOffen[key] = false;
+        $(g.el).innerHTML = alle(key, listeVon(key), (m, v) => hat(m, key, v), key === 'saison' ? v => `<i style="--c:${saisonFarbe(v)}"></i>` : null);
+    });
     $('fDruck').innerHTML = isAdmin() ? chip('Alle', !filter.druck, null) + DRUCK.map(d => {
         const n = gefiltert('druck').filter(d.test).length;
         return `<button type="button" class="chip${filter.druck === d.id ? ' is-active' : ''}" data-v="${d.id}">${d.name} <small>${n}</small></button>`;
@@ -1416,100 +1452,230 @@ function renderFilter() {
     document.querySelectorAll('[data-darstellung]').forEach(b => b.classList.toggle('is-active', b.dataset.darstellung === darstellung));
 }
 
-/* ---------- Admin: Kategorien direkt in der Filterleiste pflegen ----------
-   „+“ legt eine neue an, der Stift schaltet Umbenennen und Entfernen frei.
-   Entfernte Kategorien: ihre Modelle stehen danach unter „Ohne Kategorie“ (5 Sekunden „Rückgängig“). */
+/* ---------- Admin: Kategorien, Saisonen und Anlässe direkt in der Filterleiste pflegen ----------
+   „+“ legt einen neuen Eintrag an, der Stift schaltet Umbenennen und Entfernen frei, Ziehen ändert die Reihenfolge.
+   Entfernte Kategorie: ihre Modelle stehen danach unter „Ohne Kategorie“. Entfernte Saison/Anlass: verschwindet aus den Modellen.
+   Jeweils 5 Sekunden „Rückgängig“. */
 
-let katNeu = false, katBearbeiten = false, katZeichnet = false;
-function katZeichnen() {
-    const basis = gefiltert('kat'), liste = kategorien();
-    const anzahl = k => basis.filter(m => m.kat === k).length;
-    const ohne = basis.filter(m => !liste.includes(m.kat)).length;
-    const altesFeld = $('fKat').querySelector('[data-kat-neu]');
-    const entwurf = altesFeld ? altesFeld.value : '', fokus = katNeu && (!altesFeld || document.activeElement === altesFeld);
-    const feldNeu = `<label class="chip chip--feld"><input type="text" data-kat-neu maxlength="40" placeholder="Neue Kategorie" aria-label="Neue Kategorie" enterkeyhint="done"></label>`;
-    const plus = `<button type="button" class="chip chip--werkzeug" data-kat-plus aria-label="Kategorie hinzufügen" title="Kategorie hinzufügen"><svg class="icon"><use href="#i-plus"/></svg></button>`;
-    const html = katBearbeiten
-        ? liste.map(k => `<label class="chip chip--feld"><input type="text" value="${esc(k)}" data-kat-alt="${esc(k)}" maxlength="40" size="${Math.max(5, k.length)}" aria-label="${esc(k)} umbenennen" enterkeyhint="done"><small>${anzahl(k)}</small><span class="chip__weg" role="button" tabindex="0" data-kat-weg="${esc(k)}" aria-label="${esc(k)} entfernen" title="Entfernen"><svg class="icon"><use href="#i-x"/></svg></span></label>`).join('')
-            + (katNeu ? feldNeu : plus)
-            + `<button type="button" class="chip chip--fertig" data-kat-fertig><svg class="icon"><use href="#i-check"/></svg>Fertig</button>`
-        : chip('Alle', !filter.kat, null)
-            + liste.map(k => chip(k, filter.kat === k, anzahl(k))).join('')
-            + (ohne || filter.kat === OHNE ? `<button type="button" class="chip chip--ohne${filter.kat === OHNE ? ' is-active' : ''}" data-v="${OHNE}">Ohne Kategorie <small>${ohne}</small></button>` : '')
-            + (katNeu ? feldNeu : plus)
-            + `<button type="button" class="chip chip--werkzeug" data-kat-bearbeiten aria-label="Kategorien umbenennen oder entfernen" title="Kategorien umbenennen oder entfernen"><svg class="icon"><use href="#i-edit"/></svg></button>`;
-    katZeichnet = true;
-    $('fKat').innerHTML = html;
-    katZeichnet = false;
-    const feld = $('fKat').querySelector('[data-kat-neu]');
+const neuOffen = {}, bearbOffen = {};   // je Gruppe: Eingabefeld „neu“ offen, Bearbeiten-Modus an
+let pflegeZeichnet = false;
+function listeZeichnen(key) {
+    const g = GRUPPEN[key], el = $(g.el), basis = gefiltert(key), liste = listeVon(key);
+    const anzahl = v => basis.filter(m => hat(m, key, v)).length;
+    const punkt = v => key === 'saison' ? `<i style="--c:${saisonFarbe(v)}"></i>` : '';
+    const ohne = key === 'kat' ? basis.filter(m => !liste.includes(m.kat)).length : 0;
+    const altesFeld = el.querySelector('[data-p-neu]');
+    const entwurf = altesFeld ? altesFeld.value : '', fokus = neuOffen[key] && (!altesFeld || document.activeElement === altesFeld);
+    const feldNeu = `<label class="chip chip--feld"><input type="text" data-p-neu maxlength="40" placeholder="${g.neu}" aria-label="${g.neu}" enterkeyhint="done"></label>`;
+    const plus = `<button type="button" class="chip chip--werkzeug" data-p-plus aria-label="${g.wort} hinzufügen" title="${g.wort} hinzufügen"><svg class="icon"><use href="#i-plus"/></svg></button>`;
+    const html = bearbOffen[key]
+        ? liste.map(v => `<label class="chip chip--feld" data-sort="${esc(v)}">${key === 'saison' ? `<input type="color" class="chip__farbe" value="${esc(saisonFarbe(v))}" data-p-farbe="${esc(v)}" aria-label="Farbe für ${esc(v)}" title="Farbe ändern">` : ''}<input type="text" value="${esc(v)}" data-p-alt="${esc(v)}" maxlength="40" size="${Math.max(5, v.length)}" aria-label="${esc(v)} umbenennen" enterkeyhint="done"><small>${anzahl(v)}</small><span class="chip__weg" role="button" tabindex="0" data-p-weg="${esc(v)}" aria-label="${esc(v)} entfernen" title="Entfernen"><svg class="icon"><use href="#i-x"/></svg></span></label>`).join('')
+            + (neuOffen[key] ? feldNeu : plus)
+            + `<button type="button" class="chip chip--fertig" data-p-fertig><svg class="icon"><use href="#i-check"/></svg>Fertig</button>`
+        : chip('Alle', !filter[key], null)
+            + liste.map(v => chip(v, filter[key] === v, anzahl(v), punkt(v), `data-sort="${esc(v)}" title="Ziehen zum Verschieben"`)).join('')
+            + (ohne || filter[key] === OHNE ? `<button type="button" class="chip chip--ohne${filter[key] === OHNE ? ' is-active' : ''}" data-v="${OHNE}">Ohne Kategorie <small>${ohne}</small></button>` : '')
+            + (neuOffen[key] ? feldNeu : plus)
+            + `<button type="button" class="chip chip--werkzeug" data-p-bearbeiten aria-label="${g.mehrzahl} umbenennen oder entfernen" title="${g.mehrzahl} umbenennen oder entfernen"><svg class="icon"><use href="#i-edit"/></svg></button>`;
+    pflegeZeichnet = true;
+    el.innerHTML = html;
+    pflegeZeichnet = false;
+    const feld = el.querySelector('[data-p-neu]');
     if (feld) { feld.value = entwurf; if (fokus) feld.focus(); }
 }
-const katText = s => s.trim().replace(/\s+/g, ' ');
-const katGibtEs = (name, ausser) => kategorien().some(k => k !== ausser && k.toLowerCase() === name.toLowerCase());
+const pText = s => s.trim().replace(/\s+/g, ' ');
+const gibtEs = (key, name, ausser) => name === OHNE || listeVon(key).some(k => k !== ausser && k.toLowerCase() === name.toLowerCase());
+function setzeListe(key, liste, extra) {
+    const f = GRUPPEN[key].feld;
+    galerie[f] = { ...galerie[f], ...extra, liste, updated: Date.now() };
+}
+// Nächste Saisonfarbe, die noch keine Saison hat
+function freieFarbe() {
+    const da = new Set(listeVon('saison').map(s => saisonFarbe(s).toUpperCase()));
+    return SAISON_FARBEN.find(c => !da.has(c)) || SAISON_FARBEN[listeVon('saison').length % SAISON_FARBEN.length];
+}
+// Wert in allen Modellen ersetzen (neu = '' entfernt ihn); gibt die ids der betroffenen Modelle zurück
+function ersetzeInModellen(key, alt, neu) {
+    const t = Date.now(), ids = [];
+    galerie.modelle.forEach(m => {
+        if (!hat(m, key, alt)) return;
+        if (key === 'kat') m.kat = neu;
+        else m[key] = neu ? [...new Set(m[key].map(x => x === alt ? neu : x))] : m[key].filter(x => x !== alt);
+        m.updated = t;
+        ids.push(m.id);
+    });
+    return ids;
+}
 
-function katHinzufuegen(roh) {
-    const name = katText(roh);
+function pHinzufuegen(key, roh) {
+    const name = pText(roh);
     if (!name) return false;
-    if (katGibtEs(name)) { toast(`„${name}“ gibt es schon`); return false; }
-    galerie.kategorien = { liste: [...galerie.kategorien.liste, name], updated: Date.now() };
+    if (gibtEs(key, name)) { toast(`„${name}“ gibt es schon`); return false; }
+    setzeListe(key, [...listeVon(key), name], key === 'saison' ? { farben: { ...galerie.saisonen.farben, [name]: freieFarbe() } } : {});
     speichern();
     toast(`„${name}“ hinzugefügt`);
     return true;
 }
-// Umbenennen nimmt alle Modelle der Kategorie mit
-function katUmbenennen(feld) {
-    const alt = feld.dataset.katAlt, neu = katText(feld.value);
+// Umbenennen nimmt alle Modelle mit
+function pUmbenennen(key, feld) {
+    const alt = feld.dataset.pAlt, neu = pText(feld.value);
     if (!neu || neu === alt) { feld.value = alt; return; }
-    if (katGibtEs(neu, alt)) { toast(`„${neu}“ gibt es schon`); feld.value = alt; return; }
-    const t = Date.now();
-    galerie.kategorien = { liste: galerie.kategorien.liste.map(k => k === alt ? neu : k), updated: t };
-    galerie.modelle.forEach(m => { if (m.kat === alt) { m.kat = neu; m.updated = t; } });
-    if (filter.kat === alt) filter.kat = neu;
-    feld.value = feld.dataset.katAlt = neu;
-    feld.closest('label').querySelector('[data-kat-weg]').dataset.katWeg = neu;
+    if (gibtEs(key, neu, alt)) { toast(`„${neu}“ gibt es schon`); feld.value = alt; return; }
+    setzeListe(key, listeVon(key).map(k => k === alt ? neu : k), key === 'saison' ? { farben: { ...galerie.saisonen.farben, [neu]: saisonFarbe(alt) } } : {});
+    ersetzeInModellen(key, alt, neu);
+    if (filter[key] === alt) filter[key] = neu;
+    const c = feld.closest('label');
+    feld.value = feld.dataset.pAlt = c.dataset.sort = neu;
+    c.querySelector('[data-p-weg]').dataset.pWeg = neu;
+    if (c.querySelector('[data-p-farbe]')) c.querySelector('[data-p-farbe]').dataset.pFarbe = neu;
     speichern();
     renderStats();
     renderGalerie();
 }
-function katEntfernen(k) {
-    const i = galerie.kategorien.liste.indexOf(k);
+function pEntfernen(key, v) {
+    const i = listeVon(key).indexOf(v);
     if (i < 0) return;
-    const t = Date.now();
-    const betroffen = galerie.modelle.filter(m => m.kat === k).map(m => m.id);
-    galerie.kategorien = { liste: galerie.kategorien.liste.filter(x => x !== k), updated: t };
-    betroffen.forEach(id => { const m = roh(id); m.kat = ''; m.updated = t; });
-    if (filter.kat === k) filter.kat = null;
+    const ids = ersetzeInModellen(key, v, '');
+    setzeListe(key, listeVon(key).filter(x => x !== v));
+    if (filter[key] === v) filter[key] = null;
     speichern();
     render();
-    const n = betroffen.length;
-    toast(`„${k}“ entfernt${n ? ` · ${n} ${n === 1 ? 'Modell' : 'Modelle'} ohne Kategorie` : ''}`, { text: 'Rückgängig', fn: () => {
-        const t2 = Date.now(), liste = galerie.kategorien.liste.filter(x => x !== k);
-        liste.splice(Math.min(i, liste.length), 0, k);
-        galerie.kategorien = { liste, updated: t2 };
-        betroffen.forEach(id => { const m = roh(id); if (m && !m.kat) { m.kat = k; m.updated = t2; } });
+    const n = ids.length;
+    toast(`„${v}“ entfernt${n ? ` · ${n} ${n === 1 ? 'Modell' : 'Modelle'} ${key === 'kat' ? 'ohne Kategorie' : 'angepasst'}` : ''}`, { text: 'Rückgängig', fn: () => {
+        const liste = listeVon(key).filter(x => x !== v);
+        liste.splice(Math.min(i, liste.length), 0, v);
+        setzeListe(key, liste);
+        const t = Date.now();
+        ids.forEach(id => {
+            const m = roh(id);
+            if (!m) return;
+            if (key === 'kat') { if (!m.kat) m.kat = v; } else if (!m[key].includes(v)) m[key] = [...m[key], v];
+            m.updated = t;
+        });
         speichern();
         render();
-        toast(`„${k}“ ist wieder da`);
+        toast(`„${v}“ ist wieder da`);
     } });
 }
-// Offene Eingaben übernehmen, bevor ein Knopf der Leiste etwas tut
-function katUebernehmen() {
-    $('fKat').querySelectorAll('[data-kat-alt]').forEach(f => { if (f.value !== f.dataset.katAlt) katUmbenennen(f); });
-    const f = $('fKat').querySelector('[data-kat-neu]');
-    if (f && f.value.trim()) { katHinzufuegen(f.value); f.value = ''; }
+function pFarbe(feld) {
+    setzeListe('saison', listeVon('saison'), { farben: { ...galerie.saisonen.farben, [feld.dataset.pFarbe]: feld.value.toUpperCase() } });
+    speichern();
+    renderGalerie();
 }
-function katKlick(e) {
-    const t = e.target.closest('[data-kat-plus], [data-kat-bearbeiten], [data-kat-fertig], [data-kat-weg], .chip--feld');
+// Offene Eingaben übernehmen, bevor ein Knopf der Leiste etwas tut
+function pUebernehmen(key) {
+    const el = $(GRUPPEN[key].el);
+    el.querySelectorAll('[data-p-alt]').forEach(f => { if (f.value !== f.dataset.pAlt) pUmbenennen(key, f); });
+    const f = el.querySelector('[data-p-neu]');
+    if (f && f.value.trim()) { pHinzufuegen(key, f.value); f.value = ''; }
+}
+function pKlick(key, e) {
+    const t = e.target.closest('[data-p-plus], [data-p-bearbeiten], [data-p-fertig], [data-p-weg], .chip--feld');
     if (!t) return false;
     if (t.classList.contains('chip--feld')) return true;   // Klick ins Eingabefeld
-    katUebernehmen();
-    if ('katPlus' in t.dataset) katNeu = true;
-    else if ('katBearbeiten' in t.dataset) katBearbeiten = true;
-    else if ('katFertig' in t.dataset) katBearbeiten = katNeu = false;
-    else if (t.dataset.katWeg) return katEntfernen(t.dataset.katWeg), true;
-    if ('katPlus' in t.dataset) { katZeichnen(); $('fKat').querySelector('[data-kat-neu]').focus(); }
-    else render();
+    pUebernehmen(key);
+    if ('pPlus' in t.dataset) { neuOffen[key] = true; listeZeichnen(key); $(GRUPPEN[key].el).querySelector('[data-p-neu]').focus(); return true; }
+    if ('pBearbeiten' in t.dataset) bearbOffen[key] = true;
+    else if ('pFertig' in t.dataset) bearbOffen[key] = neuOffen[key] = false;
+    else if (t.dataset.pWeg) { pEntfernen(key, t.dataset.pWeg); return true; }
+    render();
     return true;
+}
+
+/* ---------- Ziehen zum Verschieben ----------
+   Maus: sofort nach ein paar Pixeln. Finger: kurz halten (sonst scrollt die Seite wie gewohnt), am Griff sofort.
+   ziehbar(box, { item, ignore, griff, aktiv, gleich, fertig }):
+   item = verschiebbare Elemente, ignore = dort beginnt kein Ziehen, griff = nur dort beginnt es,
+   aktiv() = darf gerade gezogen werden, gleich(a, b) = darf a neben b, fertig(el) = nach dem Ablegen (DOM ist schon umsortiert) */
+
+let zug = null;
+function ziehbar(box, opt) {
+    box.addEventListener('pointerdown', e => {
+        if (e.button !== 0 || zug) return;
+        const el = e.target.closest(opt.item);
+        if (!el || !box.contains(el) || (opt.aktiv && !opt.aktiv())) return;
+        if (opt.ignore && e.target.closest(opt.ignore)) return;
+        if (opt.griff && !e.target.closest(opt.griff)) return;
+        const z = { box, el, opt, x: e.clientX, y: e.clientY, id: e.pointerId, halten: e.pointerType !== 'mouse' && !opt.griff, laeuft: false };
+        zug = z;
+        if (z.halten) z.timer = setTimeout(() => zugStart(z), 380);
+        if (opt.griff) e.preventDefault();
+    });
+}
+function zugStart(z) {
+    if (zug !== z) return;
+    z.laeuft = true;
+    const r = z.el.getBoundingClientRect();
+    const geist = z.el.cloneNode(true);
+    geist.removeAttribute('id');
+    geist.classList.add('zieh-geist');
+    Object.assign(geist.style, { width: r.width + 'px', height: r.height + 'px', left: r.left + 'px', top: r.top + 'px' });
+    // ausgefüllte Eingaben mitnehmen, sonst steht im Geist der alte Wert
+    z.el.querySelectorAll('input, select').forEach((f, i) => { const g = geist.querySelectorAll('input, select')[i]; if (g) g.value = f.value; });
+    document.body.append(geist);
+    z.geist = geist;
+    z.el.classList.add('zieh-platz');
+    document.body.classList.add('zieht');
+    try { navigator.vibrate && navigator.vibrate(12); } catch (e) {}
+}
+function zugBewegen(e) {
+    const z = zug;
+    if (!z || e.pointerId !== z.id) return;
+    if (!z.laeuft) {
+        const weit = Math.hypot(e.clientX - z.x, e.clientY - z.y);
+        if (z.halten) { if (weit > 10) { clearTimeout(z.timer); zug = null; } return; }   // Finger bewegt sich vorher: normal scrollen
+        if (weit < 6) return;
+        zugStart(z);
+    }
+    e.preventDefault();
+    z.geist.style.translate = `${e.clientX - z.x}px ${e.clientY - z.y}px`;
+    const ziel = document.elementFromPoint(e.clientX, e.clientY)?.closest(z.opt.item);
+    if (ziel && ziel !== z.el && z.box.contains(ziel) && (!z.opt.gleich || z.opt.gleich(z.el, ziel))) {
+        if (z.el.compareDocumentPosition(ziel) & Node.DOCUMENT_POSITION_FOLLOWING) ziel.after(z.el); else ziel.before(z.el);
+    }
+    // Am Rand mitscrollen: Seite nach oben/unten, Chip-Zeile am Handy seitwärts
+    if (e.clientY < 70) scrollBy(0, -14); else if (e.clientY > innerHeight - 70) scrollBy(0, 14);
+    const zeile = z.el.parentElement;
+    if (zeile.scrollWidth > zeile.clientWidth) {
+        const r = zeile.getBoundingClientRect();
+        if (e.clientX < r.left + 40) zeile.scrollLeft -= 10; else if (e.clientX > r.right - 40) zeile.scrollLeft += 10;
+    }
+}
+function zugEnde(e) {
+    const z = zug;
+    if (!z || (e && e.pointerId !== z.id)) return;
+    clearTimeout(z.timer);
+    zug = null;
+    if (!z.laeuft) return;
+    z.geist.remove();
+    z.el.classList.remove('zieh-platz');
+    document.body.classList.remove('zieht');
+    // Der Klick, der nach dem Loslassen kommt, soll nichts öffnen
+    const schlucken = ev => { ev.stopPropagation(); ev.preventDefault(); };
+    window.addEventListener('click', schlucken, { capture: true, once: true });
+    setTimeout(() => window.removeEventListener('click', schlucken, { capture: true }), 60);
+    z.opt.fertig(z.el);
+}
+document.addEventListener('pointermove', zugBewegen, { passive: false });
+document.addEventListener('pointerup', zugEnde);
+document.addEventListener('pointercancel', zugEnde);
+document.addEventListener('touchmove', e => { if (zug && zug.laeuft) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', e => { if (zug) e.preventDefault(); });
+document.addEventListener('dragstart', e => { if (zug) e.preventDefault(); });
+
+// Modelle innerhalb einer Kategorie: die sichtbaren tauschen ihre Plätze, ausgefilterte bleiben, wo sie sind
+const nachPlatz = (a, b) => (a.pos ?? 1e9) - (b.pos ?? 1e9) || a.name.localeCompare(b.name, 'de');
+function modellReihenfolge(ids) {
+    const erstes = roh(ids[0]);
+    if (!erstes) return;
+
+    const gleicheGruppe = m => m.kat === erstes.kat;
+    const gruppe = galerie.modelle.filter(gleicheGruppe).sort(nachPlatz);
+    const sichtbar = new Set(ids);
+    let j = 0;
+    const t = Date.now();
+    gruppe.map(m => sichtbar.has(m.id) ? roh(ids[j++]) : m).forEach((m, i) => { if (m.pos !== i) { m.pos = i; m.updated = t; } });
+    speichern();
 }
 
 // Filter klappbar; ob offen, merkt sich der Browser
@@ -1532,7 +1698,7 @@ function badgesHtml(m) {
 }
 
 function reihe(m) {
-    return `<div class="reihe">
+    return `<div class="reihe" data-sort="${esc(m.id)}">
         <button type="button" class="reihe__bild bildrahmen" data-open="${esc(m.id)}" aria-label="${esc(m.name)} bearbeiten"><img data-bild="${esc(m.id)}" alt="" loading="lazy"></button>
         <input type="text" class="reihe__name" value="${esc(m.name)}" data-feld="name" data-id="${esc(m.id)}" aria-label="Name">
         <select class="reihe__kat" data-feld="kat" data-id="${esc(m.id)}" aria-label="Kategorie">${katOptionen(m.kat)}</select>
@@ -1563,12 +1729,12 @@ function multHtml(m) {
 
 function karte(m, i) {
     const tags = [
-        ...m.saison.map(s => `<span><i style="--c:${saisonFarbe(s)}"></i>${esc(s)}</span>`),
-        ...m.anlass.map(a => `<span>${esc(a)}</span>`),
+        ...nachListe('saison', m.saison).map(s => `<span><i style="--c:${saisonFarbe(s)}"></i>${esc(s)}</span>`),
+        ...nachListe('anlass', m.anlass).map(a => `<span>${esc(a)}</span>`),
     ].join('');
     const badges = badgesHtml(m);
     return `
-    <article class="card" style="animation-delay:${Math.min(i, 12) * 35}ms">
+    <article class="card" data-sort="${esc(m.id)}" style="animation-delay:${Math.min(i, 12) * 35}ms">
         <button type="button" class="card__open" data-open="${esc(m.id)}" aria-label="${esc(m.name)} ansehen"></button>
         <div class="card__img bildrahmen">
             <img data-bild="${esc(m.id)}" alt="" loading="lazy">
@@ -1597,7 +1763,7 @@ function renderGalerie() {
         'preis-ab': (a, b) => b.preis - a.preis || byName(a, b),
         'name': byName,
         'zeit': (a, b) => a.stunden - b.stunden,
-        'kategorie': byName,
+        'kategorie': nachPlatz,   // Reihenfolge, die der Admin per Ziehen festlegt; sonst nach Name
     }[filter.sort]);
 
     const gesamt = modelle().length;
@@ -1739,6 +1905,7 @@ function renderSeite() {
 
 function render() {
     $('seg').hidden = rolle !== 'admin';
+    document.body.classList.toggle('ist-admin', isAdmin());
     document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('is-active', b.dataset.view === ansicht));
     renderSeite();
     renderStats();
@@ -2500,8 +2667,8 @@ function renderEdit() {
                 ${feld('Ersteller', eingabe('autor', m.autor))}
             </div>
             <label class="feldx feldx--zeile"><span>Set (Banner „Set“ für Kunden)</span><input type="checkbox" class="schalter" data-feld="set" data-id="${esc(m.id)}"${m.set ? ' checked' : ''}></label>
-            <div class="feldx"><span>Saison</span>${chips('saison', SAISONEN, m.saison)}</div>
-            <div class="feldx"><span>Anlass</span>${chips('anlass', ANLAESSE, m.anlass)}</div>
+            <div class="feldx"><span>Saison</span>${chips('saison', listeVon('saison'), m.saison)}</div>
+            <div class="feldx"><span>Anlass</span>${chips('anlass', listeVon('anlass'), m.anlass)}</div>
             ${feld('Maße (eine Zeile pro Größe, z. B. „Groß: 112 × 112 × 95 mm“)', `<textarea rows="${Math.max(2, (m.masse || []).length + 1)}" data-feld="masse" data-id="${esc(m.id)}">${esc((m.masse || []).join('\n'))}</textarea>`)}
         </div>
         <div class="edit__gruppe">
@@ -2536,7 +2703,8 @@ function renderEdit() {
             ${opt ? `<div class="zeilen">
                 <div class="zeilen__zeile zeilen__zeile--opt zeilen__kopf"><span>Name</span><span>Maße</span><span>Gramm</span><span>Std.</span><span title="Standard">Std.-Wahl</span><span></span></div>
                 ${ol.map((o, i) => `
-                <div class="zeilen__zeile zeilen__zeile--opt">
+                <div class="zeilen__zeile zeilen__zeile--opt" data-opt-zeile="${i}">
+                    <span class="o-griff" title="Ziehen zum Verschieben" aria-label="Ziehen zum Verschieben"><svg class="icon"><use href="#i-griff"/></svg></span>
                     <input class="o-name" type="text" value="${esc(o.name)}" data-opt="${i}" data-opt-feld="name" placeholder="Name" aria-label="Name">
                     <input class="o-masse" type="text" value="${esc(o.masse || '')}" data-opt="${i}" data-opt-feld="masse" placeholder="Maße" aria-label="Maße">
                     <label class="o-g einheit"><input type="number" step="any" min="0" inputmode="decimal" value="${o.gramm}" data-opt="${i}" data-opt-feld="gramm" aria-label="Gramm" title="${o.geschaetzt ? 'geschätzt' : 'Gramm'}"><span>g${o.geschaetzt ? ' ~' : ''}</span></label>
@@ -2773,7 +2941,7 @@ $('seg').addEventListener('click', e => {
 
 [['fKat', 'kat'], ['fSaison', 'saison'], ['fAnlass', 'anlass'], ['fDruck', 'druck']].forEach(([el, key]) => {
     $(el).addEventListener('click', e => {
-        if (key === 'kat' && katKlick(e)) return;
+        if (GRUPPEN[key] && pKlick(key, e)) return;
         const b = e.target.closest('.chip');
         if (!b) return;
         filter[key] = b.dataset.v === 'Alle' || filter[key] === b.dataset.v ? null : b.dataset.v;
@@ -2781,30 +2949,62 @@ $('seg').addEventListener('click', e => {
         renderGalerie();
     });
 });
-// Kategorien pflegen: Knöpfe nehmen dem Eingabefeld nicht den Fokus (sonst zeichnet „blur“ die Leiste neu, bevor der Klick ankommt)
-$('fKat').addEventListener('mousedown', e => { if (e.target.closest('[data-kat-plus], [data-kat-bearbeiten], [data-kat-fertig], [data-kat-weg]')) e.preventDefault(); });
-$('fKat').addEventListener('keydown', e => {
-    const f = e.target;
-    if (f.dataset.katWeg !== undefined && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); katEntfernen(f.dataset.katWeg); return; }
-    if (f.tagName !== 'INPUT') return;
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        if ('katNeu' in f.dataset) { if (katHinzufuegen(f.value)) { f.value = ''; render(); } }   // Feld bleibt offen für die nächste
-        else f.blur();
-    } else if (e.key === 'Escape') {
-        e.preventDefault();
-        if ('katNeu' in f.dataset) { f.value = ''; katNeu = false; katZeichnen(); }
-        else { f.value = f.dataset.katAlt; f.blur(); }
-    }
+// Kategorien, Saisonen, Anlässe pflegen. Knöpfe nehmen dem Eingabefeld nicht den Fokus (sonst zeichnet „blur“ die Leiste neu, bevor der Klick ankommt)
+Object.entries(GRUPPEN).forEach(([key, g]) => {
+    const el = $(g.el);
+    el.addEventListener('mousedown', e => { if (e.target.closest('[data-p-plus], [data-p-bearbeiten], [data-p-fertig], [data-p-weg]')) e.preventDefault(); });
+    el.addEventListener('keydown', e => {
+        const f = e.target;
+        if (f.dataset.pWeg !== undefined && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pEntfernen(key, f.dataset.pWeg); return; }
+        if (f.tagName !== 'INPUT' || f.type === 'color') return;
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if ('pNeu' in f.dataset) { if (pHinzufuegen(key, f.value)) { f.value = ''; render(); } }   // Feld bleibt offen für den nächsten
+            else f.blur();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            if ('pNeu' in f.dataset) { f.value = ''; neuOffen[key] = false; listeZeichnen(key); }
+            else { f.value = f.dataset.pAlt; f.blur(); }
+        }
+    });
+    el.addEventListener('input', e => { if (e.target.dataset.pAlt !== undefined) e.target.size = Math.max(5, e.target.value.length); });
+    el.addEventListener('change', e => {
+        if (e.target.dataset.pAlt !== undefined) pUmbenennen(key, e.target);
+        else if (e.target.dataset.pFarbe !== undefined) pFarbe(e.target);
+    });
+    el.addEventListener('focusout', e => {
+        if (pflegeZeichnet || !('pNeu' in e.target.dataset)) return;
+        const wert = e.target.value;
+        neuOffen[key] = false;
+        if (pHinzufuegen(key, wert)) render();
+        else setTimeout(() => { if (isAdmin()) listeZeichnen(key); }, 250);   // leer: erst nach einem Klick auf einen anderen Chip neu zeichnen
+    });
+    // Ovale ziehen: neue Reihenfolge
+    ziehbar(el, {
+        item: '[data-sort]', ignore: 'input, [data-p-weg]', aktiv: isAdmin,
+        fertig: () => { setzeListe(key, [...el.querySelectorAll('[data-sort]')].map(x => x.dataset.sort)); speichern(); renderGalerie(); },
+    });
 });
-$('fKat').addEventListener('input', e => { if (e.target.dataset.katAlt !== undefined) e.target.size = Math.max(5, e.target.value.length); });
-$('fKat').addEventListener('change', e => { if (e.target.dataset.katAlt !== undefined) katUmbenennen(e.target); });
-$('fKat').addEventListener('focusout', e => {
-    if (katZeichnet || !('katNeu' in e.target.dataset)) return;
-    const wert = e.target.value;
-    katNeu = false;
-    if (katHinzufuegen(wert)) render();
-    else setTimeout(() => { if (isAdmin()) katZeichnen(); }, 250);   // leer: erst nach einem Klick auf einen anderen Chip neu zeichnen, damit der Klick nicht verloren geht
+// Modelle ziehen (nur „Nach Kategorie“, dort ist die Reihenfolge sichtbar), jeweils innerhalb ihrer Kategorie
+ziehbar($('gallery'), {
+    item: '[data-sort]', ignore: 'input, select, textarea, .mult, .schalter, .reihe__knoepfe, .card__mw, .fav',
+    aktiv: () => isAdmin() && filter.sort === 'kategorie',
+    gleich: (a, b) => a.parentNode === b.parentNode,
+    fertig: el => modellReihenfolge([...el.parentNode.querySelectorAll('[data-sort]')].map(x => x.dataset.sort)),
+});
+// Größen/Varianten am Griff ziehen
+ziehbar($('sheet'), {
+    item: '[data-opt-zeile]', griff: '.o-griff', aktiv: isAdmin,
+    fertig: el => {
+        const m = roh(offen);
+        if (!m || !m.optionen) return;
+        const alt = m.optionen.liste;
+        m.optionen.liste = [...el.parentNode.querySelectorAll('[data-opt-zeile]')].map(x => alt[+x.dataset.optZeile]);
+        standardUebernehmen(m);
+        wahl.option = standardOption(m);
+        neuOeffnen(m.id);
+        geaendert(m, true);
+    },
 });
 $('resetFilter').addEventListener('click', () => {
     filter.kat = filter.saison = filter.anlass = filter.druck = null;
