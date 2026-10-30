@@ -188,7 +188,20 @@ svg.icon { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: curr
 .admin-tag { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-primary) !important; }
 .admin-tag svg { width: .9rem; height: .9rem; }
 
-.panel__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid rgba(59, 52, 45, .1); flex-wrap: wrap; }
+.panel__top { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+.panel__top .count { margin-right: auto; }
+.filter-btn { display: inline-flex; align-items: center; gap: var(--space-2); height: 2.5rem; padding: 0 var(--space-4); border-radius: var(--radius-full); border: 1px solid var(--color-border); font-size: var(--font-size-sm); font-weight: 500; transition: background var(--transition-fast), border-color var(--transition-fast); }
+.filter-btn:hover { border-color: var(--color-border-strong); }
+.filter-btn[aria-expanded="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-text-inverse); }
+.filter-btn svg { width: 1.05rem; height: 1.05rem; }
+.filter-btn__pfeil { transition: rotate var(--transition-fast); }
+.filter-btn[aria-expanded="true"] .filter-btn__pfeil { rotate: 180deg; }
+.filter-btn__n { min-width: 1.25rem; height: 1.25rem; padding: 0 .3rem; border-radius: var(--radius-full); background: var(--color-primary); color: var(--color-text-inverse); font-size: .7rem; font-weight: 700; line-height: 1.25rem; text-align: center; }
+.filter-btn[aria-expanded="true"] .filter-btn__n { background: var(--color-text-inverse); color: var(--color-text-primary); }
+.filters { margin-top: var(--space-5); padding-top: var(--space-5); border-top: 1px solid rgba(59, 52, 45, .1); animation: fade .2s ease; }
+.seg--hell { background: var(--color-surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.seg--hell button { color: var(--color-text-secondary); height: 2.125rem; }
+.seg--hell button.is-active { background: var(--color-background); color: var(--color-text-primary); box-shadow: var(--shadow-sm); }
 .panel__right { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
 .count { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .count strong { color: var(--color-text-primary); font-weight: 500; }
@@ -227,7 +240,9 @@ svg.icon { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: curr
 .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
 .card__open { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
 .card__img { position: relative; aspect-ratio: 1; background: var(--color-surface); overflow: hidden; }
-.card__img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: transform var(--transition-slow), opacity var(--transition-base); }
+/* Ganzes Bild zeigen, der freie Rand wird mit einer unscharfen Kopie des Bildes gefüllt */
+.bildrahmen::before { content: ""; position: absolute; inset: -12%; background: var(--bild, none) center / cover; filter: blur(22px) saturate(1.15); opacity: .7; }
+.card__img img { position: relative; width: 100%; height: 100%; object-fit: contain; display: block; opacity: 0; transition: transform var(--transition-slow), opacity var(--transition-base); }
 .card__img img.is-loaded { opacity: 1; }
 .card:hover .card__img img { transform: scale(1.04); }
 .badges { position: absolute; left: var(--space-3); top: var(--space-3); display: flex; flex-wrap: wrap; gap: var(--space-1); }
@@ -289,8 +304,11 @@ svg.icon { width: 1.25rem; height: 1.25rem; flex: none; fill: none; stroke: curr
     border-radius: var(--radius-xl); background: var(--color-background); box-shadow: var(--shadow-xl);
     animation: pop .3s cubic-bezier(.2, .9, .25, 1.05);
 }
-.sheet__img { background: var(--color-surface); }
-.sheet__img img { width: 100%; height: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.sheet__img { position: relative; background: var(--color-surface); overflow: hidden; }
+.sheet__img img { position: relative; width: 100%; height: 100%; min-height: 100%; aspect-ratio: 1; object-fit: contain; display: block; }
+.sheet { width: min(64rem, 100%); grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.sheet__img { position: sticky; top: 0; align-self: start; height: min(calc(100vh - 3rem), 40rem); }
+.sheet__img img { aspect-ratio: auto; }
 .sheet__body { padding: var(--space-8); display: flex; flex-direction: column; gap: var(--space-4); }
 .sheet__close { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 3; background: rgba(245, 241, 234, .9); color: var(--color-text-secondary); }
 .sheet__close:hover { background: #fff; color: var(--color-text-primary); }
@@ -394,6 +412,135 @@ body.is-locked { overflow: hidden; }
 .lock__remember input:checked { background: var(--color-background); border-color: var(--color-background); }
 .lock__remember input:checked::after { transform: rotate(45deg) scale(1); }
 .lock__error { min-height: 1.4em; margin-top: var(--space-4); font-size: var(--font-size-sm); color: #f0b4b4; }
+
+/* ==========================================================
+   Set-Banner, Listenansicht und Bearbeiten (Admin)
+========================================================== */
+
+.badge--set { background: var(--color-accent); color: var(--color-text-inverse); }
+.sheet__badges { display: flex; gap: var(--space-1); margin-bottom: var(--space-2); }
+
+.liste { display: flex; flex-direction: column; border-radius: var(--radius-lg); background: var(--color-surface-secondary); overflow: hidden; }
+.reihe { display: grid; grid-template-columns: 3.5rem minmax(0, 1.6fr) minmax(0, 1fr) 6rem 8.5rem 4.5rem 5rem; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4); border-bottom: 1px solid rgba(59, 52, 45, .08); }
+.reihe:last-child { border-bottom: 0; }
+.reihe--kopf { padding-top: var(--space-3); padding-bottom: var(--space-3); font-size: var(--font-size-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); background: var(--color-surface); }
+.reihe__bild { position: relative; width: 3.5rem; aspect-ratio: 1; border-radius: var(--radius-sm); background: var(--color-surface); overflow: hidden; }
+.reihe__bild img { position: relative; width: 100%; height: 100%; object-fit: contain; display: block; opacity: 0; transition: opacity var(--transition-base); }
+.reihe__bild img.is-loaded { opacity: 1; }
+.reihe input[type="text"], .reihe select, .feldx input, .feldx select, .feldx textarea {
+    width: 100%; min-width: 0; height: 2.25rem; padding: 0 var(--space-3);
+    border-radius: var(--radius-sm); border: 1px solid transparent; background: transparent;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.reihe input[type="text"]:hover, .reihe select:hover { border-color: var(--color-border); }
+.reihe input[type="text"]:focus, .reihe select:focus { outline: none; border-color: var(--color-primary); background: var(--color-background); }
+.reihe input[type="text"] { font-weight: 500; }
+.reihe__preis { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.reihe .mult { margin: 0; }
+.reihe .mult button { height: 1.75rem; }
+.reihe__set { display: flex; justify-content: center; }
+.schalter { position: relative; width: 2.5rem; height: 1.4rem; flex: none; appearance: none; -webkit-appearance: none; border-radius: var(--radius-full); background: var(--color-border); cursor: pointer; transition: background var(--transition-fast); }
+.schalter::after { content: ""; position: absolute; top: .15rem; left: .15rem; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: translate var(--transition-fast); }
+.schalter:checked { background: var(--color-accent); }
+.schalter:checked::after { translate: 1.1rem 0; }
+.reihe__knoepfe { display: flex; justify-content: flex-end; }
+.reihe__auf, .reihe__weg { color: var(--color-text-secondary); }
+.reihe__weg:hover { background: var(--color-surface); color: var(--color-danger); }
+.reihe__weg svg { width: 1.05rem; height: 1.05rem; }
+.reihe__auf:hover { background: var(--color-surface); color: var(--color-text-primary); }
+.reihe__auf svg { width: 1.05rem; height: 1.05rem; }
+
+/* Bearbeiten im Modellfenster */
+.edit { display: flex; flex-direction: column; gap: var(--space-4); }
+.edit__gruppe { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px dashed rgba(59, 52, 45, .18); }
+.edit__titel { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.edit__raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: var(--space-3); }
+.feldx { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.feldx > span { font-size: var(--font-size-xs); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); }
+.feldx input, .feldx select, .feldx textarea { border-color: var(--color-border); background: var(--color-background); }
+.feldx textarea { height: auto; padding: var(--space-2) var(--space-3); resize: vertical; line-height: 1.5; }
+.feldx input:focus, .feldx select:focus, .feldx textarea:focus { outline: none; border-color: var(--color-primary); }
+.feldx--zeile { flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.feldx .schalter, .reihe .schalter { width: 2.5rem; height: 1.4rem; padding: 0; border: 0; background: var(--color-border); }
+.feldx .schalter:checked, .reihe .schalter:checked { background: var(--color-accent); }
+.edit .chips { flex-wrap: wrap; }
+.edit .chip { height: 2rem; padding: 0 var(--space-3); }
+.zeilen { display: flex; flex-direction: column; gap: var(--space-2); }
+.zeilen__zeile { display: grid; gap: var(--space-2); align-items: center; }
+.zeilen__zeile--teil { grid-template-columns: minmax(0, 1fr) 2.5rem 2rem; }
+.zeilen__zeile--opt { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2rem 2rem; grid-template-areas: "name name std weg" "masse masse masse masse" "g h . ."; padding-bottom: var(--space-3); border-bottom: 1px solid rgba(59, 52, 45, .08); }
+.zeilen__zeile--opt .o-name { grid-area: name; } .zeilen__zeile--opt .o-masse { grid-area: masse; }
+.zeilen__zeile--opt .o-g { grid-area: g; } .zeilen__zeile--opt .o-h { grid-area: h; }
+.zeilen__zeile--opt .o-std { grid-area: std; justify-self: center; } .zeilen__zeile--opt .o-weg { grid-area: weg; }
+.zeilen__kopf.zeilen__zeile--opt { display: none; }
+.einheit { position: relative; display: block; }
+.feldx > .einheit { font-size: var(--font-size-base); font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--color-text-primary); }
+.einheit input { padding-right: 2rem !important; }
+.einheit span { position: absolute; right: var(--space-2); top: 50%; translate: 0 -50%; font-size: var(--font-size-xs); color: var(--color-text-muted); pointer-events: none; }
+.zeilen__zeile input { width: 100%; min-width: 0; height: 2.25rem; padding: 0 var(--space-2); border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-background); }
+.zeilen__zeile input:focus { outline: none; border-color: var(--color-primary); }
+.zeilen__zeile input[type="color"] { padding: 2px; cursor: pointer; }
+.zeilen__zeile input[type="radio"] { width: 1.1rem; height: 1.1rem; accent-color: var(--color-primary); cursor: pointer; }
+.zeilen__kopf { font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-muted); }
+.mini-btn { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--radius-sm); color: var(--color-text-secondary); transition: background var(--transition-fast), color var(--transition-fast); }
+.mini-btn:hover { background: var(--color-surface); color: var(--color-text-primary); }
+.mini-btn svg { width: 1rem; height: 1rem; }
+.mini-btn--weg:hover { color: var(--color-danger); }
+.text-btn { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--font-size-sm); color: var(--color-primary); font-weight: 500; }
+.text-btn svg { width: 1rem; height: 1rem; }
+.text-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+.bild-btn { position: absolute; right: var(--space-3); bottom: var(--space-3); z-index: 2; height: 2.25rem; padding: 0 var(--space-4); font-size: var(--font-size-xs); }
+.edit__hinweis { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+
+/* ==========================================================
+   Bestellungen (Admin)
+========================================================== */
+
+.tabs__n { margin-left: .35rem; padding: 0 .35rem; border-radius: var(--radius-full); background: var(--color-text-inverse); color: var(--color-text-primary); font-size: .65rem; font-weight: 700; vertical-align: 1px; }
+.bestell-filter { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); }
+.bestellungen { display: flex; flex-direction: column; gap: var(--space-4); }
+.bestellung { border-radius: var(--radius-lg); background: var(--color-surface-secondary); overflow: hidden; }
+.bestellung.is-neu { box-shadow: inset 4px 0 0 var(--color-primary); }
+.bestellung.is-bezahlt { opacity: .7; }
+.bestell-hinweis { margin-bottom: var(--space-5); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: rgba(195, 146, 50, .12); color: #7a5a1c; font-size: var(--font-size-sm); }
+.bestell-leiste { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-6); }
+.bestell-leiste .bestell-filter { margin-bottom: 0; }
+.erfassen { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-6); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface-secondary); box-shadow: inset 4px 0 0 var(--color-accent); }
+.erfassen__kopf { display: flex; justify-content: space-between; align-items: center; }
+.erfassen__kopf h3 { font-size: var(--font-size-lg); font-weight: 500; }
+.erfassen__pos { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-md); background: var(--color-background); }
+.erfassen__zeile { display: flex; align-items: flex-end; gap: var(--space-2); }
+.erfassen__modell { flex: 1; }
+.erfassen .feldx span em { font-style: normal; letter-spacing: 0; text-transform: none; }
+.erfassen__fuss { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-4); }
+.erfassen__summe { margin-right: auto; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.erfassen__summe strong { margin-left: var(--space-2); font-size: var(--font-size-xl); font-weight: 400; color: var(--color-text-primary); }
+.bestellung__kopf { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2) var(--space-4); align-items: start; padding: var(--space-5) var(--space-6) var(--space-4); }
+.bestellung__nr { font-size: var(--font-size-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); }
+.bestellung__name { font-size: var(--font-size-lg); font-weight: 500; line-height: 1.3; }
+.bestellung__kontakt { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.bestellung__kontakt a { display: inline-flex; align-items: center; gap: .35rem; color: var(--color-primary); font-weight: 500; text-decoration: none; }
+.bestellung__kontakt svg { width: .95rem; height: .95rem; }
+.bestellung__summe { text-align: right; }
+.bestellung__summe strong { display: block; font-size: var(--font-size-xl); font-weight: 400; letter-spacing: -.02em; }
+.bestellung__summe small { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.bestellung__pos { padding: 0 var(--space-6); }
+.pos { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) auto; gap: var(--space-3); align-items: center; padding: var(--space-3) 0; border-top: 1px solid rgba(59, 52, 45, .08); }
+.pos__bild { position: relative; width: 3.5rem; aspect-ratio: 1; border-radius: var(--radius-sm); background: var(--color-surface); overflow: hidden; }
+.pos__bild img { position: relative; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity var(--transition-base); }
+.pos__bild img.is-loaded { opacity: 1; }
+.pos__name { font-weight: 500; line-height: 1.3; }
+.pos__info { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+.pos__info .dot { width: .8rem; height: .8rem; vertical-align: -1px; margin-right: .2rem; }
+.pos__preis { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pos__preis small { display: block; font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.bestellung__notiz-kunde { margin: 0 var(--space-6); padding: var(--space-3) var(--space-4); border-radius: var(--radius-sm); background: var(--color-background); font-size: var(--font-size-sm); white-space: pre-wrap; }
+.bestellung__notiz-kunde b { display: block; font-size: var(--font-size-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-muted); font-weight: 500; }
+.bestellung__fuss { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3) var(--space-4); padding: var(--space-4) var(--space-6) var(--space-5); }
+.bestellung__fuss .feldx { flex: 1; min-width: 14rem; }
+.bestellung__fuss .seg { flex: none; }
+.bestellung__weg { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.bestellung__weg:hover { color: var(--color-danger); text-decoration: underline; text-underline-offset: 3px; }
 
 /* ==========================================================
    Reiter, Merkliste und Warenkorb im Header
@@ -595,7 +742,8 @@ body.is-locked { overflow: hidden; }
 
 @media (max-width: 760px) {
     .sheet { grid-template-columns: minmax(0, 1fr); }
-    .sheet__img img { aspect-ratio: 4 / 3; }
+    .sheet__img { position: relative; height: auto; }
+    .sheet__img img { aspect-ratio: 1; max-height: 70vh; }
 }
 @media (max-width: 640px) {
     .container { padding: 0 var(--space-4); }
@@ -644,6 +792,23 @@ body.is-locked { overflow: hidden; }
 @media (max-width: 860px) {
     .korb { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
     .summe { position: static; }
+    .reihe--kopf { display: none; }
+    .reihe { grid-template-columns: 3.5rem minmax(0, 1fr) auto; grid-template-areas: "bild name auf" "bild kat preis" "mult mult set"; row-gap: var(--space-1); padding: var(--space-3) var(--space-4); }
+    .reihe__bild { grid-area: bild; align-self: start; }
+    .reihe__name { grid-area: name; }
+    .reihe__kat { grid-area: kat; }
+    .reihe__preis { grid-area: preis; }
+    .reihe .mult { grid-area: mult; margin-top: var(--space-2); }
+    .reihe__set { grid-area: set; justify-content: flex-end; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+    .reihe__set::before { content: "Set"; font-size: var(--font-size-xs); color: var(--color-text-muted); }
+    .reihe__knoepfe { grid-area: auf; }
+}
+@media (max-width: 640px) {
+    .panel__top { gap: var(--space-3); }
+    .panel__top .count { order: 3; width: 100%; }
+    .sort__text { display: none; }
+    .bestellung__kopf, .bestellung__pos, .bestellung__fuss { padding-left: var(--space-4); padding-right: var(--space-4); }
+    .bestellung__notiz-kunde { margin: 0 var(--space-4); }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -664,6 +829,11 @@ body.is-locked { overflow: hidden; }
     <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol>
     <symbol id="i-cart-full" viewBox="0 0 24 24"><path d="M5.12 7.05h16.97l-1.65 7.43a2 2 0 0 1-1.95 1.57H8.71a2 2 0 0 1-2-1.58L5.12 7.05Z" fill="currentColor"/><path d="M2.05 2.05h2l1.07 5"/><circle cx="8" cy="21" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="21" r="1.5" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
     <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
@@ -715,6 +885,7 @@ body.is-locked { overflow: hidden; }
         <a href="#" data-tab="modelle">Modelle</a>
         <a href="#farben" data-tab="farben">Farben</a>
         <a href="#pflege" data-tab="pflege">Pflege &amp; Infos</a>
+        <a href="#bestellungen" data-tab="bestellungen" data-nur-admin hidden>Bestellungen<span class="tabs__n" id="bestellAnzahl" hidden></span></a>
     </nav>
     <div class="container hero__content">
         <div>
@@ -729,19 +900,29 @@ body.is-locked { overflow: hidden; }
     <section class="panel page" data-page="farben" id="pageFarben" aria-label="Farben" hidden></section>
     <section class="panel page" data-page="pflege" id="pagePflege" aria-label="Pflege und Infos" hidden></section>
     <section class="panel page" data-page="warenkorb" id="pageKorb" aria-label="Warenkorb" hidden></section>
+    <section class="panel page" data-page="bestellungen" id="pageBestell" aria-label="Bestellungen" hidden></section>
     <section class="panel" data-page="modelle" aria-label="Filter">
-        <div class="frow"><span class="label">Kategorie</span><div class="chips" id="fKat"></div></div>
-        <div class="frow"><span class="label">Saison</span><div class="chips" id="fSaison"></div></div>
-        <div class="frow"><span class="label">Anlass</span><div class="chips" id="fAnlass"></div></div>
-        <div class="frow frow--admin" data-admin><span class="label admin-tag"><svg class="icon"><use href="#i-lock"/></svg>Druck</span><div class="chips" id="fDruck"></div></div>
-        <div class="panel__foot">
+        <div class="panel__top">
+            <button type="button" class="filter-btn" id="filterBtn" aria-expanded="false" aria-controls="filterBox">
+                <svg class="icon"><use href="#i-filter"/></svg>Filter<span class="filter-btn__n" id="filterAnzahl" hidden></span><svg class="icon filter-btn__pfeil"><use href="#i-chevron"/></svg>
+            </button>
             <span class="count" id="count"></span>
             <div class="panel__right">
-                <button type="button" class="reset" id="resetFilter" hidden>Filter zurücksetzen</button>
-                <label class="sort">Sortieren
+                <button type="button" class="reset" id="resetFilter" hidden>Zurücksetzen</button>
+                <div class="seg seg--hell" role="group" aria-label="Darstellung" id="darstellung" data-admin>
+                    <button type="button" data-darstellung="karten" class="is-active">Karten</button>
+                    <button type="button" data-darstellung="liste">Liste</button>
+                </div>
+                <label class="sort"><span class="sort__text">Sortieren</span>
                     <select id="sort"></select>
                 </label>
             </div>
+        </div>
+        <div class="filters" id="filterBox" hidden>
+            <div class="frow"><span class="label">Kategorie</span><div class="chips" id="fKat"></div></div>
+            <div class="frow"><span class="label">Saison</span><div class="chips" id="fSaison"></div></div>
+            <div class="frow"><span class="label">Anlass</span><div class="chips" id="fAnlass"></div></div>
+            <div class="frow frow--admin" data-admin><span class="label admin-tag"><svg class="icon"><use href="#i-lock"/></svg>Druck</span><div class="chips" id="fDruck"></div></div>
         </div>
     </section>
 </div>
@@ -836,7 +1017,8 @@ const preisVon = (m, o = m) => Math.max(.5, roundUpToHalfEuro(grundpreis(o) * m.
 
 /* Größen und Varianten: optionen = { art: 'Größe' | 'Variante', liste: [{ name, masse, gramm, stunden, teile, standard }] }
    Kunden bekommen pro Option nur Name, Maße, Teile und den fertigen Preis. */
-const optionenVon = m => (m && m.optionen && m.optionen.liste && m.optionen.liste.length > 1) ? m.optionen.liste : null;
+// Nur Einträge mit Namen (beim Bearbeiten kann kurz ein leerer dazukommen)
+const optionenVon = m => { const l = m && m.optionen && m.optionen.liste && m.optionen.liste.filter(o => o.name); return l && l.length > 1 ? l : null; };
 const standardOption = m => { const l = optionenVon(m); return l ? Math.max(0, l.findIndex(o => o.standard)) : 0; };
 function mitOptionen(m, kunde) {
     const l = optionenVon(m);
@@ -866,7 +1048,8 @@ function schaufensterAus(g, bildShas) {
         version: 1,
         modelle: g.modelle.map(m => ({
             id: m.id, name: m.name, kat: m.kat, saison: m.saison, anlass: m.anlass,
-            masse: m.masse, bild: (bildShas && bildShas[m.id]) || '',
+            masse: m.masse, bild: (bildShas && bildShas[m.id]) || '', bildK: (bildShasK && bildShasK[m.id]) || '',
+            ...(m.set ? { set: true } : {}),                            // Banner „Set“, vergibt der Admin
             ...(m.teile && m.teile.length ? { teile: m.teile } : {}),   // mehrfarbig: Teile mit Farbe aus dem Profil
             ...mitOptionen(m, true),                                      // preis, bei Größen/Varianten „ab“-Preis und Liste
         })),
@@ -887,14 +1070,14 @@ function modelle() {
 ========================================================== */
 
 function schreibeCache() {
-    try { localStorage.setItem(SPEICHER, JSON.stringify({ rolle, galerie, schaufenster, farben, sha, dirty, bildShas })); } catch (e) {}
+    try { localStorage.setItem(SPEICHER, JSON.stringify({ rolle, galerie, schaufenster, farben, sha, dirty, bildShas, bildShasK })); } catch (e) {}
 }
 function leseCache() {
     try {
         const c = JSON.parse(localStorage.getItem(SPEICHER));
         if (!c || c.rolle !== rolle) return false;
         farben = c.farben || null;
-        if (rolle === 'admin' && c.galerie) { galerie = normiere(c.galerie); sha = c.sha || sha; dirty = !!c.dirty; bildShas = c.bildShas || {}; return true; }
+        if (rolle === 'admin' && c.galerie) { galerie = normiere(c.galerie); sha = c.sha || sha; dirty = !!c.dirty; bildShas = c.bildShas || {}; bildShasK = c.bildShasK || {}; return true; }
         if (rolle === 'kunde' && c.schaufenster) { schaufenster = c.schaufenster; sha = c.sha || sha; return true; }
     } catch (e) {}
     return false;
@@ -905,6 +1088,8 @@ function normiere(g) {
         preise: { stunde: .2, gramm: .02, ...(g.preise || {}) },
         modelle: Array.isArray(g.modelle) ? g.modelle : [],
         geloescht: g.geloescht || {},
+        bestellstatus: g.bestellstatus || {},   // Nummer -> { status, notiz, updated }
+        manuell: g.manuell || {},               // von Hand erfasste Bestellungen: Nummer -> Bestellung mit updated
     };
 }
 
@@ -919,11 +1104,11 @@ const b64encode = (s) => {
 };
 const b64decode = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), (c) => c.charCodeAt(0)));
 
-async function gh(repo, pfad, { method = 'GET', body, raw = false } = {}) {
+async function gh(repo, pfad, { method = 'GET', body, raw = false, token = remote.token } = {}) {
     const res = await fetch(`https://api.github.com/repos/${repo}/contents/${pfad}`, {
         method, cache: 'no-store',
         headers: {
-            Authorization: `Bearer ${remote.token}`,
+            Authorization: `Bearer ${token}`,
             Accept: raw ? 'application/vnd.github.raw' : 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28',
             ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -940,36 +1125,43 @@ async function holeJson(repo, pfad) {
     return { daten: JSON.parse(b64decode(res.content) || '{}'), sha: res.sha };
 }
 
-/* ---------- Bilder: liegen im Schaufenster-Repo unter bilder/<id>.jpg ---------- */
+/* ---------- Bilder: liegen im Schaufenster-Repo, ganz und ungeschnitten ----------
+   bilder/<id>.jpg        groß (bis 1400 px) fürs Modellfenster
+   bilder/klein/<id>.jpg  klein (bis 640 px) für Karten und Listen */
 
-let bildShas = {};                  // id -> sha der Bilddatei (Admin liest sie aus dem Ordner)
-const bildUrls = new Map();         // id -> { sh, url }
-async function bildUrl(m) {
-    if (!remote) return `vorschau/bilder/${m.id}.jpg`;
-    const sh = m.bild || bildShas[m.id] || '';
+let bildShas = {}, bildShasK = {};   // id -> sha der Bilddatei (Admin liest sie aus dem Ordner)
+const bildUrls = new Map();          // 'id|g' oder 'id|k' -> { sh, url }
+async function bildUrl(m, gross) {
+    if (!remote) return (bildUrls.get(m.id + (gross ? '|g' : '|k')) || {}).url || `vorschau/bilder/${gross ? '' : 'klein/'}${m.id}.jpg`;
+    let sh = gross ? (m.bild || bildShas[m.id] || '') : (m.bildK || bildShasK[m.id] || '');
+    if (!gross && !sh && (m.bild || bildShas[m.id])) return bildUrl(m, true);   // noch kein kleines Bild
     // Schon geladen? Nur bei einem neuen Bild (anderer sha) neu holen
-    const da = bildUrls.get(m.id);
+    const key = m.id + (gross ? '|g' : '|k');
+    const da = bildUrls.get(key);
     if (da && (da.sh === sh || !sh || !da.sh)) return da.url;
-    const cacheKey = `https://galerie.bergliacht.at/_bild/${m.id}?${sh}`;
+    const cacheKey = `https://galerie.bergliacht.at/_bild/${gross ? '' : 'k/'}${m.id}?${sh}`;
     let blob = null, cache = null;
     try { cache = await caches.open(BILD_CACHE); const hit = await cache.match(cacheKey); if (hit) blob = await hit.blob(); } catch (e) {}
     if (!blob) {
-        blob = await gh(remote.schaufenster, `bilder/${m.id}.jpg`, { raw: true });
-        if (!blob) return '';
+        blob = await gh(remote.schaufenster, `bilder/${gross ? '' : 'klein/'}${m.id}.jpg`, { raw: true });
+        if (!blob) return gross ? '' : bildUrl(m, true);
         try { if (cache && sh) await cache.put(cacheKey, new Response(blob, { headers: { 'Content-Type': 'image/jpeg' } })); } catch (e) {}
     }
     const url = URL.createObjectURL(blob);
-    bildUrls.set(m.id, { sh, url });
+    bildUrls.set(key, { sh, url });
     return url;
 }
+// img[data-bild] lädt das kleine Bild, mit data-gross das große. Ein Rahmen mit .bildrahmen bekommt das Bild unscharf als Hintergrund.
 function ladeBilder(root = document) {
     root.querySelectorAll('img[data-bild]').forEach(img => {
         const m = modelle().find(x => x.id === img.dataset.bild);
         if (!m) return;
-        bildUrl(m).then(url => {
+        bildUrl(m, 'gross' in img.dataset).then(url => {
             if (!url) return;
             img.onload = () => img.classList.add('is-loaded');
             img.src = url;
+            const rahmen = img.closest('.bildrahmen');
+            if (rahmen) rahmen.style.setProperty('--bild', `url("${url}")`);
         }).catch(() => {});
     });
 }
@@ -1016,7 +1208,15 @@ function merge(a, b) {
         preise: b.preise || a.preise,
         modelle: [...neu.values()].filter(m => !(geloescht[m.id] >= (m.updated || 0))),
         geloescht,
+        bestellstatus: mischeStatus(a.bestellstatus, b.bestellstatus),
+        manuell: mischeStatus(a.manuell, b.manuell),
     };
+}
+// Status und Notiz der Bestellungen: pro Bestellung gewinnt die jüngere Änderung
+function mischeStatus(a = {}, b = {}) {
+    const neu = { ...a };
+    for (const [nr, s] of Object.entries(b)) if (!neu[nr] || (s.updated || 0) > (neu[nr].updated || 0)) neu[nr] = s;
+    return neu;
 }
 
 async function syncAdmin() {
@@ -1046,15 +1246,18 @@ async function syncAdmin() {
     }
     schreibeCache();
     await holeFarben();
+    await schluesselBereit();
+    await holeBestellungen();
     return aktualisiereSchaufenster();
 }
 
 // schaufenster.json passend zu galerie.json halten (auch nach neuen Modellen von außen)
 let schaufensterText = null;
 async function aktualisiereSchaufenster() {
-    const liste = await gh(remote.schaufenster, 'bilder');
-    bildShas = {};
-    (liste || []).forEach(f => { const m = f.name.match(/^(.+)\.jpg$/); if (m) bildShas[m[1]] = f.sha; });
+    const [liste, klein] = await Promise.all([gh(remote.schaufenster, 'bilder'), gh(remote.schaufenster, 'bilder/klein')]);
+    bildShas = {}; bildShasK = {};
+    (liste || []).forEach(f => { const m = f.type === 'file' && f.name.match(/^(.+)\.jpg$/); if (m) bildShas[m[1]] = f.sha; });
+    (klein || []).forEach(f => { const m = f.name.match(/^(.+)\.jpg$/); if (m) bildShasK[m[1]] = f.sha; });
     const text = JSON.stringify(schaufensterAus(galerie, bildShas), null, 2);
     if (text === schaufensterText) return false;
     for (let versuch = 0; versuch < 3; versuch++) {
@@ -1085,6 +1288,10 @@ async function holeFarben() {
 
 async function syncKunde() {
     await holeFarben();
+    if (!bestellPublic && remote.bestellung) {
+        const p = await holeJson(remote.schaufenster, 'bestellschluessel.json');
+        bestellPublic = p.daten && p.daten.public;
+    }
     const r = await holeJson(remote.schaufenster, 'schaufenster.json');
     if (!r.daten) { schaufenster = { modelle: [] }; sha.schaufenster = null; neuZeichnen(); return false; }
     if (r.sha !== sha.schaufenster) { sha.schaufenster = r.sha; schaufenster = r.daten; schreibeCache(); neuZeichnen(); }
@@ -1130,6 +1337,7 @@ const DRUCK = [
     { id: 'ohne', name: 'Ohne AMS', test: m => !m.ams },
     { id: 'ein', name: 'Ein Druck', test: m => m.platten === 1 },
     { id: 'mehr', name: 'Mehrere Platten', test: m => m.platten > 1 },
+    { id: 'set', name: 'Set', test: m => !!m.set },
 ];
 const SORTS = [
     { id: 'kategorie', name: 'Nach Kategorie' },
@@ -1171,9 +1379,48 @@ function renderFilter() {
 
     if (!isAdmin() && SORTS.find(s => s.id === filter.sort).admin) filter.sort = 'kategorie';
     $('sort').innerHTML = SORTS.filter(s => !s.admin || isAdmin()).map(s => `<option value="${s.id}"${s.id === filter.sort ? ' selected' : ''}>${s.name}</option>`).join('');
-    $('resetFilter').hidden = !(filter.kat || filter.saison || filter.anlass || (isAdmin() && filter.druck));
+    const aktiv = [filter.kat, filter.saison, filter.anlass, isAdmin() && filter.druck].filter(Boolean).length;
+    $('resetFilter').hidden = !aktiv;
+    $('filterAnzahl').hidden = !aktiv;
+    $('filterAnzahl').textContent = aktiv;
     document.querySelectorAll('[data-admin]').forEach(el => el.hidden = !isAdmin());
+    document.querySelectorAll('[data-darstellung]').forEach(b => b.classList.toggle('is-active', b.dataset.darstellung === darstellung));
 }
+
+// Filter klappbar; ob offen, merkt sich der Browser
+function filterAuf(auf) {
+    $('filterBox').hidden = !auf;
+    $('filterBtn').setAttribute('aria-expanded', auf);
+    try { localStorage.setItem('bergliacht-galerie-filter', auf ? 'auf' : 'zu'); } catch (e) {}
+}
+
+// Admin: Karten oder Liste
+let darstellung = (() => { try { return localStorage.getItem('bergliacht-galerie-darstellung') || 'karten'; } catch (e) { return 'karten'; } })();
+const alsListe = () => isAdmin() && darstellung === 'liste';
+
+function badgesHtml(m) {
+    return [
+        m.set ? `<span class="badge badge--set"><svg class="icon"><use href="#i-layers"/></svg>Set</span>` : '',
+        isAdmin() && m.ams ? `<span class="badge badge--ams"><svg class="icon"><use href="#i-drop"/></svg>AMS</span>` : '',
+        isAdmin() && m.platten > 1 ? `<span class="badge">${m.platten} Platten</span>` : '',
+    ].join('');
+}
+
+function reihe(m) {
+    return `<div class="reihe">
+        <button type="button" class="reihe__bild bildrahmen" data-open="${esc(m.id)}" aria-label="${esc(m.name)} bearbeiten"><img data-bild="${esc(m.id)}" alt="" loading="lazy"></button>
+        <input type="text" class="reihe__name" value="${esc(m.name)}" data-feld="name" data-id="${esc(m.id)}" aria-label="Name">
+        <select class="reihe__kat" data-feld="kat" data-id="${esc(m.id)}" aria-label="Kategorie">${KATEGORIEN.map(k => `<option${k === m.kat ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select>
+        <span class="reihe__preis">${m.ab ? 'ab ' : ''}${euro(m.preis)}</span>
+        ${multHtml(m)}
+        <span class="reihe__set"><input type="checkbox" class="schalter" data-feld="set" data-id="${esc(m.id)}"${m.set ? ' checked' : ''} aria-label="Set"></span>
+        <span class="reihe__knoepfe">
+            <button type="button" class="icon-btn reihe__auf" data-open="${esc(m.id)}" aria-label="Alles bearbeiten" title="Alles bearbeiten"><svg class="icon"><use href="#i-edit"/></svg></button>
+            <button type="button" class="icon-btn reihe__weg" data-loeschen="${esc(m.id)}" aria-label="${esc(m.name)} löschen" title="Löschen"><svg class="icon"><use href="#i-trash"/></svg></button>
+        </span>
+    </div>`;
+}
+const listenKopf = `<div class="reihe reihe--kopf"><span></span><span>Name</span><span>Kategorie</span><span style="text-align:right">Preis</span><span>Multiplikator</span><span style="text-align:center">Set</span><span></span></div>`;
 
 // Kunden sehen fehlende Maße nicht, im Admin-Bereich fällt die Lücke auf
 function masseHtml(m) {
@@ -1194,14 +1441,11 @@ function karte(m, i) {
         ...m.saison.map(s => `<span><i style="--c:${saisonFarbe(s)}"></i>${esc(s)}</span>`),
         ...m.anlass.map(a => `<span>${esc(a)}</span>`),
     ].join('');
-    const badges = isAdmin() ? [
-        m.ams ? `<span class="badge badge--ams"><svg class="icon"><use href="#i-drop"/></svg>AMS</span>` : '',
-        m.platten > 1 ? `<span class="badge"><svg class="icon"><use href="#i-layers"/></svg>${m.platten} Platten</span>` : '',
-    ].join('') : '';
+    const badges = badgesHtml(m);
     return `
     <article class="card" style="animation-delay:${Math.min(i, 12) * 35}ms">
         <button type="button" class="card__open" data-open="${esc(m.id)}" aria-label="${esc(m.name)} ansehen"></button>
-        <div class="card__img">
+        <div class="card__img bildrahmen">
             <img data-bild="${esc(m.id)}" alt="" loading="lazy">
             ${badges ? `<div class="badges">${badges}</div>` : ''}
             ${favHtml(m, 'card__fav')}
@@ -1212,7 +1456,7 @@ function karte(m, i) {
             <h3 class="card__name">${esc(m.name)}</h3>
             ${isAdmin() ? masseHtml(m) : ''}
             <div class="card__foot">
-                <div class="price"><small>${isAdmin() && m.optionen ? `${optionenVon(m).length} ${m.optionen.art === 'Größe' ? 'Größen' : 'Varianten'}` : 'Preis'}</small><strong>${m.ab ? 'ab ' : ''}${euro(m.preis)}</strong></div>
+                <div class="price"><small>${isAdmin() && optionenVon(m) ? `${optionenVon(m).length} ${m.optionen.art === 'Größe' ? 'Größen' : 'Varianten'}` : 'Preis'}</small><strong>${m.ab ? 'ab ' : ''}${euro(m.preis)}</strong></div>
                 ${isAdmin() ? `<div class="meta">${dauer(m.stunden)}<br>${m.gramm} g</div>` : ''}
             </div>
             ${isAdmin() ? multHtml(m) : ''}
@@ -1242,16 +1486,19 @@ function renderGalerie() {
         return;
     }
     let i = 0;
+    const block = teil => alsListe()
+        ? `<div class="liste">${listenKopf}${teil.map(reihe).join('')}</div>`
+        : `<div class="grid">${teil.map(m => karte(m, i++)).join('')}</div>`;
     if (filter.sort === 'kategorie') {
         const kats = [...KATEGORIEN, ...new Set(liste.map(m => m.kat).filter(k => !KATEGORIEN.includes(k)))];
         $('gallery').innerHTML = kats.map(k => {
             const teil = liste.filter(m => m.kat === k);
             if (!teil.length) return '';
             return `<section class="group"><div class="group__head"><h2 class="group__title">${esc(k)}</h2><span class="group__count">${teil.length}</span></div>
-                <div class="grid">${teil.map(m => karte(m, i++)).join('')}</div></section>`;
+                ${block(teil)}</section>`;
         }).join('');
     } else {
-        $('gallery').innerHTML = `<div class="grid">${liste.map(m => karte(m, i++)).join('')}</div>`;
+        $('gallery').innerHTML = block(liste);
     }
     ladeBilder($('gallery'));
 }
@@ -1262,6 +1509,7 @@ function renderStats() {
     const s = seite();
     const stats = s === 'farben' ? (farbListe().length ? [[farbListe().filter(f => f.verfuegbar).length, 'Verfügbar'], [farbListe().filter(f => !f.verfuegbar).length, 'Bald wieder da']] : [])
         : s === 'pflege' ? [['PLA', 'Aus Maisstärke']]
+        : s === 'bestellungen' ? (bestellungen ? STATUS.map(x => [sichtbareBestellungen().filter(b => (statusVon(b.nummer).status || 'neu') === x.id).length, x.name]) : [])
         : s === 'warenkorb' ? (gesendet || !korb().length ? [] : [[korb().reduce((a, z) => a + z.menge, 0), 'Stück'], [euro(korb().reduce((a, z) => a + zeilenPreis(liste.find(m => m.id === z.id), z) * z.menge, 0)), 'Summe']])
         : isAdmin()
         ? [[liste.length, 'Modelle'], [liste.filter(m => m.ams).length, 'Mit AMS'], [Math.round(liste.reduce((a, m) => a + m.stunden, 0)) + ' h', 'Druckzeit gesamt']]
@@ -1281,8 +1529,9 @@ const SEITEN = {
     farben: { titel: 'Unsere<br>Farben.', label: 'Farbauswahl' },
     pflege: { titel: 'Pflege &amp;<br>Infos.', label: 'Gut zu wissen' },
     warenkorb: { titel: 'Dein<br>Warenkorb.', label: 'Bestellanfrage' },
+    bestellungen: { titel: 'Eingegangene<br>Bestellungen.', label: 'Bestellungen', admin: true },
 };
-const seite = () => { const s = location.hash.slice(1); return SEITEN[s] ? s : 'modelle'; };
+const seite = () => { const s = location.hash.slice(1); return SEITEN[s] && (!SEITEN[s].admin || rolle === 'admin') ? s : 'modelle'; };
 
 const farbListe = () => (farben && farben.farben) || [];
 // Mehrfarbige Rollen haben mehrere Hex-Codes („#a,#b“), wie im Filament-Lager
@@ -1354,6 +1603,10 @@ function renderSeite() {
     if (s === 'farben') renderFarben();
     if (s === 'pflege') renderPflege();
     if (s === 'warenkorb') renderKorb();
+    if (s === 'bestellungen') renderBestellungen();
+    document.querySelectorAll('[data-nur-admin]').forEach(el => el.hidden = rolle !== 'admin');
+    // Kunden: Merkliste und Warenkorb; im Admin-Bereich unnötig
+    $('merkBtn').hidden = $('korbBtn').hidden = isAdmin();
 }
 
 function render() {
@@ -1492,7 +1745,7 @@ function renderKorb() {
         $('pageKorb').innerHTML = `<div class="korb-ok">
             <span class="korb-ok__icon"><svg class="icon"><use href="#i-check"/></svg></span>
             <h2>Anfrage gesendet</h2>
-            <p>Danke, ${esc(gesendet.name)}! Deine Anfrage <b>${esc(gesendet.nummer)}</b> ist bei Patrick angekommen. Er meldet sich bald telefonisch bei dir.</p>
+            <p>Danke, ${esc(gesendet.name)}! Deine Anfrage <b>${esc(gesendet.nummer)}</b> ist angekommen. Ich melde mich bald bei dir.</p>
             ${gesendet.vorschau ? '<p><small>Lokale Vorschau: Es wurde nichts verschickt.</small></p>' : ''}
             <a class="btn btn--dark" href="#">Weiter stöbern</a></div>`;
         return;
@@ -1575,13 +1828,16 @@ async function sendeAnfrage() {
     $('kTel').classList.toggle('is-error', !telOk);
     if (!name) { status.textContent = 'Bitte gib deinen Namen ein.'; return $('kName').focus(); }
     if (!telOk) { status.textContent = 'Bitte gib deine Telefonnummer ein, damit Patrick dich erreicht.'; return $('kTel').focus(); }
+    // Die Nummer bleibt bei einem neuen Versuch gleich, damit keine Bestellung doppelt gespeichert wird
     const d = new Date(), zwei = n => String(n).padStart(2, '0');
-    const nummer = `G-${d.getFullYear()}${zwei(d.getMonth() + 1)}${zwei(d.getDate())}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    const nummer = sendeAnfrage.nummer || (sendeAnfrage.nummer = `G-${d.getFullYear()}${zwei(d.getMonth() + 1)}${zwei(d.getDate())}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`);
     const liste = korb();
     const btn = $('kSenden');
     btn.disabled = true; btn.textContent = 'Wird gesendet …'; status.textContent = '';
     try {
-        if (remote) {
+        // Zwei Wege: Mail an Patrick und verschlüsselt in den Bestellbereich. Ein Weg genügt.
+        const mail = async () => {
+            if (!remote) return true;
             const res = await fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -1589,7 +1845,11 @@ async function sendeAnfrage() {
             });
             const r = await res.json().catch(() => ({}));
             if (!res.ok || !r.success) throw new Error(r.message || 'Web3Forms ' + res.status);
-        }
+            return true;
+        };
+        const wege = await Promise.allSettled([mail(), bestellungSpeichern(bestellungAus(nummer, name, tel, notiz, liste))]);
+        if (!wege.some(w => w.status === 'fulfilled' && w.value)) throw (wege[0].reason || new Error('nicht gesendet'));
+        sendeAnfrage.nummer = null;
         schreibListe(KORB_STORE, []);
         gesendet = { name, nummer, vorschau: !remote };
         renderKopf(); renderStats(); renderKorb();
@@ -1604,34 +1864,372 @@ async function sendeAnfrage() {
    Detail
 ========================================================== */
 
+/* ==========================================================
+   Bestellungen
+   Kunde: verschlüsselt jede Bestellung mit dem öffentlichen Schlüssel (RSA-OAEP, darin ein AES-GCM-Schlüssel)
+          und legt sie mit dem Bestell-Token als bestellungen/<nummer>.json ins Repo modell-galerie-bestellungen.
+   Admin: hat den privaten Schlüssel (bestellschluessel.json im privaten Daten-Repo), liest und entschlüsselt.
+          Status und Notiz stehen in galerie.json unter bestellstatus.
+   Lokale Vorschau: Bestellungen liegen unverschlüsselt im Browser.
+========================================================== */
+
+const BESTELL_REPO = 'haidinga/modell-galerie-bestellungen';
+const VORSCHAU_BESTELLUNGEN = 'bergliacht-galerie-bestellungen-vorschau';
+const RSA = { name: 'RSA-OAEP', hash: 'SHA-256' };
+let bestellPublic = null;   // Kunde: öffentlicher Schlüssel (JWK)
+let bestellPrivat = null;   // Admin: privater Schlüssel (CryptoKey)
+let bestellungen = [];      // Admin: entschlüsselte Bestellungen; null = Bestell-Repo noch nicht eingerichtet
+const bestellDateien = new Map();   // sha -> entschlüsselte Bestellung (nur im Speicher)
+let bestellAnsicht = 'offen';
+
+const bufB64 = buf => { const a = new Uint8Array(buf); let s = ''; for (let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode(...a.subarray(i, i + 0x8000)); return btoa(s); };
+const b64Buf = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function verschluesseln(obj) {
+    const pub = await crypto.subtle.importKey('jwk', bestellPublic, RSA, false, ['encrypt']);
+    const aes = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aes, new TextEncoder().encode(JSON.stringify(obj)));
+    const key = await crypto.subtle.encrypt(RSA, pub, await crypto.subtle.exportKey('raw', aes));
+    return { v: 1, key: bufB64(key), iv: bufB64(iv), data: bufB64(data) };
+}
+async function entschluesseln(e) {
+    const raw = await crypto.subtle.decrypt(RSA, bestellPrivat, b64Buf(e.key));
+    const aes = await crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt']);
+    const data = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64Buf(e.iv) }, aes, b64Buf(e.data));
+    return JSON.parse(new TextDecoder().decode(data));
+}
+
+// Admin: Schlüsselpaar beim ersten Mal anlegen, den öffentlichen Teil ins Schaufenster legen
+async function schluesselBereit() {
+    if (bestellPrivat) return;
+    let r = await holeJson(remote.daten, 'bestellschluessel.json');
+    if (!r.daten) {
+        const paar = await crypto.subtle.generateKey({ ...RSA, modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]) }, true, ['encrypt', 'decrypt']);
+        const daten = { public: await crypto.subtle.exportKey('jwk', paar.publicKey), privat: await crypto.subtle.exportKey('jwk', paar.privateKey) };
+        await gh(remote.daten, 'bestellschluessel.json', { method: 'PUT', body: { message: 'Schlüssel für Bestellungen', content: b64encode(JSON.stringify(daten, null, 2)) } });
+        r = { daten };
+    }
+    bestellPrivat = await crypto.subtle.importKey('jwk', r.daten.privat, RSA, false, ['decrypt']);
+    const p = await holeJson(remote.schaufenster, 'bestellschluessel.json');
+    if (!p.daten || p.daten.public.n !== r.daten.public.n) {
+        await gh(remote.schaufenster, 'bestellschluessel.json', { method: 'PUT', body: { message: 'Öffentlicher Schlüssel für Bestellungen', content: b64encode(JSON.stringify({ public: r.daten.public }, null, 2)), ...(p.sha ? { sha: p.sha } : {}) } });
+    }
+}
+
+// Was in einer Bestellung steht: alles, was Patrick zum Drucken braucht
+function bestellungAus(nummer, name, tel, notiz, liste) {
+    const alle = modelle();
+    const positionen = liste.map(z => {
+        const m = alle.find(x => x.id === z.id);
+        return {
+            id: m.id, name: m.name, kat: m.kat, menge: z.menge, einzelpreis: zeilenPreis(m, z),
+            ...(z.option && m.optionen ? { art: m.optionen.art, option: z.option } : {}),
+            teile: z.teile.map(t => { const f = farbListe().find(x => x.id === t.farbe); return { teil: t.teil, farbe: f ? f.name : t.name, material: f ? f.art || '' : '', hex: f ? f.hex : t.hex, leer: !!(f && !f.verfuegbar) }; }),
+        };
+    });
+    return { nummer, zeit: Date.now(), name, tel, notiz, positionen, summe: positionen.reduce((s, p) => s + p.einzelpreis * p.menge, 0) };
+}
+
+async function bestellungSpeichern(b) {
+    if (!remote) {
+        schreibListe(VORSCHAU_BESTELLUNGEN, [...liesListe(VORSCHAU_BESTELLUNGEN).filter(x => x.nummer !== b.nummer), b]);
+        return true;
+    }
+    if (!remote.bestellung || !bestellPublic) return false;
+    const inhalt = JSON.stringify(await verschluesseln(b));
+    try {
+        await gh(remote.bestellung.repo || BESTELL_REPO, `bestellungen/${b.nummer}.json`, { method: 'PUT', token: remote.bestellung.token, body: { message: `Bestellung ${b.nummer}`, content: b64encode(inhalt) } });
+    } catch (err) {
+        if (err.status !== 422) throw err;   // 422: schon gespeichert (zweiter Versuch)
+    }
+    return true;
+}
+
+// Admin: Bestellungen holen (nur neue Dateien werden geladen und entschlüsselt)
+// Dazu kommen die von Hand erfassten Bestellungen aus galerie.json (manuell).
+let repoBestellungen = [], bestellRepoFehlt = false;
+async function holeBestellungen() {
+    if (!remote) {
+        repoBestellungen = liesListe(VORSCHAU_BESTELLUNGEN);
+    } else {
+        let liste;
+        bestellRepoFehlt = false;
+        try {
+            liste = await gh(BESTELL_REPO, 'bestellungen');
+            // Kein Ordner: entweder noch keine Bestellung oder kein Zugriff aufs Repo
+            if (!liste && !(await gh(BESTELL_REPO, ''))) bestellRepoFehlt = true;
+        } catch (err) { if (err.status === 403 || err.status === 404) bestellRepoFehlt = true; else throw err; }
+        const neu = [];
+        for (const f of (liste || []).filter(f => f.name.endsWith('.json'))) {
+            let b = bestellDateien.get(f.sha);
+            if (!b) {
+                try {
+                    const r = await holeJson(BESTELL_REPO, f.path);
+                    b = { ...(await entschluesseln(r.daten)), datei: { pfad: f.path, sha: f.sha } };
+                    bestellDateien.set(f.sha, b);
+                } catch (err) { continue; }   // fremde oder kaputte Datei überspringen
+            }
+            neu.push(b);
+        }
+        repoBestellungen = neu;
+    }
+    mischeBestellungen();
+    if (seite() === 'bestellungen' && !document.activeElement?.closest('#pageBestell')) renderBestellungen();
+}
+function mischeBestellungen() {
+    bestellungen = [...repoBestellungen, ...Object.values((galerie && galerie.manuell) || {})];
+    renderBestellAnzahl();
+}
+
+const statusVon = nr => (galerie && galerie.bestellstatus[nr]) || {};
+const sichtbareBestellungen = () => (bestellungen || []).filter(b => !statusVon(b.nummer).geloescht).sort((a, b) => b.zeit - a.zeit);
+function renderBestellAnzahl() {
+    const n = sichtbareBestellungen().filter(b => (statusVon(b.nummer).status || 'neu') === 'neu').length;
+    $('bestellAnzahl').hidden = !n;
+    $('bestellAnzahl').textContent = n;
+}
+
+// Erst „Bezahlt“ schließt eine Bestellung ab
+const STATUS = [{ id: 'neu', name: 'Neu' }, { id: 'arbeit', name: 'In Arbeit' }, { id: 'erledigt', name: 'Erledigt' }, { id: 'bezahlt', name: 'Bezahlt' }];
+function renderBestellungen() {
+    if (rolle !== 'admin') return;
+    const alle = sichtbareBestellungen();
+    const st = b => statusVon(b.nummer).status || 'neu';
+    const offenB = b => st(b) !== 'bezahlt';
+    const liste = alle.filter(b => bestellAnsicht === 'alle' || (bestellAnsicht === 'bezahlt' ? !offenB(b) : offenB(b)));
+    const datum = t => new Date(t).toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' });
+    const modelleJetzt = modelle();
+    $('pageBestell').innerHTML = `
+        ${bestellRepoFehlt ? `<p class="bestell-hinweis">Das Bestell-Repo ist noch nicht eingerichtet: Anfragen aus der Galerie kommen vorerst nur per Mail (Anleitung in der README unter „Bestellungen einrichten“). Von Hand erfasste Bestellungen werden schon gespeichert.</p>` : ''}
+        <div class="bestell-leiste">
+            <div class="bestell-filter">${[['offen', 'Offen', alle.filter(offenB).length], ['bezahlt', 'Bezahlt', alle.filter(b => !offenB(b)).length], ['alle', 'Alle', alle.length]]
+                .map(([id, name, n]) => `<button type="button" class="chip${bestellAnsicht === id ? ' is-active' : ''}" data-bestell-ansicht="${id}">${name} <small>${n}</small></button>`).join('')}</div>
+            ${erfassen ? '' : `<button type="button" class="btn btn--dark" data-erfassen><svg class="icon"><use href="#i-plus"/></svg>Bestellung erfassen</button>`}
+        </div>
+        ${erfassen ? `<div id="erfassen">${erfassenHtml()}</div>` : ''}
+        ${liste.length ? `<div class="bestellungen">${liste.map(b => {
+            const s = statusVon(b.nummer);
+            return `<article class="bestellung is-${st(b)}">
+                <div class="bestellung__kopf">
+                    <div>
+                        <p class="bestellung__nr">${esc(b.nummer)} · ${datum(b.zeit)}${b.quelle === 'manuell' ? ' · von Hand erfasst' : ''}</p>
+                        <h3 class="bestellung__name">${esc(b.name)}</h3>
+                        ${b.tel ? `<p class="bestellung__kontakt"><a href="tel:${esc(b.tel.replace(/[^\d+]/g, ''))}"><svg class="icon"><use href="#i-phone"/></svg>${esc(b.tel)}</a></p>` : ''}
+                    </div>
+                    <div class="bestellung__summe"><strong>${euro(b.summe)}</strong><small>${b.positionen.reduce((n, p) => n + p.menge, 0)} Stück</small></div>
+                </div>
+                <div class="bestellung__pos">${b.positionen.map(p => `
+                    <div class="pos">
+                        <div class="pos__bild bildrahmen">${modelleJetzt.some(m => m.id === p.id) ? `<img data-bild="${esc(p.id)}" alt="">` : ''}</div>
+                        <div>
+                            <p class="pos__name">${p.menge} × ${esc(p.name)}</p>
+                            <p class="pos__info">${p.kat ? esc(p.kat) : ''}${p.id ? ` · Nr. ${esc(p.id)}` : ''}${p.eigen ? ` · ${p.eigen.gramm} g · ${dauer(p.eigen.stunden)}` : ''}${p.option ? ` · ${esc(p.art)}: <b>${esc(p.option)}</b>` : ''}</p>
+                            ${p.teile.length ? `<p class="pos__info">${p.teile.map(t => `${t.teil ? esc(t.teil) + ': ' : ''}${t.farbe ? `${dotHtml(t.hex)}${esc(t.farbe)}${t.material ? ` (${esc(t.material)})` : ''}${t.leer ? ' – momentan leer' : ''}` : 'Farbe nach Absprache'}`).join(' · ')}</p>` : ''}
+                        </div>
+                        <div class="pos__preis">${euro(p.einzelpreis * p.menge)}${p.menge > 1 ? `<small>je ${euro(p.einzelpreis)}</small>` : ''}</div>
+                    </div>`).join('')}
+                </div>
+                ${b.notiz ? `<p class="bestellung__notiz-kunde"><b>${b.quelle === 'manuell' ? 'Notiz' : 'Notiz vom Kunden'}</b>${esc(b.notiz)}</p>` : ''}
+                <div class="bestellung__fuss">
+                    <div class="seg seg--hell" role="group" aria-label="Status">${STATUS.map(x => `<button type="button" class="${st(b) === x.id ? 'is-active' : ''}" data-bestell-status="${esc(b.nummer)}" data-s="${x.id}">${x.name}</button>`).join('')}</div>
+                    <label class="feldx"><span>Meine Notiz</span><input type="text" value="${esc(s.notiz || '')}" data-bestell-notiz="${esc(b.nummer)}" placeholder="z. B. abgeholt am …"></label>
+                    <button type="button" class="bestellung__weg" data-bestell-weg="${esc(b.nummer)}">Löschen</button>
+                </div>
+            </article>`;
+        }).join('')}</div>` : `<div class="empty">${alle.length ? 'Keine Bestellungen in dieser Auswahl.' : 'Noch keine Bestellungen. Neue Anfragen erscheinen hier und kommen weiter per Mail.'}</div>`}`;
+    ladeBilder($('pageBestell'));
+}
+
+function bestellAendern(nr, aenderung) {
+    galerie.bestellstatus[nr] = { ...statusVon(nr), ...aenderung, updated: Date.now() };
+    speichern();
+    renderBestellAnzahl();
+    renderStats();
+}
+// Löschen ohne Rückfrage: sofort weg, 5 Sekunden „Rückgängig“, danach wird die Datei entfernt
+function bestellLoeschen(nr) {
+    const b = (bestellungen || []).find(x => x.nummer === nr);
+    if (!b) return;
+    bestellAendern(nr, { geloescht: true });
+    renderBestellungen();
+    const t = setTimeout(async () => {
+        if (!statusVon(nr).geloescht) return;
+        if (b.quelle === 'manuell') { delete galerie.manuell[nr]; speichern(); }
+        else if (!remote) schreibListe(VORSCHAU_BESTELLUNGEN, liesListe(VORSCHAU_BESTELLUNGEN).filter(x => x.nummer !== nr));
+        else if (b.datei) { try { await gh(BESTELL_REPO, b.datei.pfad, { method: 'DELETE', body: { message: `Bestellung ${nr} gelöscht`, sha: b.datei.sha } }); } catch (err) {} }
+        repoBestellungen = repoBestellungen.filter(x => x.nummer !== nr);
+        mischeBestellungen();
+    }, 5200);
+    toast(`Bestellung von ${b.name} gelöscht`, { text: 'Rückgängig', fn: () => {
+        clearTimeout(t);
+        bestellAendern(nr, { geloescht: false });
+        renderBestellungen();
+    } });
+}
+
+/* ---------- Bestellung von Hand erfassen (z. B. telefonisch oder im Laden) ----------
+   Wird in galerie.json unter manuell gespeichert (privates Daten-Repo), braucht kein Bestell-Repo. */
+let erfassen = null;   // { name, tel, notiz, positionen: [{ id, option, farben: [], menge, preis }] }
+// Eigenes Modell (nicht in der Galerie): Bezeichnung, Gramm und Stunden von Hand, Preis nach der Formel (×1) und änderbar
+const EIGEN = '_eigen';
+const neuePosition = () => ({ id: '', option: 0, farben: [], menge: 1, preis: 0, bezeichnung: '', gramm: 0, stunden: 0, preisFest: false });
+const eigenPreis = p => Math.max(.5, roundUpToHalfEuro(p.gramm * galerie.preise.gramm + p.stunden * galerie.preise.stunde));
+function positionSetzen(p, id) {
+    const m = modelle().find(x => x.id === id);
+    p.id = id;
+    if (id === EIGEN) { p.farben = [naechsteFarbe('')]; p.preisFest = false; p.preis = eigenPreis(p); return; }
+    p.option = m ? standardOption(m) : 0;
+    p.farben = m ? teileVon(m).map(t => naechsteFarbe(t.hex)) : [];
+    p.preis = m ? optPreis(m, p.option) : 0;
+}
+function erfassenHtml() {
+    const alle = modelle();
+    const kats = [...new Set(alle.map(m => m.kat))];
+    const summe = erfassen.positionen.reduce((s, p) => s + p.preis * p.menge, 0);
+    const farbAuswahl = (i, k, wert) => `<select data-e-farbe="${i}" data-teil="${k}"><option value="">Farbe nach Absprache</option>${farbListe().map(f => `<option value="${esc(f.id)}"${f.id === wert ? ' selected' : ''}>${esc(f.name)}${f.art ? ' · ' + esc(f.art) : ''}${f.verfuegbar ? '' : ' (leer)'}</option>`).join('')}</select>`;
+    return `<div class="erfassen">
+        <div class="erfassen__kopf"><h3>Bestellung erfassen</h3><button type="button" class="icon-btn" data-erfassen-zu aria-label="Abbrechen"><svg class="icon"><use href="#i-x"/></svg></button></div>
+        <div class="edit__raster">
+            <label class="feldx"><span>Name</span><input type="text" value="${esc(erfassen.name)}" data-e-feld="name" autocomplete="off"></label>
+            <label class="feldx"><span>Telefon <em>optional</em></span><input type="tel" value="${esc(erfassen.tel)}" data-e-feld="tel" autocomplete="off"></label>
+        </div>
+        ${erfassen.positionen.map((p, i) => {
+            const m = alle.find(x => x.id === p.id);
+            const ol = m && optionenVon(m);
+            const sichtbar = m ? (() => { const o = ol && ol[p.option]; const idx = teileVon(m).map((t, k) => k); return o && o.teile ? idx.filter(k => o.teile.includes(k)) : idx; })() : [];
+            return `<div class="erfassen__pos">
+                <div class="erfassen__zeile">
+                    <label class="feldx erfassen__modell"><span>Modell ${erfassen.positionen.length > 1 ? i + 1 : ''}</span><select data-e-pos="${i}" data-e-feld="id"><option value="">Modell wählen …</option><option value="${EIGEN}"${p.id === EIGEN ? ' selected' : ''}>Eigenes Modell (Druckzeit und Material selbst angeben)</option>${kats.map(k => `<optgroup label="${esc(k)}">${alle.filter(x => x.kat === k).sort((a, b) => a.name.localeCompare(b.name, 'de')).map(x => `<option value="${esc(x.id)}"${x.id === p.id ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+                    ${erfassen.positionen.length > 1 ? `<button type="button" class="mini-btn mini-btn--weg" data-e-weg="${i}" aria-label="Position entfernen"><svg class="icon"><use href="#i-x"/></svg></button>` : ''}
+                </div>
+                ${p.id === EIGEN ? `
+                <label class="feldx"><span>Bezeichnung</span><input type="text" value="${esc(p.bezeichnung)}" data-e-pos="${i}" data-e-feld="bezeichnung" placeholder="z. B. Namensschild Lisa"></label>
+                <div class="edit__raster">
+                    <label class="feldx"><span>Druckzeit</span><span class="einheit"><input type="number" min="0" step="any" inputmode="decimal" value="${p.stunden}" data-e-pos="${i}" data-e-feld="stunden"><span>h</span></span></label>
+                    <label class="feldx"><span>Material</span><span class="einheit"><input type="number" min="0" step="any" inputmode="decimal" value="${p.gramm}" data-e-pos="${i}" data-e-feld="gramm"><span>g</span></span></label>
+                    <label class="feldx"><span>Farbe</span>${farbAuswahl(i, 0, p.farben[0])}</label>
+                    <label class="feldx"><span>Menge</span><input type="number" min="1" step="1" value="${p.menge}" data-e-pos="${i}" data-e-feld="menge"></label>
+                    <label class="feldx"><span>Preis je Stück</span><span class="einheit"><input type="number" min="0" step="0.5" value="${p.preis}" data-e-pos="${i}" data-e-feld="preis"><span>€</span></span></label>
+                </div>
+                <p class="edit__hinweis">${p.preisFest ? `Preis von Hand gesetzt. Nach der Formel wären es ${euro(eigenPreis(p))}.` : `Preis nach der Formel (${euro(galerie.preise.gramm)} je g + ${euro(galerie.preise.stunde)} je h, auf 50 Cent aufgerundet). Du kannst ihn ändern.`}</p>`
+                : m ? `<div class="edit__raster">
+                    ${ol ? `<label class="feldx"><span>${esc(m.optionen.art)}</span><select data-e-pos="${i}" data-e-feld="option">${ol.map((o, k) => `<option value="${k}"${k === p.option ? ' selected' : ''}>${esc(o.name)}</option>`).join('')}</select></label>` : ''}
+                    ${sichtbar.map(k => `<label class="feldx"><span>${sichtbar.length > 1 ? esc(teileVon(m)[k].name) : 'Farbe'}</span>${farbAuswahl(i, k, p.farben[k])}</label>`).join('')}
+                    <label class="feldx"><span>Menge</span><input type="number" min="1" step="1" value="${p.menge}" data-e-pos="${i}" data-e-feld="menge"></label>
+                    <label class="feldx"><span>Preis je Stück</span><span class="einheit"><input type="number" min="0" step="0.5" value="${p.preis}" data-e-pos="${i}" data-e-feld="preis"><span>€</span></span></label>
+                </div>` : ''}
+            </div>`;
+        }).join('')}
+        <button type="button" class="text-btn" data-e-neu><svg class="icon"><use href="#i-plus"/></svg>Weiteres Modell</button>
+        <label class="feldx"><span>Notiz <em>optional</em></span><input type="text" value="${esc(erfassen.notiz)}" data-e-feld="notiz" placeholder="z. B. telefonisch bestellt, Abholung Samstag"></label>
+        <div class="erfassen__fuss">
+            <span class="erfassen__summe">Gesamt <strong>${euro(summe)}</strong></span>
+            <span class="summe__status" id="eStatus"></span>
+            <button type="button" class="btn btn--dark" data-e-speichern>Bestellung speichern</button>
+        </div>
+    </div>`;
+}
+function erfassenZeichnen() {
+    const y = window.scrollY;
+    $('erfassen').innerHTML = erfassenHtml();
+    window.scrollTo(0, y);
+}
+function erfassenAendern(el) {
+    const i = el.dataset.ePos, f = el.dataset.eFeld;
+    if (el.dataset.eFarbe !== undefined) { erfassen.positionen[+el.dataset.eFarbe].farben[+el.dataset.teil] = el.value; return; }
+    if (i === undefined) { erfassen[f] = el.value; return; }
+    const p = erfassen.positionen[+i], m = modelle().find(x => x.id === (f === 'id' ? el.value : p.id));
+    if (f === 'id') positionSetzen(p, el.value);
+    else if (f === 'option') { p.option = +el.value; p.preis = optPreis(m, p.option); }
+    else if (f === 'menge') p.menge = Math.max(1, Math.round(zahl(el.value)) || 1);
+    else if (f === 'preis') { p.preis = zahl(el.value); if (p.id === EIGEN) p.preisFest = true; }
+    else if (f === 'bezeichnung') { p.bezeichnung = el.value.trim(); return; }
+    else if (f === 'gramm' || f === 'stunden') { p[f] = zahl(el.value); if (!p.preisFest) p.preis = eigenPreis(p); }
+    erfassenZeichnen();
+}
+function erfassenSpeichern() {
+    const e = erfassen, alle = modelle();
+    const positionen = e.positionen.filter(p => p.id);
+    if (!e.name.trim()) { $('eStatus').textContent = 'Bitte einen Namen eingeben.'; return $('erfassen').querySelector('[data-e-feld="name"]').focus(); }
+    if (!positionen.length) { $('eStatus').textContent = 'Bitte mindestens ein Modell wählen.'; return; }
+    const d = new Date(), zwei = n => String(n).padStart(2, '0');
+    const nummer = `M-${d.getFullYear()}${zwei(d.getMonth() + 1)}${zwei(d.getDate())}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    if (positionen.some(p => p.id === EIGEN && !p.bezeichnung)) {
+        $('eStatus').textContent = 'Bitte dem eigenen Modell eine Bezeichnung geben.';
+        return $('erfassen').querySelector('[data-e-feld="bezeichnung"]')?.focus();
+    }
+    const pos = positionen.map(p => {
+        if (p.id === EIGEN) {
+            const f = farbListe().find(x => x.id === p.farben[0]);
+            return { id: '', name: p.bezeichnung, kat: 'Eigenes Modell', eigen: { gramm: p.gramm, stunden: p.stunden }, menge: p.menge, einzelpreis: p.preis,
+                teile: [{ teil: '', farbe: f ? f.name : '', material: f ? f.art || '' : '', hex: f ? f.hex : '', leer: !!(f && !f.verfuegbar) }] };
+        }
+        const m = alle.find(x => x.id === p.id), ol = optionenVon(m), o = ol && ol[p.option];
+        const idx = teileVon(m).map((t, k) => k), sichtbar = o && o.teile ? idx.filter(k => o.teile.includes(k)) : idx;
+        return {
+            id: m.id, name: m.name, kat: m.kat, menge: p.menge, einzelpreis: p.preis,
+            ...(o ? { art: m.optionen.art, option: o.name } : {}),
+            teile: sichtbar.map(k => { const f = farbListe().find(x => x.id === p.farben[k]); return { teil: sichtbar.length > 1 ? teileVon(m)[k].name : '', farbe: f ? f.name : '', material: f ? f.art || '' : '', hex: f ? f.hex : '', leer: !!(f && !f.verfuegbar) }; }),
+        };
+    });
+    galerie.manuell[nummer] = { nummer, zeit: Date.now(), name: e.name.trim(), tel: e.tel.trim(), notiz: e.notiz.trim(), positionen: pos, summe: pos.reduce((s, p) => s + p.einzelpreis * p.menge, 0), quelle: 'manuell', updated: Date.now() };
+    speichern();
+    erfassen = null;
+    bestellAnsicht = 'offen';
+    mischeBestellungen();
+    renderBestellungen();
+    renderStats();
+    toast(`Bestellung ${nummer} gespeichert`);
+}
+
 let offen = null;   // id des offenen Modells
 function oeffnen(id) {
     const m = modelle().find(x => x.id === id);
     if (!m) return;
     offen = id;
     const tags = [...m.saison, ...m.anlass].join(' · ');
-    $('sheet').innerHTML = `
-        <button type="button" class="icon-btn sheet__close" data-close aria-label="Schließen"><svg class="icon"><use href="#i-x"/></svg></button>
-        <div class="sheet__img"><img data-bild="${esc(m.id)}" alt=""></div>
-        <div class="sheet__body">
-            <div>
-                <div class="sheet__head">
-                    <div>
-                        <p class="label sheet__cat">${esc(m.kat)}</p>
-                        <h2 class="sheet__name">${esc(m.name)}</h2>
-                    </div>
-                    ${favHtml(m)}
-                </div>
-                ${tags ? `<p class="tags" style="margin-top:var(--space-2)">${esc(tags)}</p>` : ''}
-                ${(m.masse && m.masse.length) || isAdmin() ? `<div style="margin-top:var(--space-3)">${masseHtml(m)}</div>` : ''}
-            </div>
-            <div class="sheet__price"><strong id="sheetPrice">${euro(m.preis)}</strong><span>Preis</span></div>
-            <div class="buy">
-                ${optionenVon(m) ? `
+    const badges = badgesHtml(m);
+    const optionenHtml = optionenVon(m) ? `
                 <span class="label sub" style="margin:0">${esc(m.optionen.art)}</span>
                 <div class="opts" role="radiogroup" aria-label="${esc(m.optionen.art)}">${optionenVon(m).map((o, i) =>
                     `<button type="button" class="chip" role="radio" data-option="${i}">${esc(o.name)}</button>`).join('')}</div>
-                <p class="opts__info" id="optInfo"></p>` : ''}
+                <p class="opts__info" id="optInfo"></p>` : '';
+    $('sheet').innerHTML = `
+        <button type="button" class="icon-btn sheet__close" data-close aria-label="Schließen"><svg class="icon"><use href="#i-x"/></svg></button>
+        <div class="sheet__img bildrahmen">
+            <img data-bild="${esc(m.id)}" data-gross alt="">
+            ${isAdmin() ? `<label class="btn btn--light bild-btn"><svg class="icon"><use href="#i-image"/></svg>Bild ersetzen<input type="file" accept="image/*" data-bild-neu="${esc(m.id)}" hidden></label>` : ''}
+        </div>
+        <div class="sheet__body">
+            <div>
+                ${badges ? `<div class="sheet__badges">${badges}</div>` : ''}
+                <div class="sheet__head">
+                    <div>
+                        <p class="label sheet__cat" id="sheetKat">${esc(m.kat)}</p>
+                        <h2 class="sheet__name" id="sheetName">${esc(m.name)}</h2>
+                    </div>
+                    ${isAdmin() ? '' : favHtml(m)}
+                </div>
+                ${isAdmin() ? '' : `
+                ${tags ? `<p class="tags" style="margin-top:var(--space-2)">${esc(tags)}</p>` : ''}
+                ${m.masse && m.masse.length ? `<div style="margin-top:var(--space-3)">${masseHtml(m)}</div>` : ''}`}
+            </div>
+            <div class="sheet__price"><strong id="sheetPrice">${euro(m.preis)}</strong><span>Preis</span></div>
+            ${isAdmin() ? `
+            ${optionenHtml ? `<div class="buy">${optionenHtml}</div>` : ''}
+            <div class="sheet__admin">
+                <div>
+                    <span class="label sub">Multiplikator</span>
+                    <div id="sheetMult">${multHtml(m)}</div>
+                </div>
+                <div class="calc" id="sheetCalc"></div>
+                <div class="edit" id="edit"></div>
+                <a class="btn btn--dark" href="${mwLink(m)}" target="_blank" rel="noopener"><svg class="icon"><use href="#i-ext"/></svg>Auf MakerWorld öffnen</a>
+                <button type="button" class="sheet__delete" data-loeschen="${esc(m.id)}"><svg class="icon"><use href="#i-trash"/></svg>Modell löschen</button>
+            </div>` : `
+            <div class="buy">
+                ${optionenHtml}
                 <span class="label sub" style="margin:0" id="farbTitel"></span>
                 <div class="pick" id="pick"></div>
                 <div class="buy__row">
@@ -1639,25 +2237,9 @@ function oeffnen(id) {
                     <button type="button" class="btn btn--dark" id="inKorb"><svg class="icon"><use href="#i-cart"/></svg>In den Warenkorb</button>
                 </div>
             </div>
-            ${hinweise(m)}
-            ${isAdmin() ? `
-            <div class="sheet__admin">
-                <div class="facts">
-                    <div class="fact"><small>Druckzeit</small><b id="factZeit">${dauer(m.stunden)}</b></div>
-                    <div class="fact"><small>Filament</small><b id="factGramm">${m.gramm} g</b></div>
-                    <div class="fact"><small>Platten</small><b>${m.platten === 1 ? 'Ein Druck' : m.platten + ' Platten'}</b></div>
-                    <div class="fact"><small>AMS</small><b>${m.ams ? 'Ja, ' + m.farben + ' Farben' : (m.farben > 1 ? 'Nein, ' + m.farben + ' Farben getrennt' : 'Nein')}</b></div>
-                </div>
-                <div>
-                    <span class="label sub">Multiplikator</span>
-                    <div id="sheetMult">${multHtml(m)}</div>
-                </div>
-                <div class="calc" id="sheetCalc"></div>
-                <a class="btn btn--dark" href="${mwLink(m)}" target="_blank" rel="noopener"><svg class="icon"><use href="#i-ext"/></svg>Auf MakerWorld öffnen</a>
-                <p class="sheet__credit">Modell von ${esc(m.autor)} auf MakerWorld</p>
-                <button type="button" class="sheet__delete" data-loeschen="${esc(m.id)}"><svg class="icon"><use href="#i-trash"/></svg>Modell löschen</button>
-            </div>` : ''}
+            ${hinweise(m)}`}
         </div>`;
+    if (isAdmin()) renderEdit();
     startWahl(m);
     ladeBilder($('sheet'));
     $('modal').hidden = false;
@@ -1703,10 +2285,10 @@ function zeigeOption() {
     const o = optionenVon(m) && optionenVon(m)[wahl.option];
     if ($('optInfo')) $('optInfo').innerHTML = o && o.masse ? `<svg class="icon"><use href="#i-ruler"/></svg>${esc(o.masse)}` : '';
     $('sheetPrice').textContent = euro(optPreis(m, wahl.option));
+    if (isAdmin()) return rechnung();   // Admin: keine Farbwahl, dafür die Rechnung zur gewählten Größe
     const n = sichtbareTeile(m).length;
     $('farbTitel').textContent = n > 1 ? `Farben · ${n} Teile` : 'Farbe';
     renderPick();
-    if (isAdmin()) rechnung();
 }
 
 function renderPick(offenBei = -1) {
@@ -1752,6 +2334,7 @@ function rechnung() {
     if (!isAdmin() || !$('sheetCalc')) return;
     const m = galerie.modelle.find(x => x.id === offen);
     if (!m) return;
+    if (optionenVon(m) && wahl.option >= optionenVon(m).length) wahl.option = standardOption(m);
     const o = (optionenVon(m) && optionenVon(m)[wahl.option]) || m;   // gewählte Größe/Variante
     const g = grundpreis(o), p = galerie.preise;
     $('sheetCalc').innerHTML = `
@@ -1761,9 +2344,251 @@ function rechnung() {
         <div><span>× ${m.faktor}</span><span>${euro(g * m.faktor)}</span></div>
         <div><span>Auf 50 Cent aufgerundet</span><span>${euro(preisVon(m, o))}</span></div>`;
     $('sheetPrice').textContent = euro(preisVon(m, o));
-    $('factZeit').textContent = dauer(o.stunden);
-    $('factGramm').textContent = o.gramm + ' g';
     $('sheetMult').innerHTML = multHtml(m);
+}
+
+/* ==========================================================
+   Admin: alle Infos eines Modells bearbeiten
+   Jede Änderung landet sofort in galerie.json (wie der Multiplikator), Texte beim Verlassen des Feldes.
+========================================================== */
+
+const roh = id => galerie.modelle.find(x => x.id === id);   // das Modell, wie es in galerie.json steht
+const zahl = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) && n >= 0 ? n : 0; };
+
+function renderEdit() {
+    const m = roh(offen);
+    if (!m || !$('edit')) return;
+    const feld = (titel, inhalt) => `<label class="feldx"><span>${titel}</span>${inhalt}</label>`;
+    const eingabe = (f, wert, art = 'text') => `<input type="${art}" ${art === 'number' ? 'step="any" min="0" inputmode="decimal"' : ''} value="${esc(wert ?? '')}" data-feld="${f}" data-id="${esc(m.id)}">`;
+    const chips = (gruppe, liste, aktiv) => `<div class="chips">${liste.map(v => { const id = v.id || v; return `<button type="button" class="chip${aktiv.includes(id) ? ' is-active' : ''}" data-umschalten="${gruppe}" data-v="${esc(id)}">${esc(id)}</button>`; }).join('')}</div>`;
+    const ol = (m.optionen && m.optionen.liste) || [];
+    const opt = ol.length ? m.optionen.art : '';
+    $('edit').innerHTML = `
+        <div class="edit__gruppe">
+            <span class="label sub" style="margin:0">Allgemein</span>
+            ${feld('Name', eingabe('name', m.name))}
+            <div class="edit__raster">
+                ${feld('Kategorie', `<select data-feld="kat" data-id="${esc(m.id)}">${KATEGORIEN.map(k => `<option${k === m.kat ? ' selected' : ''}>${esc(k)}</option>`).join('')}</select>`)}
+                ${feld('Ersteller', eingabe('autor', m.autor))}
+            </div>
+            <label class="feldx feldx--zeile"><span>Set (Banner „Set“ für Kunden)</span><input type="checkbox" class="schalter" data-feld="set" data-id="${esc(m.id)}"${m.set ? ' checked' : ''}></label>
+            <div class="feldx"><span>Saison</span>${chips('saison', SAISONEN, m.saison)}</div>
+            <div class="feldx"><span>Anlass</span>${chips('anlass', ANLAESSE, m.anlass)}</div>
+            ${feld('Maße (eine Zeile pro Größe, z. B. „Groß: 112 × 112 × 95 mm“)', `<textarea rows="${Math.max(2, (m.masse || []).length + 1)}" data-feld="masse" data-id="${esc(m.id)}">${esc((m.masse || []).join('\n'))}</textarea>`)}
+        </div>
+        <div class="edit__gruppe">
+            <span class="label sub" style="margin:0">Druck</span>
+            <div class="edit__raster">
+                ${opt ? '' : feld('Gramm', eingabe('gramm', m.gramm, 'number')) + feld('Stunden', eingabe('stunden', m.stunden, 'number'))}
+                ${feld('Platten', eingabe('platten', m.platten, 'number'))}
+                ${feld('Farben', eingabe('farben', m.farben, 'number'))}
+            </div>
+            ${opt ? '<p class="edit__hinweis">Gramm und Druckzeit stehen unten bei den Größen/Varianten. Die Standard-Auswahl ist der Grundwert des Modells.</p>' : ''}
+            <label class="feldx feldx--zeile"><span>Mit AMS (mehrere Farben auf einer Platte)</span><input type="checkbox" class="schalter" data-feld="ams" data-id="${esc(m.id)}"${m.ams ? ' checked' : ''}></label>
+            ${feld('MakerWorld-Link (Teil nach der Nummer)', eingabe('slug', m.slug))}
+        </div>
+        <div class="edit__gruppe">
+            <div class="edit__titel"><span class="label sub" style="margin:0">Teile mit eigener Farbe</span><button type="button" class="text-btn" data-teil-neu><svg class="icon"><use href="#i-plus"/></svg>Teil</button></div>
+            ${(m.teile || []).length ? `<div class="zeilen">${m.teile.map((t, i) => `
+                <div class="zeilen__zeile zeilen__zeile--teil">
+                    <input type="text" value="${esc(t.name)}" data-teil="${i}" data-teil-feld="name" placeholder="z. B. Stängel" aria-label="Name des Teils">
+                    <input type="color" value="${esc(/^#[0-9a-f]{6}$/i.test(t.hex) ? t.hex : '#cccccc')}" data-teil="${i}" data-teil-feld="hex" aria-label="Farbe auf dem Foto">
+                    <button type="button" class="mini-btn mini-btn--weg" data-teil-weg="${i}" aria-label="Teil entfernen"><svg class="icon"><use href="#i-x"/></svg></button>
+                </div>`).join('')}</div>
+                <p class="edit__hinweis">Die Farbe ist die Farbe auf dem Foto. Kunden bekommen die ähnlichste Lagerfarbe vorgeschlagen. Ab zwei Teilen sehen Kunden ein Farbmenü pro Teil.</p>`
+            : '<p class="edit__hinweis">Einfarbig. Für mehrfarbige Modelle Teile hinzufügen.</p>'}
+        </div>
+        <div class="edit__gruppe">
+            <div class="edit__titel">
+                <span class="label sub" style="margin:0">Größen / Varianten</span>
+                <select data-opt-art aria-label="Art der Auswahl" style="width:auto;height:2rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-background);padding:0 var(--space-2)">
+                    ${['', 'Größe', 'Variante'].map(a => `<option value="${a}"${a === opt ? ' selected' : ''}>${a || 'Keine'}</option>`).join('')}
+                </select>
+            </div>
+            ${opt ? `<div class="zeilen">
+                <div class="zeilen__zeile zeilen__zeile--opt zeilen__kopf"><span>Name</span><span>Maße</span><span>Gramm</span><span>Std.</span><span title="Standard">Std.-Wahl</span><span></span></div>
+                ${ol.map((o, i) => `
+                <div class="zeilen__zeile zeilen__zeile--opt">
+                    <input class="o-name" type="text" value="${esc(o.name)}" data-opt="${i}" data-opt-feld="name" placeholder="Name" aria-label="Name">
+                    <input class="o-masse" type="text" value="${esc(o.masse || '')}" data-opt="${i}" data-opt-feld="masse" placeholder="Maße" aria-label="Maße">
+                    <label class="o-g einheit"><input type="number" step="any" min="0" inputmode="decimal" value="${o.gramm}" data-opt="${i}" data-opt-feld="gramm" aria-label="Gramm" title="${o.geschaetzt ? 'geschätzt' : 'Gramm'}"><span>g${o.geschaetzt ? ' ~' : ''}</span></label>
+                    <label class="o-h einheit"><input type="number" step="any" min="0" inputmode="decimal" value="${o.stunden}" data-opt="${i}" data-opt-feld="stunden" aria-label="Stunden" title="${o.geschaetzt ? 'geschätzt' : 'Stunden'}"><span>h${o.geschaetzt ? ' ~' : ''}</span></label>
+                    <input class="o-std" type="radio" name="optStandard" ${o.standard ? 'checked' : ''} data-opt="${i}" data-opt-feld="standard" aria-label="Standard-Auswahl" title="Vorauswahl für Kunden">
+                    <button type="button" class="mini-btn mini-btn--weg o-weg" data-opt-weg="${i}" aria-label="Entfernen"><svg class="icon"><use href="#i-x"/></svg></button>
+                </div>`).join('')}
+            </div>
+            <button type="button" class="text-btn" data-opt-neu><svg class="icon"><use href="#i-plus"/></svg>${esc(opt)} hinzufügen</button>
+            <p class="edit__hinweis">Der Punkt rechts markiert die Vorauswahl für Kunden. „~“ heißt geschätzt.</p>`
+            : '<p class="edit__hinweis">Keine Auswahl. Mit „Größe“ oder „Variante“ bekommt jede Auswahl einen eigenen Preis.</p>'}
+        </div>
+        <p class="edit__hinweis">Modell-Nr. ${esc(m.id)} · Änderungen werden sofort gespeichert.</p>`;
+}
+
+// Nach einer Änderung: speichern und alles neu zeichnen, was davon abhängt.
+// Aus der Listenansicht wird nur die Zeile aktualisiert, damit der Cursor im nächsten Feld bleibt.
+function geaendert(m, editNeu, ausListe) {
+    if (ausListe) {
+        m.updated = Date.now();
+        speichern();
+        const zeile = document.querySelector(`.reihe [data-id="${CSS.escape(m.id)}"]`)?.closest('.reihe');
+        const v = { ...m, ...mitOptionen(m, false) };
+        if (zeile) zeile.querySelector('.reihe__preis').textContent = (v.ab ? 'ab ' : '') + euro(v.preis);
+        renderStats();
+        return;
+    }
+    m.updated = Date.now();
+    speichern();
+    if (offen === m.id && $('sheetName')) {
+        $('sheetName').textContent = m.name;
+        $('sheetKat').textContent = m.kat;
+        const b = $('sheet').querySelector('.sheet__badges');
+        if (b) b.innerHTML = badgesHtml(m); else if (m.set) $('sheetKat').closest('.sheet__head').insertAdjacentHTML('beforebegin', `<div class="sheet__badges">${badgesHtml(m)}</div>`);
+        rechnung();
+        if (editNeu) renderEdit();
+    }
+    renderStats();
+    renderFilter();
+    if (!alsListe() || !offen) renderGalerie();
+}
+// Bei Größen/Varianten ist die Standard-Auswahl der Grundwert des Modells
+function standardUebernehmen(m) {
+    const ol = m.optionen && m.optionen.liste;
+    if (!ol || !ol.length) { delete m.optionen; return; }
+    if (!ol.some(o => o.standard)) ol[0].standard = true;
+    const s = ol.find(o => o.standard);
+    m.gramm = s.gramm; m.stunden = s.stunden;
+}
+
+function aendereFeld(id, feld, el, ausListe) {
+    const m = roh(id);
+    if (!m) return;
+    if (feld === 'set' || feld === 'ams') { if (el.checked) m[feld] = true; else delete m[feld]; }
+    else if (feld === 'masse') m.masse = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+    else if (['gramm', 'stunden', 'platten', 'farben'].includes(feld)) m[feld] = feld === 'platten' || feld === 'farben' ? Math.max(1, Math.round(zahl(el.value))) : zahl(el.value);
+    else {
+        const v = el.value.trim();
+        if (feld === 'name' && !v) { el.value = m.name; return; }
+        m[feld] = v;
+    }
+    geaendert(m, feld === 'masse' || feld === 'ams', ausListe);
+}
+
+function aendereEdit(el) {
+    const m = roh(offen);
+    if (!m) return;
+    if (el.dataset.teilFeld) {
+        const t = m.teile[+el.dataset.teil];
+        t[el.dataset.teilFeld] = el.dataset.teilFeld === 'hex' ? el.value.toUpperCase() : el.value.trim();
+        return geaendert(m, false);
+    }
+    if (el.dataset.optFeld) {
+        const ol = m.optionen.liste, o = ol[+el.dataset.opt], f = el.dataset.optFeld;
+        if (f === 'standard') ol.forEach((x, i) => { if (i === +el.dataset.opt) x.standard = true; else delete x.standard; });
+        else if (f === 'gramm' || f === 'stunden') { o[f] = zahl(el.value); delete o.geschaetzt; }
+        else if (f === 'masse') { if (el.value.trim()) o.masse = el.value.trim(); else delete o.masse; }
+        else o.name = el.value.trim() || o.name;
+        standardUebernehmen(m);
+        return geaendert(m, false);
+    }
+    if ('optArt' in el.dataset) {
+        if (!el.value) {
+            if (m.optionen) merkeFuerRueckgaengig(m, 'Größen/Varianten entfernt');
+            delete m.optionen;
+        } else if (m.optionen) m.optionen.art = el.value;
+        else m.optionen = { art: el.value, liste: [{ name: el.value === 'Größe' ? 'Normal' : 'Standard', gramm: m.gramm, stunden: m.stunden, standard: true }, { name: '', gramm: m.gramm, stunden: m.stunden }] };
+        wahl.option = standardOption(m);
+        neuOeffnen(m.id);   // Auswahlknöpfe oben neu aufbauen
+        return geaendert(m, true);
+    }
+}
+
+// Entfernen ohne Rückfrage: vorher Teile und Größen merken, 5 Sekunden lang „Rückgängig“
+function merkeFuerRueckgaengig(m, text) {
+    const vorher = JSON.parse(JSON.stringify({ teile: m.teile, optionen: m.optionen, gramm: m.gramm, stunden: m.stunden }));
+    setTimeout(() => toast(text, { text: 'Rückgängig', fn: () => {
+        for (const [k, v] of Object.entries(vorher)) { if (v === undefined) delete m[k]; else m[k] = v; }
+        wahl.option = standardOption(m);
+        if (offen === m.id) neuOeffnen(m.id);
+        geaendert(m, true);
+    } }), 0);
+}
+
+function editKlick(e) {
+    const m = roh(offen);
+    if (!m) return false;
+    const u = e.target.closest('[data-umschalten]');
+    if (u) {
+        const liste = m[u.dataset.umschalten], v = u.dataset.v;
+        m[u.dataset.umschalten] = liste.includes(v) ? liste.filter(x => x !== v) : [...liste, v];
+        u.classList.toggle('is-active');
+        geaendert(m, false);
+        return true;
+    }
+    if (e.target.closest('[data-teil-neu]')) { m.teile = [...(m.teile || []), { name: '', hex: '#CCCCCC' }]; geaendert(m, true); $('edit').querySelector(`[data-teil="${m.teile.length - 1}"]`)?.focus(); return true; }
+    const tw = e.target.closest('[data-teil-weg]');
+    if (tw) {
+        merkeFuerRueckgaengig(m, `Teil „${m.teile[+tw.dataset.teilWeg].name || 'ohne Namen'}“ entfernt`);
+        m.teile.splice(+tw.dataset.teilWeg, 1);
+        if (!m.teile.length) delete m.teile;
+        // Teil-Nummern in Größen/Varianten stimmen danach nicht mehr: dort die Teile-Zuordnung entfernen
+        (m.optionen?.liste || []).forEach(o => delete o.teile);
+        geaendert(m, true);
+        return true;
+    }
+    if (e.target.closest('[data-opt-neu]')) { m.optionen.liste.push({ name: '', gramm: m.gramm, stunden: m.stunden }); neuOeffnen(m.id); geaendert(m, true); return true; }
+    const ow = e.target.closest('[data-opt-weg]');
+    if (ow) {
+        merkeFuerRueckgaengig(m, `„${m.optionen.liste[+ow.dataset.optWeg].name || 'Eintrag'}“ entfernt`);
+        m.optionen.liste.splice(+ow.dataset.optWeg, 1);
+        standardUebernehmen(m);
+        wahl.option = standardOption(m);
+        neuOeffnen(m.id);
+        geaendert(m, true);
+        return true;
+    }
+    return false;
+}
+// Modellfenster neu aufbauen, ohne nach oben zu springen
+function neuOeffnen(id) {
+    const y = $('sheet').scrollTop;
+    oeffnen(id);
+    $('sheet').scrollTop = y;
+}
+
+/* Bild ersetzen: ganz lassen, groß (1400 px) und klein (640 px) als JPEG ins Schaufenster-Repo */
+async function bildErsetzen(id, datei) {
+    const m = roh(id);
+    if (!m || !datei) return;
+    toast('Bild wird vorbereitet …');
+    const bmp = await createImageBitmap(datei);
+    const alsJpeg = max => new Promise(ok => {
+        const f = Math.min(1, max / Math.max(bmp.width, bmp.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(bmp.width * f); c.height = Math.round(bmp.height * f);
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(bmp, 0, 0, c.width, c.height);
+        c.toBlob(ok, 'image/jpeg', .86);
+    });
+    const [gross, klein] = await Promise.all([alsJpeg(1400), alsJpeg(640)]);
+    if (remote) {
+        setStatus('saving', 'Bild wird hochgeladen …');
+        const b64 = blob => new Promise(ok => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.readAsDataURL(blob); });
+        try {
+            const [g64, k64] = await Promise.all([b64(gross), b64(klein)]);
+            const r1 = await gh(remote.schaufenster, `bilder/${id}.jpg`, { method: 'PUT', body: { message: `Bild ${id}`, content: g64, ...(bildShas[id] ? { sha: bildShas[id] } : {}) } });
+            const r2 = await gh(remote.schaufenster, `bilder/klein/${id}.jpg`, { method: 'PUT', body: { message: `Bild ${id} klein`, content: k64, ...(bildShasK[id] ? { sha: bildShasK[id] } : {}) } });
+            bildShas[id] = r1.content.sha; bildShasK[id] = r2.content.sha;
+        } catch (err) {
+            setStatus('error', 'Bild nicht gespeichert · antippen');
+            return toast('Das Bild konnte nicht hochgeladen werden.');
+        }
+    }
+    bildUrls.set(id + '|g', { sh: bildShas[id] || 'lokal', url: URL.createObjectURL(gross) });
+    bildUrls.set(id + '|k', { sh: bildShasK[id] || 'lokal', url: URL.createObjectURL(klein) });
+    geaendert(m, false);
+    ladeBilder($('sheet'));
+    toast('Neues Bild gespeichert');
 }
 function schliessen() {
     $('modal').hidden = true;
@@ -1784,15 +2609,15 @@ function toast(text, aktion) {
     }
     $('toast').classList.add('is-visible');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => $('toast').classList.remove('is-visible'), aktion ? 7000 : 2600);
+    toastTimer = setTimeout(() => $('toast').classList.remove('is-visible'), aktion ? 5000 : 2600);
 }
 
-// Admin: Modell löschen. Bleibt 90 Tage in geloescht vermerkt, damit es auf allen Geräten verschwindet.
+// Admin: Modell löschen, ohne Rückfrage; 5 Sekunden lang „Rückgängig“.
+// Bleibt 90 Tage in geloescht vermerkt, damit es auf allen Geräten verschwindet.
 function loeschen(id) {
     const i = galerie.modelle.findIndex(x => x.id === id);
     if (i < 0) return;
     const m = galerie.modelle[i];
-    if (!confirm(`„${m.name}“ wirklich löschen?\nDas Modell verschwindet auch bei den Kunden.`)) return;
     galerie.modelle.splice(i, 1);
     galerie.geloescht[id] = Date.now();
     speichern();
@@ -1833,8 +2658,29 @@ $('resetFilter').addEventListener('click', () => {
     renderGalerie();
 });
 $('sort').addEventListener('change', e => { filter.sort = e.target.value; renderGalerie(); });
+$('filterBtn').addEventListener('click', () => filterAuf($('filterBox').hidden));
+$('darstellung').addEventListener('click', e => {
+    const b = e.target.closest('[data-darstellung]');
+    if (!b || b.dataset.darstellung === darstellung) return;
+    darstellung = b.dataset.darstellung;
+    try { localStorage.setItem('bergliacht-galerie-darstellung', darstellung); } catch (err) {}
+    renderFilter();
+    renderGalerie();
+});
+
+// Bearbeiten (Admin): Felder in der Liste und im Modellfenster, Bild ersetzen
+document.addEventListener('change', e => {
+    if (rolle !== 'admin') return;
+    const el = e.target;
+    if (el.closest('#erfassen')) return erfassenAendern(el);
+    if (el.dataset.bildNeu) return bildErsetzen(el.dataset.bildNeu, el.files[0]);
+    if (el.dataset.feld && el.dataset.id) return aendereFeld(el.dataset.id, el.dataset.feld, el, !!el.closest('.reihe'));
+    if (el.closest('#edit')) return aendereEdit(el);
+    if (el.dataset.bestellNotiz) return bestellAendern(el.dataset.bestellNotiz, { notiz: el.value.trim() });
+});
 
 document.addEventListener('click', e => {
+    if (rolle === 'admin' && offen && e.target.closest('#edit') && editKlick(e)) return;
     const mult = e.target.closest('[data-mult]');
     if (mult && rolle === 'admin') {
         const m = galerie.modelle.find(x => x.id === mult.dataset.mult);
@@ -1853,6 +2699,20 @@ document.addEventListener('click', e => {
     if (fav) return toggleMerk(fav.dataset.fav, fav);
     const open = e.target.closest('[data-open]');
     if (open) { schliesseMerk(); return oeffnen(open.dataset.open); }
+    // Bestellungen (Admin)
+    const ba = e.target.closest('[data-bestell-ansicht]');
+    if (ba) { bestellAnsicht = ba.dataset.bestellAnsicht; return renderBestellungen(); }
+    const bs = e.target.closest('[data-bestell-status]');
+    if (bs) { bestellAendern(bs.dataset.bestellStatus, { status: bs.dataset.s }); return renderBestellungen(); }
+    const bw = e.target.closest('[data-bestell-weg]');
+    if (bw) return bestellLoeschen(bw.dataset.bestellWeg);
+    // Bestellung von Hand erfassen
+    if (e.target.closest('[data-erfassen]')) { erfassen = { name: '', tel: '', notiz: '', positionen: [neuePosition()] }; renderBestellungen(); $('erfassen').querySelector('[data-e-feld="name"]').focus(); return; }
+    if (e.target.closest('[data-erfassen-zu]')) { erfassen = null; return renderBestellungen(); }
+    if (e.target.closest('[data-e-neu]')) { erfassen.positionen.push(neuePosition()); return erfassenZeichnen(); }
+    const ew = e.target.closest('[data-e-weg]');
+    if (ew) { erfassen.positionen.splice(+ew.dataset.eWeg, 1); return erfassenZeichnen(); }
+    if (e.target.closest('[data-e-speichern]')) return erfassenSpeichern();
     if (e.target.closest('[data-close]')) return schliessen();
     if (e.target.closest('[data-drawer-close]')) return schliesseMerk();
 
@@ -1958,6 +2818,11 @@ async function decrypt(keyBytes, eintrag) {
     const plain = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, encKey, data);
     return JSON.parse(new TextDecoder().decode(plain));
 }
+// Kunden: der Bestell-Token liegt im Eintrag „bestellung“, mit demselben Schlüssel wie der Kunden-Zugang verschlüsselt
+async function mitBestellzugang(r, keyBytes, access) {
+    if (r !== 'kunde' || !zugang.bestellung) return access;
+    try { return { ...access, bestellung: await decrypt(keyBytes, zugang.bestellung) }; } catch (e) { return access; }
+}
 function rememberKey(r, keyBytes) {
     try { localStorage.setItem(KEY_STORE, JSON.stringify({ rolle: r, salt: zugang[r].salt, key: toB64(keyBytes) })); } catch (e) {}
 }
@@ -1986,6 +2851,8 @@ async function start(r, access) {
         try { farben = await (await fetch('vorschau/farben.json', { cache: 'no-store' })).json(); } catch (e) { farben = { farben: [] }; }
     }
     started = true;
+    try { filterAuf(localStorage.getItem('bergliacht-galerie-filter') === 'auf'); } catch (e) { filterAuf(false); }
+    if (!remote && rolle === 'admin') holeBestellungen();
     $('lock').classList.add('is-leaving');
     document.body.classList.remove('is-locked');
     if (remote && !cached) {
@@ -2020,7 +2887,7 @@ lockForm.addEventListener('submit', async (e) => {
             try { access = await decrypt(key, zugang[r]); } catch (err) { continue; }
             if ($('lockRemember').checked) rememberKey(r, key); else forgetKey();
             lockInput.value = '';
-            return start(r, access);
+            return start(r, await mitBestellzugang(r, key, access));
         }
         fail('Das Passwort stimmt nicht.');
     } catch (err) {
@@ -2047,7 +2914,7 @@ $('logoutLink').addEventListener('click', logout);
     $('lockHint').hidden = !!zugang;
     const s = zugang && storedKey();
     if (s) {
-        try { return start(s.rolle, await decrypt(s.key, zugang[s.rolle])); } catch (e) { forgetKey(); }
+        try { return start(s.rolle, await mitBestellzugang(s.rolle, s.key, await decrypt(s.key, zugang[s.rolle]))); } catch (e) { forgetKey(); }
     }
     $('lock').classList.remove('is-checking');
     lockInput.focus();
